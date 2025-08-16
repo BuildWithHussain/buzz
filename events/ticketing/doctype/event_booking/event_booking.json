@@ -8,6 +8,7 @@
   "event",
   "column_break_cjxu",
   "user",
+  "coupon_used",
   "section_break_xvkp",
   "attendees",
   "section_break_tsys",
@@ -61,6 +62,12 @@
    "label": "User",
    "options": "User",
    "reqd": 1
+  },
+  {
+   "fieldname": "coupon_used",
+   "fieldtype": "Link",
+   "label": "Coupon Used",
+   "options": "Bulk Ticket Coupon"
   },
   {
    "fieldname": "section_break_tsys",

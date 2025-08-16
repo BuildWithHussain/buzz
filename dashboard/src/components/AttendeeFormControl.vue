@@ -48,6 +48,7 @@
 						value: tt.name,
 					}))
 				"
+				:disabled="props.isTicketTypeReadOnly"
 			/>
 		</div>
 
@@ -86,12 +87,13 @@
 import { Tooltip } from "frappe-ui";
 import { formatPrice } from "../utils/currency.js";
 
-defineProps({
+const props = defineProps({
 	attendee: { type: Object, required: true },
 	index: { type: Number, required: true },
 	availableTicketTypes: { type: Array, required: true },
 	availableAddOns: { type: Array, required: true },
 	showRemove: { type: Boolean, default: false },
+	isTicketTypeReadOnly: { type: Boolean, default: false },
 });
 
 defineEmits(["remove"]);

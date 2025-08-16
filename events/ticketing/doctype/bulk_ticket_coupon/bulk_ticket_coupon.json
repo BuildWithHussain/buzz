@@ -10,6 +10,8 @@
   "event",
   "column_break_sweb",
   "ticket_type",
+  "section_break_megk",
+  "free_add_ons",
   "section_break_hqtj",
   "number_of_granted_tickets",
   "column_break_rmbf",
@@ -68,6 +70,16 @@
    "label": "Number of Granted Tickets",
    "non_negative": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_megk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "free_add_ons",
+   "fieldtype": "Table",
+   "label": "Free Add-ons",
+   "options": "Free Add On"
   }
  ],
  "grid_page_length": 50,
@@ -78,7 +90,7 @@
    "link_fieldname": "coupon_used"
   }
  ],
- "modified": "2025-08-14 17:42:43.678044",
+ "modified": "2025-08-16 15:47:27.872130",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Bulk Ticket Coupon",

@@ -24,6 +24,7 @@ class EventBooking(Document):
 
 		amended_from: DF.Link | None
 		attendees: DF.Table[EventBookingAttendee]
+		coupon_used: DF.Link | None
 		currency: DF.Link
 		event: DF.Link
 		total_amount: DF.Currency
@@ -40,12 +41,44 @@ class EventBooking(Document):
 
 	def set_total(self):
 		self.total_amount = 0
+
+		# Get coupon info if coupon is used
+		coupon_doc = None
+		coupon_free_add_ons = set()
+		if self.coupon_used:
+			coupon_doc = frappe.get_cached_doc("Bulk Ticket Coupon", self.coupon_used)
+			# Get list of free add-on names from the coupon
+			for free_add_on in coupon_doc.free_add_ons:
+				coupon_free_add_ons.add(free_add_on.add_on)
+
 		for attendee in self.attendees:
-			self.total_amount += attendee.amount
+			# Check if this attendee's ticket is covered by coupon (free)
+			is_coupon_ticket = coupon_doc and str(attendee.ticket_type) == str(coupon_doc.ticket_type)
+
+			if not is_coupon_ticket:
+				self.total_amount += attendee.amount
+
+			# Handle add-ons
 			if attendee.add_ons:
-				attendee.add_on_total = attendee.get_add_on_total()
+				attendee.add_on_total = self.get_attendee_add_on_total(attendee.add_ons, coupon_free_add_ons)
 				attendee.number_of_add_ons = attendee.get_number_of_add_ons()
 				self.total_amount += attendee.add_on_total
+
+	def get_attendee_add_on_total(self, add_ons_doc_name, coupon_free_add_ons):
+		"""Calculate add-on total considering free add-ons from coupon."""
+		if not add_ons_doc_name:
+			return 0
+
+		doc = frappe.get_cached_doc("Attendee Ticket Add-on", add_ons_doc_name)
+		add_ons = doc.add_ons
+		total = 0
+
+		for add_on in add_ons:
+			# If this add-on is in the coupon's free add-ons, don't charge for it
+			if add_on.add_on not in coupon_free_add_ons:
+				total += add_on.price
+
+		return total
 
 	def validate_ticket_availability(self):
 		num_tickets_by_type = {}
@@ -77,6 +110,7 @@ class EventBooking(Document):
 			ticket.ticket_type = attendee.ticket_type
 			ticket.attendee_name = attendee.full_name
 			ticket.attendee_email = attendee.email
+			ticket.coupon_used = self.coupon_used
 
 			if attendee.add_ons:
 				add_ons_list = frappe.get_cached_doc("Attendee Ticket Add-on", attendee.add_ons).add_ons
