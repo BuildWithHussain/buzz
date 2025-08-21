@@ -9,6 +9,11 @@ const routes = [
 		component: () => import("@/pages/Dashboard.vue"),
 	},
 	{
+		path: "/checkin-scanner",
+		name: "checkin-scanner",
+		component: () => import("@/pages/CheckInScanner.vue"),
+	},
+	{
 		path: "/book-tickets/:eventRoute",
 		props: true,
 		name: "event-booking",

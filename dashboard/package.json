@@ -15,6 +15,7 @@
     "canvas-confetti": "^1.9.3",
     "feather-icons": "^4.29.2",
     "frappe-ui": "^0.1.188",
+    "html5-qrcode": "^2.3.8",
     "socket.io-client": "^4.7.2",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

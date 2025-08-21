@@ -658,3 +658,135 @@ def create_cancellation_request(booking_id: str, ticket_ids: list | None = None)
 		"message": "Cancellation request submitted successfully.",
 		"cancellation_request": cancellation_request.name,
 	}
+
+
+@frappe.whitelist()
+def validate_ticket_for_checkin(ticket_id: str) -> dict:
+	"""Validate a ticket for check-in without requiring user authentication."""
+	try:
+		# Check if ticket exists
+		if not frappe.db.exists("Event Ticket", ticket_id):
+			return {
+				"success": False,
+				"error": "Ticket not found",
+				"message": "The scanned ticket ID does not exist.",
+			}
+
+		# Get ticket details
+		ticket_doc = frappe.get_cached_doc("Event Ticket", ticket_id)
+
+		# Get event details
+		event_doc = frappe.get_cached_doc("FE Event", ticket_doc.event)
+
+		# Get booking details
+		booking_doc = (
+			frappe.get_cached_doc("Event Booking", ticket_doc.booking) if ticket_doc.booking else None
+		)
+
+		# Get ticket type details
+		ticket_type_doc = (
+			frappe.get_cached_doc("Event Ticket Type", ticket_doc.ticket_type)
+			if ticket_doc.ticket_type
+			else None
+		)
+
+		# Check if booking is confirmed
+		if booking_doc and booking_doc.docstatus != 1:
+			return {
+				"success": False,
+				"error": "Invalid ticket",
+				"message": "This ticket is not confirmed and cannot be used for check-in.",
+			}
+
+		# Check if ticket is already checked in
+		existing_checkin = frappe.db.exists("Event Check In", {"ticket": ticket_id})
+		if existing_checkin:
+			checkin_doc = frappe.get_doc("Event Check In", existing_checkin)
+			return {
+				"success": False,
+				"error": "Already checked in",
+				"message": f"This ticket was already checked in on {checkin_doc.creation}.",
+				"ticket": {
+					"id": ticket_doc.name,
+					"attendee_name": ticket_doc.attendee_name,
+					"attendee_email": ticket_doc.attendee_email,
+					"event_title": event_doc.title,
+					"ticket_type": ticket_type_doc.title if ticket_type_doc else ticket_doc.ticket_type,
+					"check_in_time": checkin_doc.creation,
+					"is_checked_in": True,
+				},
+			}
+
+		# Get add-ons
+		add_ons = frappe.db.get_all(
+			"Ticket Add-on Value",
+			filters={"parent": ticket_id},
+			fields=["add_on", "add_on.title as add_on_title", "value", "price", "currency"],
+		)
+
+		return {
+			"success": True,
+			"message": "Valid ticket ready for check-in",
+			"ticket": {
+				"id": ticket_doc.name,
+				"attendee_name": ticket_doc.attendee_name,
+				"attendee_email": ticket_doc.attendee_email,
+				"event_title": event_doc.title,
+				"ticket_type": ticket_type_doc.title if ticket_type_doc else ticket_doc.ticket_type,
+				"venue": event_doc.venue,
+				"start_date": event_doc.start_date,
+				"start_time": event_doc.start_time,
+				"end_date": event_doc.end_date,
+				"end_time": event_doc.end_time,
+				"is_checked_in": False,
+				"check_in_time": None,
+				"booking_id": ticket_doc.booking,
+				"add_ons": add_ons,
+				"amount": booking_doc.total_amount if booking_doc else 0,
+				"currency": booking_doc.currency if booking_doc else "USD",
+			},
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error validating ticket for check-in: {e!s}")
+		return {
+			"success": False,
+			"error": "System error",
+			"message": "An error occurred while validating the ticket. Please try again.",
+		}
+
+
+@frappe.whitelist()
+def checkin_ticket(ticket_id: str) -> dict:
+	"""Check in a ticket."""
+	try:
+		# Validate ticket first
+		validation_result = validate_ticket_for_checkin(ticket_id)
+
+		if not validation_result["success"]:
+			return validation_result
+
+		# Create check-in record
+		checkin_doc = frappe.new_doc("Event Check In")
+		checkin_doc.ticket = ticket_id
+		# Event will be auto-fetched from ticket based on the fetch_from setting
+		checkin_doc.insert(ignore_permissions=True)
+		checkin_doc.submit()
+
+		return {
+			"success": True,
+			"message": f"Successfully checked in {validation_result['ticket']['attendee_name']}",
+			"ticket": {
+				**validation_result["ticket"],
+				"is_checked_in": True,
+				"check_in_time": checkin_doc.creation,
+			},
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error checking in ticket: {e!s}")
+		return {
+			"success": False,
+			"error": "Check-in failed",
+			"message": "An error occurred while checking in the ticket. Please try again.",
+		}

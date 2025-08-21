@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/BuildWithHussain/events/issues"
   },
-  "homepage": "https://github.com/BuildWithHussain/events#readme"
+  "homepage": "https://github.com/BuildWithHussain/events#readme",
+  "dependencies": {
+    "html5-qrcode": "^2.3.8"
+  }
 }
