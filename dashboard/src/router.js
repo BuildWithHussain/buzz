@@ -9,6 +9,11 @@ const routes = [
 		component: () => import("@/pages/Dashboard.vue"),
 	},
 	{
+		path: "/schedule-gantt-poc",
+		name: "schedule-gantt-poc",
+		component: () => import("@/pages/ScheduleGanttPOC.vue"),
+	},
+	{
 		path: "/book-tickets/:eventRoute",
 		props: true,
 		name: "event-booking",

@@ -1570,6 +1570,11 @@ fraction.js@^4.1.2:
   resolved "https://registry.npmjs.org/fraction.js/-/fraction.js-4.1.2.tgz"
   integrity sha512-o2RiJQ6DZaR/5+Si0qJUIy637QMRudSi9kU/FFzx9EZazrIdnBgpU+3sEWCxAVhH2RtxW2Oz+T4p2o8uOPVcgA==
 
+frappe-gantt@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/frappe-gantt/-/frappe-gantt-1.0.3.tgz#3e261f2a4f93a00066408df91ec2976609a78b4d"
+  integrity sha512-NkwO2MD4JoWJ82ZruK/rQVIAEpI3nXUoo5gG+wQHV18yKXhzZsTehVfCXJ92DLl/foTtut1RVL0dqj7fo6Cfpg==
+
 frappe-ui@^0.1.188:
   version "0.1.188"
   resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.188.tgz#69f4fd506361c31bed8b38c95c9ed50ea5ef114f"
