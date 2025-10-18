@@ -58,7 +58,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-29 20:05:31.851848",
+ "modified": "2025-10-18 14:52:41.058318",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Check In",
@@ -90,6 +90,17 @@
    "role": "Event Manager",
    "share": 1,
    "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Frontdesk Manager",
+   "share": 1,
    "write": 1
   }
  ],

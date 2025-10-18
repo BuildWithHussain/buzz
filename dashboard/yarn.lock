@@ -1703,6 +1703,11 @@ highlight.js@^11.11.1, highlight.js@~11.11.0:
   resolved "https://registry.npmjs.org/highlight.js/-/highlight.js-11.11.1.tgz"
   integrity sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==
 
+html5-qrcode@^2.3.8:
+  version "2.3.8"
+  resolved "https://registry.npmjs.org/html5-qrcode/-/html5-qrcode-2.3.8.tgz"
+  integrity sha512-jsr4vafJhwoLVEDW3n1KvPnCCXWaQfRng0/EEYk1vNcQGcG/htAdhJX0be8YyqMoSz7+hZvOZSTAepsabiuhiQ==
+
 idb-keyval@^6.2.0:
   version "6.2.0"
   resolved "https://registry.npmjs.org/idb-keyval/-/idb-keyval-6.2.0.tgz"
