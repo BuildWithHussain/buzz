@@ -58,14 +58,21 @@
 				<label class="block text-sm font-medium text-ink-gray-7 mb-3">Ticket Type</label>
 				<div class="text-base font-medium text-ink-gray-9">
 					{{ availableTicketTypes[0].title }}
-					<span class="text-ink-gray-6">({{ formatPriceOrFree(availableTicketTypes[0].price, availableTicketTypes[0].currency) }})</span>
+					<span class="text-ink-gray-6"
+						>({{
+							formatPriceOrFree(
+								availableTicketTypes[0].price,
+								availableTicketTypes[0].currency
+							)
+						}})</span
+					>
 				</div>
 			</div>
 		</div>
 
 		<!-- Add-ons -->
 		<div v-if="availableAddOns.length > 0">
-			<hr class="my-4">
+			<hr class="my-4" />
 
 			<div v-for="addOn in availableAddOns" :key="addOn.name" class="mb-4">
 				<div class="flex flex-col gap-3">
@@ -74,7 +81,10 @@
 						:model-value="getAddOnSelected(addOn.name)"
 						@update:model-value="updateAddOnSelection(addOn.name, $event)"
 						:id="`add_on_${addOn.name}_${index}`"
-						:label="`${addOn.title} (${formatPriceOrFree(addOn.price, addOn.currency)})`"
+						:label="`${addOn.title} (${formatPriceOrFree(
+							addOn.price,
+							addOn.currency
+						)})`"
 					/>
 
 					<div class="text-ink-gray-5 text-sm" v-if="addOn.description">
@@ -148,7 +158,11 @@ const updateAddOnSelection = (addOnName, selected) => {
 	// If selecting an add-on and it has options, ensure the first option is selected
 	if (selected) {
 		const addOn = props.availableAddOns.find((a) => a.name === addOnName);
-		if (addOn?.options && addOn.options.length > 0 && !props.attendee.add_ons[addOnName].option) {
+		if (
+			addOn?.options &&
+			addOn.options.length > 0 &&
+			!props.attendee.add_ons[addOnName].option
+		) {
 			props.attendee.add_ons[addOnName].option = addOn.options[0];
 		}
 	}

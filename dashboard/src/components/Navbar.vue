@@ -9,7 +9,13 @@
 					<LucideSun v-if="userTheme === 'dark'" class="w-4 h-4" />
 					<LucideMoon v-else class="w-4 h-4" />
 				</Button>
-				<Button :loading="session.logout.loading" @click="session.logout.submit" icon-right="log-out" variant="ghost" size="md">
+				<Button
+					:loading="session.logout.loading"
+					@click="session.logout.submit"
+					icon-right="log-out"
+					variant="ghost"
+					size="md"
+				>
 					Log Out
 				</Button>
 			</div>

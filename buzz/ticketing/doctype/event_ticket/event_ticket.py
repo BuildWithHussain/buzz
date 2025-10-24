@@ -2,9 +2,9 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from frappe.core.api.user_invitation import invite_by_email
 
 class EventTicket(Document):
 	# begin: auto-generated types
@@ -13,8 +13,9 @@ class EventTicket(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from buzz.ticketing.doctype.ticket_add_on_value.ticket_add_on_value import TicketAddonValue
 		from frappe.types import DF
+
+		from buzz.ticketing.doctype.ticket_add_on_value.ticket_add_on_value import TicketAddonValue
 
 		add_ons: DF.Table[TicketAddonValue]
 		amended_from: DF.Link | None
@@ -47,7 +48,7 @@ class EventTicket(Document):
 			emails=self.attendee_email,
 			roles=["Buzz User"],
 			redirect_to_path="/dashboard/account/tickets",
-			app_name="buzz"
+			app_name="buzz",
 		)
 
 	def send_ticket_email(self, now: bool = False):

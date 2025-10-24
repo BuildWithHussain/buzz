@@ -126,10 +126,7 @@ def get_event_booking_data(event_route: str) -> dict:
 
 	# Ticket Add-ons
 	add_ons = frappe.db.get_all(
-		"Ticket Add-on",
-		filters={"event": event_doc.name},
-		fields=["*"],
-		order_by="title"
+		"Ticket Add-on", filters={"event": event_doc.name}, fields=["*"], order_by="title"
 	)
 
 	for add_on in add_ons:
@@ -186,7 +183,6 @@ def process_booking(attendees: list[dict], event: str) -> dict:
 			booking.name, redirect_to=f"/dashboard/bookings/{booking.name}?success=true"
 		)
 	}
-
 
 
 def create_add_on_doc(attendee_name: str, add_ons: list[dict]):
