@@ -36,7 +36,7 @@ class SponsorshipEnquiry(Document):
 					"event": self.event,
 					"tier": self.tier,
 					"enquiry": self.name,
-					"website": self.website
+					"website": self.website,
 				}
 			).insert(ignore_permissions=True)
 			self.db_set("status", "Paid")
@@ -57,6 +57,6 @@ class SponsorshipEnquiry(Document):
 				"tier": self.tier,
 				"enquiry": self.name,
 				"website": self.website,
-				"country": self.country
+				"country": self.country,
 			}
 		).insert(ignore_permissions=True)

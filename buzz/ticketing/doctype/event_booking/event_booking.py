@@ -16,8 +16,9 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
 		from frappe.types import DF
+
+		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
 
 		amended_from: DF.Link | None
 		attendees: DF.Table[EventBookingAttendee]

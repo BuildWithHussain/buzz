@@ -51,7 +51,13 @@
 								type="submit"
 								:loading="processBooking.loading"
 							>
-								{{ processBooking.loading ? "Processing..." : (finalTotal > 0 ? "Pay & Book" : "Book Tickets") }}
+								{{
+									processBooking.loading
+										? "Processing..."
+										: finalTotal > 0
+										? "Pay & Book"
+										: "Book Tickets"
+								}}
 							</Button>
 						</div>
 					</div>
@@ -121,7 +127,10 @@ const createNewAttendee = () => {
 		full_name: "",
 		email: "",
 		// Auto-select ticket type if there's only one available
-		ticket_type: props.availableTicketTypes.length === 1 ? props.availableTicketTypes[0]?.name : (props.availableTicketTypes[0]?.name || ""),
+		ticket_type:
+			props.availableTicketTypes.length === 1
+				? props.availableTicketTypes[0]?.name
+				: props.availableTicketTypes[0]?.name || "",
 		add_ons: {},
 	};
 	for (const addOn of props.availableAddOns) {

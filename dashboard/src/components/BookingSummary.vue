@@ -16,7 +16,9 @@
 					{{ formatPriceOrFree(ticket.price, ticket.currency) }})</span
 				>
 				<span v-else>{{ ticket.title }} (x {{ ticket.count }})</span>
-				<span v-if="total > 0" class="font-medium">{{ formatPriceOrFree(ticket.amount, ticket.currency) }}</span>
+				<span v-if="total > 0" class="font-medium">{{
+					formatPriceOrFree(ticket.amount, ticket.currency)
+				}}</span>
 			</div>
 		</div>
 
@@ -33,7 +35,9 @@
 					{{ formatPriceOrFree(addOn.price, addOn.currency) }})</span
 				>
 				<span v-else>{{ addOn.title }} (x {{ addOn.count }})</span>
-				<span v-if="total > 0" class="font-medium">{{ formatPriceOrFree(addOn.amount, addOn.currency) }}</span>
+				<span v-if="total > 0" class="font-medium">{{
+					formatPriceOrFree(addOn.amount, addOn.currency)
+				}}</span>
 			</div>
 		</div>
 
@@ -48,7 +52,10 @@
 			</div>
 
 			<!-- GST Section -->
-			<div v-if="shouldApplyGst" class="flex justify-between items-center text-ink-gray-7 mb-2">
+			<div
+				v-if="shouldApplyGst"
+				class="flex justify-between items-center text-ink-gray-7 mb-2"
+			>
 				<span>GST ({{ taxPercentage }}%)</span>
 				<span class="font-medium">{{ formatPriceOrFree(taxAmount, totalCurrency) }}</span>
 			</div>

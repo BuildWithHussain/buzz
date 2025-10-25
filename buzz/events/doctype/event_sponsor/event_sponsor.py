@@ -2,7 +2,6 @@
 # For license information, please see license.txt
 
 import frappe
-
 from frappe.model.document import Document
 
 
@@ -25,11 +24,9 @@ class EventSponsor(Document):
 	# end: auto-generated types
 
 	def validate(self):
-		already_exists = frappe.db.exists("Event Sponsor", {
-			"event": self.event,
-			"enquiry": self.enquiry,
-			"name": ("!=", self.name)
-		})
+		already_exists = frappe.db.exists(
+			"Event Sponsor", {"event": self.event, "enquiry": self.enquiry, "name": ("!=", self.name)}
+		)
 
 		if already_exists:
 			frappe.throw(frappe._("Sponsor for this enquiry already exists!"))

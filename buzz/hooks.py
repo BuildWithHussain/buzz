@@ -29,22 +29,11 @@ scheduler_events = {"daily": ["buzz.tasks.unpublish_ticket_types_after_last_date
 
 before_tests = "buzz.install.before_tests"
 
-doc_events = {
-	"User": {
-		"after_insert": "buzz.utils.add_buzz_user_role"
-	}
-}
+doc_events = {"User": {"after_insert": "buzz.utils.add_buzz_user_role"}}
 
-fixtures = [
-    {"dt": "Role", "filters": {"name": "Buzz User"}}
-]
+fixtures = [{"dt": "Role", "filters": {"name": ["Buzz User", "Frontdesk Manager"]}}]
 
-user_invitation = {
-	"allowed_roles": {
-        "Event Manager": ["Buzz User"],
-        "Buzz User": ["Buzz User"]
-	}
-}
+user_invitation = {"allowed_roles": {"Event Manager": ["Buzz User"], "Buzz User": ["Buzz User"]}}
 
 
 # Each item in the list will be shown as an app in the apps page
@@ -167,8 +156,6 @@ user_invitation = {
 # Document Events
 # ---------------
 # Hook on document methods and events
-
-
 
 
 # Overriding Methods

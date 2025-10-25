@@ -13,10 +13,10 @@ frappe.ui.form.on("Sponsorship Enquiry", {
 
 			frm.add_custom_button(__("Create Sponsor"), () => {
 				frm.call("create_sponsor").then(() => {
-					frappe.show_alert(__("Sponsor Created!"))
+					frappe.show_alert(__("Sponsor Created!"));
 					frm.refresh();
-				})
-			})
+				});
+			});
 		}
 	},
 });

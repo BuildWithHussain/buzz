@@ -12,9 +12,10 @@ class FEEvent(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from frappe.types import DF
+
 		from buzz.events.doctype.event_featured_speaker.event_featured_speaker import EventFeaturedSpeaker
 		from buzz.events.doctype.schedule_item.schedule_item import ScheduleItem
-		from frappe.types import DF
 
 		about: DF.TextEditor | None
 		banner_image: DF.AttachImage | None
@@ -49,19 +50,13 @@ class FEEvent(Document):
 			self.route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
 
 	@frappe.whitelist()
-	def check_in(self, ticket_id: str, track: str | None = None):
-		frappe.get_doc({"doctype": "Event Check In", "ticket": ticket_id, "track": track}).insert().submit()
-
 	def after_insert(self):
 		self.create_default_records()
 
 	def create_default_records(self):
 		records = [
 			{"doctype": "Sponsorship Tier", "title": "Normal"},
-			{"doctype": "Event Ticket Type", "title": "Normal"}
+			{"doctype": "Event Ticket Type", "title": "Normal"},
 		]
 		for record in records:
-			frappe.get_doc({
-				**record,
-				"event": self.name
-			}).insert(ignore_permissions=True)
+			frappe.get_doc({**record, "event": self.name}).insert(ignore_permissions=True)
