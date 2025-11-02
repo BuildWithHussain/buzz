@@ -61,7 +61,7 @@ const tickets = useList({
 		"creation",
 	],
 	filters: {
-		// attendee_email: session.user,
+		attendee_email: session.user,
 		docstatus: ["!=", 0],
 	},
 	orderBy: "creation desc",
