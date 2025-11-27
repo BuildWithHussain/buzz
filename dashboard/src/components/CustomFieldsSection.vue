@@ -76,6 +76,8 @@ const getFormControlType = (fieldtype) => {
 	switch (fieldtype) {
 		case "Phone":
 			return "text";
+		case "Date":
+			return "date";
 		case "Email":
 			return "email";
 		case "Select":
