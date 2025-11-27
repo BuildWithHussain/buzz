@@ -48,21 +48,30 @@ const emit = defineEmits(["update:modelValue"]);
 const getFieldValue = (fieldname) => {
 	const currentValue = props.modelValue[fieldname];
 
+	// If field already has a value, return it
+	if (currentValue !== undefined && currentValue !== null && currentValue !== "") {
+		return currentValue;
+	}
+
+	// Apply default value if available
+	const field = props.customFields.find((f) => f.fieldname === fieldname);
+	if (field && field.default_value) {
+		updateFieldValue(fieldname, field.default_value);
+		return field.default_value;
+	}
+
 	// Apply default for select fields that don't have values yet
-	if (!currentValue && currentValue !== "") {
-		const field = props.customFields.find((f) => f.fieldname === fieldname);
-		if (field && field.fieldtype === "Select") {
-			const options = getFieldOptions(field);
-			if (options.length > 0) {
-				// Set the first option as default
-				const firstOptionValue = options[0].value;
-				updateFieldValue(fieldname, firstOptionValue);
-				return firstOptionValue;
-			}
+	if (field && field.fieldtype === "Select") {
+		const options = getFieldOptions(field);
+		if (options.length > 0) {
+			// Set the first option as default
+			const firstOptionValue = options[0].value;
+			updateFieldValue(fieldname, firstOptionValue);
+			return firstOptionValue;
 		}
 	}
 
-	return currentValue || "";
+	return "";
 };
 
 // Update field value in model

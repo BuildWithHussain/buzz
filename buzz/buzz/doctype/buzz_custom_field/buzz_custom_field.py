@@ -15,6 +15,7 @@ class BuzzCustomField(Document):
 		from frappe.types import DF
 
 		applied_to: DF.Literal["Booking", "Ticket"]
+		default_value: DF.Data | None
 		enabled: DF.Check
 		event: DF.Link
 		fieldname: DF.Data | None

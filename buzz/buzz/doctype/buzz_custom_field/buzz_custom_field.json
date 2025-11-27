@@ -11,6 +11,7 @@
   "fieldname",
   "mandatory",
   "placeholder",
+  "default_value",
   "column_break_fpgn",
   "applied_to",
   "fieldtype",
@@ -87,12 +88,17 @@
    "fieldtype": "Int",
    "label": "Order",
    "non_negative": 1
+  },
+  {
+   "fieldname": "default_value",
+   "fieldtype": "Data",
+   "label": "Default Value"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-27 18:38:34.583273",
+ "modified": "2025-11-27 18:52:37.895997",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz Custom Field",

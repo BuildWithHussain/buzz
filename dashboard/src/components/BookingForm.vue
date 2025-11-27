@@ -174,6 +174,14 @@ const createNewAttendee = () => {
 			option: addOn.options ? addOn.options[0] || null : null,
 		};
 	}
+
+	// Initialize custom fields with default values
+	for (const field of ticketCustomFields.value) {
+		if (field.default_value) {
+			newAttendee.custom_fields[field.fieldname] = field.default_value;
+		}
+	}
+
 	return newAttendee;
 };
 
@@ -319,6 +327,22 @@ watch(
 			for (const attendee of attendees.value) {
 				if (!attendee.ticket_type || attendee.ticket_type === "") {
 					attendee.ticket_type = newTicketTypes[0].name;
+				}
+			}
+		}
+	},
+	{ immediate: true }
+);
+
+// Initialize booking custom fields with default values
+watch(
+	() => bookingCustomFields.value,
+	(fields) => {
+		if (fields && fields.length > 0) {
+			for (const field of fields) {
+				// Only set default value if field doesn't already have a value
+				if (field.default_value && !bookingCustomFieldsData.value[field.fieldname]) {
+					bookingCustomFieldsData.value[field.fieldname] = field.default_value;
 				}
 			}
 		}
