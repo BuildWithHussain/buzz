@@ -147,7 +147,10 @@ def get_event_booking_data(event_route: str) -> dict:
 
 	# Custom Fields
 	custom_fields = frappe.db.get_all(
-		"Buzz Custom Field", filters={"event": event_doc.name, "enabled": 1}, fields=["*"]
+		"Buzz Custom Field",
+		filters={"event": event_doc.name, "enabled": 1},
+		fields=["*"],
+		order_by="order",
 	)
 	data.custom_fields = custom_fields
 

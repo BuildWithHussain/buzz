@@ -22,6 +22,7 @@ class BuzzCustomField(Document):
 		label: DF.Data
 		mandatory: DF.Check
 		options: DF.SmallText | None
+		order: DF.Int
 		placeholder: DF.Data | None
 	# end: auto-generated types
 

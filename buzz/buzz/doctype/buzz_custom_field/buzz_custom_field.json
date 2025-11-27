@@ -14,7 +14,8 @@
   "column_break_fpgn",
   "applied_to",
   "fieldtype",
-  "options"
+  "options",
+  "order"
  ],
  "fields": [
   {
@@ -79,12 +80,19 @@
    "fieldname": "placeholder",
    "fieldtype": "Data",
    "label": "Placeholder"
+  },
+  {
+   "default": "1",
+   "fieldname": "order",
+   "fieldtype": "Int",
+   "label": "Order",
+   "non_negative": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-01 12:56:21.483252",
+ "modified": "2025-11-27 18:34:14.871192",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz Custom Field",
