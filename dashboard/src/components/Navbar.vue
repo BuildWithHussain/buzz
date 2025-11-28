@@ -3,7 +3,7 @@
 		<nav class="flex items-center justify-between gap-4 p-4 max-w-4xl mx-auto">
 			<RouterLink :to="{ name: 'bookings-tab' }">
 				<img
-					class="h-6 contrast-100 brightness-100"
+					class="h-6 contrast-100 brightness-100 invert-[0.8] dark:invert-0"
 					v-if="userResource?.data?.brand_image"
 					:src="userResource.data.brand_image"
 				/>
