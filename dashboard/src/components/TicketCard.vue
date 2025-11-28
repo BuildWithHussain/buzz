@@ -52,7 +52,11 @@
 			</div>
 
 			<div class="mt-3">
-				<img :src="ticket.qr_code" alt="QR Code" class="w-20 h-20" />
+				<img
+					:src="ticket.qr_code"
+					alt="QR Code"
+					class="w-20 h-20 contrast-100 brightness-100"
+				/>
 			</div>
 		</div>
 

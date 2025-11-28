@@ -174,7 +174,7 @@
 										<img
 											:src="currentLogo"
 											:alt="companyName"
-											class="h-16 w-auto object-contain border border-outline-gray-1 rounded p-1"
+											class="h-16 w-auto object-contain border border-outline-gray-1 rounded p-1 contrast-100 brightness-100"
 											:class="{
 												'opacity-50':
 													uploading || updateLogoResource.loading,

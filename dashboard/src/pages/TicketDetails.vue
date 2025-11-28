@@ -121,7 +121,7 @@
 					<img
 						:src="ticketDetails.data.doc.qr_code"
 						alt="Ticket QR Code"
-						class="max-w-48 h-auto border border-outline-gray-1 rounded"
+						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100"
 					/>
 				</div>
 				<p class="text-sm text-ink-gray-6 text-center mt-2">
