@@ -352,7 +352,7 @@ def get_booking_details(booking_id: str) -> dict:
 
 	add_ons = frappe.db.get_all(
 		"Ticket Add-on Value",
-		filters={"parent": ("in", (ticket.name for ticket in tickets))},
+		filters={"parent": ("in", [ticket.name for ticket in tickets])},
 		fields=[
 			"parent",
 			"name",
