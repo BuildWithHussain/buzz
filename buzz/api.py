@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today
 
 from buzz.payments import get_payment_link_for_booking
@@ -836,3 +837,13 @@ def checkin_ticket(ticket_id: str) -> dict:
 			"check_in_date": checkin_date,
 		},
 	}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_translations():
+	if frappe.session.user != "Guest":
+		language = frappe.db.get_value("User", frappe.session.user, "language")
+	else:
+		language = frappe.db.get_single_value("System Settings", "language")
+
+	return get_all_translations(language)
