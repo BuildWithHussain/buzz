@@ -12,8 +12,8 @@
 					params: { bookingId: row.name },
 				}),
 				emptyState: {
-					title: 'No bookings found',
-					description: 'You haven\'t made any bookings yet.',
+					title: __('No bookings found'),
+					description: __('You haven\'t made any bookings yet.'),
 				},
 			}"
 		>
@@ -40,12 +40,12 @@ import { dayjsLocal } from "frappe-ui";
 import { pluralize } from "../utils/pluralize";
 
 const columns = [
-	{ label: "Event", key: "event_title" },
+	{ label: __("Event"), key: "event_title" },
 	{ label: "", key: "ticket_count" },
-	{ label: "Start Date", key: "start_date" },
-	{ label: "Venue", key: "venue" },
-	{ label: "Amount Paid", key: "formatted_amount" },
-	{ label: "Status", key: "status" },
+	{ label: __("Start Date"), key: "start_date" },
+	{ label: __("Venue"), key: "venue" },
+	{ label: __("Amount Paid"), key: "formatted_amount" },
+	{ label: __("Status"), key: "status" },
 ];
 
 const bookings = useList({
@@ -74,10 +74,13 @@ const bookings = useList({
 			formatted_amount:
 				booking.total_amount !== 0
 					? formatCurrency(booking.total_amount, booking.currency)
-					: "FREE",
-			status: booking.docstatus === 1 ? "Confirmed" : "Cancelled",
+					: __("FREE"),
+			status: booking.docstatus === 1 ? __("Confirmed") : __("Cancelled"),
 			start_date: dayjsLocal(booking.start_date).format("MMM DD, YYYY"),
-			ticket_count: pluralize(booking.attendees ? booking.attendees.length : 0, "Ticket"),
+			ticket_count: pluralize(
+				booking.attendees ? booking.attendees.length : 0,
+				__("Ticket")
+			),
 		}));
 	},
 });

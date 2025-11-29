@@ -1,7 +1,7 @@
 <template>
 	<div class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6">
 		<div class="flex justify-between items-center mb-4">
-			<h3 class="text-lg font-semibold text-ink-gray-9">Your Tickets</h3>
+			<h3 class="text-lg font-semibold text-ink-gray-9">{{ __("Your Tickets") }}</h3>
 
 			<!-- Request Cancellation Button -->
 			<Button
@@ -9,7 +9,11 @@
 				variant="subtle"
 				@click="$emit('request-cancellation')"
 			>
-				{{ cancellationRequest ? "Request More Cancellations" : "Request Cancellation" }}
+				{{
+					cancellationRequest
+						? __("Request More Cancellations")
+						: __("Request Cancellation")
+				}}
 			</Button>
 		</div>
 

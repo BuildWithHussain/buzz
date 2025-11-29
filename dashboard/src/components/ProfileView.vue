@@ -74,9 +74,6 @@ const user = userResource.data || {};
 const profile = ref({});
 const error = ref("");
 
-// TODO: i18n later
-const __ = (x) => x;
-
 const setUser = createResource({
 	url: "frappe.client.set_value",
 	makeParams() {

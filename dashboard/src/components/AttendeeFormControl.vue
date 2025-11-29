@@ -4,35 +4,35 @@
 		class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 md:p-6 mb-6 shadow-sm relative"
 	>
 		<!-- Remove Button -->
-		<Tooltip text="Remove Attendee" :hover-delay="0.5">
+		<Tooltip :text="__('Remove Attendee')" :hover-delay="0.5">
 			<Button
 				v-if="showRemove"
 				@click="$emit('remove')"
 				type="button"
 				theme="red"
 				class="absolute top-4 right-4"
-				title="Remove attendee"
+				:title="__('Remove attendee')"
 				icon="x"
 			/>
 		</Tooltip>
 
 		<h4 class="text-lg font-semibold text-ink-gray-9 mb-4 border-b pb-2 pr-10">
-			Attendee #{{ index + 1 }}
+			{{ __("Attendee") }} #{{ index + 1 }}
 		</h4>
 
 		<!-- Name, Email and Custom Fields -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 			<FormControl
 				v-model="attendee.full_name"
-				label="Full Name"
-				placeholder="Enter full name"
+				:label="__('Full Name')"
+				:placeholder="__('Enter full name')"
 				required
 				type="text"
 			/>
 			<FormControl
 				v-model="attendee.email"
-				label="Email"
-				placeholder="Enter email address"
+				:label="__('Email')"
+				:placeholder="__('Enter email address')"
 				required
 				type="email"
 			/>
@@ -43,7 +43,7 @@
 			<FormControl
 				v-if="availableTicketTypes.length > 1"
 				v-model="attendee.ticket_type"
-				label="Ticket Type"
+				:label="__('Ticket Type')"
 				type="select"
 				:options="
 					availableTicketTypes.map((tt) => ({

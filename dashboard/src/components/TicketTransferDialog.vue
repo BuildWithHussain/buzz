@@ -1,27 +1,30 @@
 <template>
 	<Dialog v-model="isOpen">
 		<template #body-title>
-			<h3 class="text-xl font-semibold text-ink-gray-9">Transfer Ticket</h3>
+			<h3 class="text-xl font-semibold text-ink-gray-9">{{ __("Transfer Ticket") }}</h3>
 		</template>
 		<template #body-content>
 			<div class="space-y-4">
 				<p class="text-ink-gray-7">
-					Transfer this ticket to a new attendee. The new attendee will receive the
-					updated ticket information.
+					{{
+						__(
+							"Transfer this ticket to a new attendee. The new attendee will receive the updated ticket information."
+						)
+					}}
 				</p>
 
 				<FormControl
 					type="text"
-					label="New Attendee Name"
-					placeholder="Enter full name"
+					:label="__('New Attendee Name')"
+					:placeholder="__('Enter full name')"
 					v-model="transferForm.name"
 					:required="true"
 				/>
 
 				<FormControl
 					type="email"
-					label="New Attendee Email"
-					placeholder="Enter email address"
+					:label="__('New Attendee Email')"
+					:placeholder="__('Enter email address')"
 					v-model="transferForm.email"
 					:required="true"
 				/>
@@ -35,9 +38,9 @@
 					:loading="transferResource.loading"
 					:disabled="!transferForm.name || !transferForm.email"
 				>
-					Transfer Ticket
+					{{ __("Transfer Ticket") }}
 				</Button>
-				<Button variant="outline" @click="close"> Cancel </Button>
+				<Button variant="outline" @click="close"> {{ __("Cancel") }} </Button>
 			</div>
 		</template>
 	</Dialog>
@@ -74,19 +77,19 @@ const transferForm = ref({
 const transferResource = createResource({
 	url: "buzz.api.transfer_ticket",
 	onSuccess: () => {
-		toast.success("Ticket transferred successfully!");
+		toast.success(__("Ticket transferred successfully!"));
 		isOpen.value = false;
 		resetTransferForm();
 		emit("success");
 	},
 	onError: (error) => {
-		toast.error(`Failed to transfer ticket: ${error.message}`);
+		toast.error(`${__("Failed to transfer ticket")}: ${error.message}`);
 	},
 });
 
 const handleTransferTicket = () => {
 	if (!props.ticket || !transferForm.value.name || !transferForm.value.email) {
-		toast.error("Please fill in all required fields");
+		toast.error(__("Please fill in all required fields"));
 		return;
 	}
 

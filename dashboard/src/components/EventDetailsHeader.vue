@@ -27,7 +27,7 @@
 				<div v-if="eventDetails.start_date" class="flex flex-col items-start gap-3">
 					<div class="flex items-center gap-2">
 						<LucideCalendar class="h-4 w-4 text-ink-gray-6" />
-						<p class="text-ink-gray-6 text-base">Date</p>
+						<p class="text-ink-gray-6 text-base">{{ __("Date") }}</p>
 					</div>
 					<div>
 						<p class="font-medium text-ink-gray-8">
@@ -40,7 +40,7 @@
 				<div v-if="eventDetails.start_time" class="flex flex-col items-start gap-3">
 					<div class="flex gap-2 items-center">
 						<LucideClock class="h-4 w-4 text-ink-gray-6" />
-						<p class="text-ink-gray-6 text-base">Time</p>
+						<p class="text-ink-gray-6 text-base">{{ __("Time") }}</p>
 					</div>
 					<div>
 						<p class="font-medium text-ink-gray-8">
@@ -53,7 +53,7 @@
 				<div v-if="eventDetails.venue" class="flex flex-col items-start gap-3">
 					<div class="flex items-center gap-2">
 						<LucideMapPin class="h-4 w-4 text-ink-gray-6" />
-						<p class="text-ink-gray-6 text-base">Venue</p>
+						<p class="text-ink-gray-6 text-base">{{ __("Venue") }}</p>
 					</div>
 					<div>
 						<p class="font-medium text-ink-gray-8">{{ eventDetails.venue }}</p>

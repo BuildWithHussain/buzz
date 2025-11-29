@@ -6,7 +6,7 @@
 		<div class="shadow-sm border-b">
 			<div class="max-w-md mx-auto px-4 py-4">
 				<h1 class="text-xl font-bold text-center text-gray-900 dark:text-white">
-					Event Check-in Scanner
+					{{ __("Event Check-in Scanner") }}
 				</h1>
 			</div>
 		</div>
@@ -24,10 +24,14 @@
 				</div>
 				<div>
 					<h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-						Access Denied
+						{{ __("Access Denied") }}
 					</h4>
 					<p class="text-gray-600 dark:text-gray-400">
-						You don't have the required permissions to access the ticket scanner.
+						{{
+							__(
+								"You don't have the required permissions to access the ticket scanner."
+							)
+						}}
 					</p>
 				</div>
 			</div>
@@ -58,7 +62,7 @@
 					class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4"
 				>
 					<h3 class="font-medium text-gray-900 dark:text-white mb-2">
-						Last Scan Result
+						{{ __("Last Scan Result") }}
 					</h3>
 					<div
 						class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
@@ -70,7 +74,7 @@
 							v-if="validationResult.ticket"
 							class="text-xs mt-1 text-green-600 dark:text-green-400"
 						>
-							Ticket ID: {{ validationResult.ticket.id }}
+							{{ __("Ticket ID") }}: {{ validationResult.ticket.id }}
 						</p>
 					</div>
 				</div>

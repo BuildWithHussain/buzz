@@ -2,15 +2,18 @@
 	<Dialog
 		v-model="show"
 		:options="{
-			title: 'Request Ticket Cancellation',
+			title: __('Request Ticket Cancellation'),
 			size: '3xl',
 		}"
 	>
 		<template #body-content>
 			<div class="space-y-6">
 				<p class="text-ink-gray-7">
-					Select the tickets you would like to cancel. Please note that cancellation
-					requests are subject to approval and refund policies.
+					{{
+						__(
+							"Select the tickets you would like to cancel. Please note that cancellation requests are subject to approval and refund policies."
+						)
+					}}
 				</p>
 
 				<!-- Info about excluded tickets -->
@@ -20,7 +23,8 @@
 				>
 					<p class="text-sm text-ink-blue-2">
 						<span v-if="cancelledTickets.length > 0">
-							{{ pluralize(cancelledTickets.length, "ticket") }} already cancelled.
+							{{ pluralize(cancelledTickets.length, __("ticket")) }}
+							{{ __("already cancelled") }}.
 						</span>
 						<span
 							v-if="
@@ -31,8 +35,8 @@
 							<br />
 						</span>
 						<span v-if="cancellationRequestedTickets.length > 0">
-							{{ pluralize(cancellationRequestedTickets.length, "ticket") }} already
-							have pending cancellation requests.
+							{{ pluralize(cancellationRequestedTickets.length, __("ticket")) }}
+							{{ __("already have pending cancellation requests") }}.
 						</span>
 					</p>
 				</div>
@@ -55,11 +59,11 @@
 						/>
 						<div>
 							<h3 class="font-semibold text-ink-gray-9">
-								Select All Available Tickets
+								{{ __("Select All Available Tickets") }}
 							</h3>
 							<p class="text-sm text-ink-gray-6">
-								Cancel all
-								{{ pluralize(availableTickets.length, "remaining ticket") }}
+								{{ __("Cancel all") }}
+								{{ pluralize(availableTickets.length, __("remaining ticket")) }}
 							</p>
 						</div>
 					</div>
@@ -67,11 +71,16 @@
 
 				<!-- Individual Ticket Selection -->
 				<div class="space-y-4">
-					<h4 class="font-medium text-ink-gray-8">Or select individual tickets:</h4>
+					<h4 class="font-medium text-ink-gray-8">
+						{{ __("Or select individual tickets:") }}
+					</h4>
 					<div v-if="availableTickets.length === 0" class="text-center py-8">
 						<p class="text-ink-gray-5">
-							No tickets available for cancellation. All tickets are either already
-							cancelled or have pending cancellation requests.
+							{{
+								__(
+									"No tickets available for cancellation. All tickets are either already cancelled or have pending cancellation requests."
+								)
+							}}
 						</p>
 					</div>
 					<div v-else class="space-y-3 max-h-64 overflow-y-auto">
@@ -112,7 +121,9 @@
 										v-if="ticket.add_ons && ticket.add_ons.length > 0"
 										class="mt-2 pt-2 border-t border-outline-gray-1"
 									>
-										<p class="text-xs text-ink-gray-5 mb-1">Add-ons:</p>
+										<p class="text-xs text-ink-gray-5 mb-1">
+											{{ __("Add-ons:") }}
+										</p>
 										<div class="flex flex-wrap gap-1">
 											<span
 												v-for="addon in ticket.add_ons"
@@ -132,7 +143,7 @@
 				<!-- Warning if no tickets selected -->
 				<div v-if="selectedTickets.length === 0" class="text-center py-4">
 					<p class="text-ink-red-3 text-sm">
-						Please select at least one ticket to cancel.
+						{{ __("Please select at least one ticket to cancel.") }}
 					</p>
 				</div>
 
@@ -143,19 +154,25 @@
 				>
 					<div class="flex items-center justify-between">
 						<div>
-							<h4 class="font-semibold text-ink-blue-2">Cancellation Summary</h4>
+							<h4 class="font-semibold text-ink-blue-2">
+								{{ __("Cancellation Summary") }}
+							</h4>
 							<p class="text-ink-blue-2">
-								{{ pluralize(selectedTickets.length, "ticket") }} selected for
-								cancellation
-								<span v-if="isAllSelected" class="font-medium"
-									>(Full booking)</span
-								>
+								{{ pluralize(selectedTickets.length, __("ticket")) }}
+								{{ __("selected for cancellation") }}
+								<span v-if="isAllSelected" class="font-medium">{{
+									__("(Full booking)")
+								}}</span>
 							</p>
 						</div>
 						<div class="text-right">
-							<p class="text-sm text-ink-blue-2">Request Type</p>
+							<p class="text-sm text-ink-blue-2">{{ __("Request Type") }}</p>
 							<p class="font-medium text-ink-blue-2">
-								{{ isAllSelected ? "Full Cancellation" : "Partial Cancellation" }}
+								{{
+									isAllSelected
+										? __("Full Cancellation")
+										: __("Partial Cancellation")
+								}}
 							</p>
 						</div>
 					</div>
@@ -166,7 +183,7 @@
 		<template #actions>
 			<div class="flex justify-end space-x-3">
 				<Button variant="ghost" @click="closeDialog" :loading="submitting">
-					Cancel
+					{{ __("Cancel") }}
 				</Button>
 				<Button
 					variant="solid"
@@ -174,7 +191,7 @@
 					:disabled="selectedTickets.length === 0"
 					:loading="submitting"
 				>
-					Submit Cancellation Request
+					{{ __("Submit Cancellation Request") }}
 				</Button>
 			</div>
 		</template>
@@ -268,15 +285,20 @@ const createCancellationRequest = createResource({
 
 		toast.success(
 			isFullCancellation
-				? "Full booking cancellation request submitted successfully!"
-				: `Cancellation request submitted for ${pluralize(ticketCount, "ticket")}!`
+				? __("Full booking cancellation request submitted successfully!")
+				: `${__("Cancellation request submitted for")} ${pluralize(
+						ticketCount,
+						__("ticket")
+				  )}!`
 		);
 		emit("success", data);
 		closeDialog();
 	},
 	onError: (error) => {
 		submitting.value = false;
-		toast.error(data.message || "Failed to submit cancellation request. Please try again.");
+		toast.error(
+			data.message || __("Failed to submit cancellation request. Please try again.")
+		);
 	},
 });
 

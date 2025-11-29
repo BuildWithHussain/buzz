@@ -8,7 +8,7 @@
 				icon-left="external-link"
 				variant="subtle"
 				size="sm"
-				>Visit Event Page
+				>{{ __("Visit Event Page") }}
 			</Button>
 		</div>
 
@@ -17,7 +17,7 @@
 			<div>
 				<div class="flex items-center text-ink-gray-6 mb-1">
 					<LucideCalendarDays class="w-4 h-4 mr-2 flex-shrink-0" />
-					<span class="text-sm font-medium">Start Date</span>
+					<span class="text-sm font-medium">{{ __("Start Date") }}</span>
 				</div>
 				<p class="text-ink-gray-9 font-medium">
 					{{ formatEventDateTime(event.start_date, event.start_time) }}
@@ -28,7 +28,7 @@
 			<div v-if="event.end_date">
 				<div class="flex items-center text-ink-gray-6 mb-1">
 					<LucideCalendarDays class="w-4 h-4 mr-2 flex-shrink-0" />
-					<span class="text-sm font-medium">End Date</span>
+					<span class="text-sm font-medium">{{ __("End Date") }}</span>
 				</div>
 				<p class="text-ink-gray-9 font-medium">
 					{{ formatEventDateTime(event.end_date, event.end_time) }}
@@ -39,7 +39,7 @@
 			<div v-if="event.venue">
 				<div class="flex items-center text-ink-gray-6 mb-1">
 					<LucideMapPin class="w-4 h-4 mr-2 flex-shrink-0" />
-					<span class="text-sm font-medium">Venue</span>
+					<span class="text-sm font-medium">{{ __("Venue") }}</span>
 				</div>
 				<p class="text-ink-gray-9 font-medium">{{ event.venue }}</p>
 			</div>

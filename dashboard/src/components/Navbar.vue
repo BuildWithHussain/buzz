@@ -21,7 +21,7 @@
 					variant="ghost"
 					size="md"
 				>
-					Log Out
+					{{ __("Log Out") }}
 				</Button>
 			</div>
 		</nav>

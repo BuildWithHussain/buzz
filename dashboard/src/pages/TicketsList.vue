@@ -1,14 +1,16 @@
 <template>
 	<div>
 		<div v-if="tickets.loading" class="flex justify-center py-8">
-			<div class="text-ink-gray-6">Loading tickets...</div>
+			<div class="text-ink-gray-6">{{ __("Loading tickets...") }}</div>
 		</div>
 
 		<div
 			v-else-if="tickets.error"
 			class="bg-surface-red-1 border border-outline-red-1 rounded-lg p-4"
 		>
-			<p class="text-ink-red-3">Error loading tickets: {{ tickets.error.message }}</p>
+			<p class="text-ink-red-3">
+				{{ __("Error loading tickets") }}: {{ tickets.error.message }}
+			</p>
 		</div>
 
 		<ListView
@@ -23,8 +25,8 @@
 					params: { ticketId: row.name },
 				}),
 				emptyState: {
-					title: 'No tickets found',
-					description: 'You haven\'t purchased any tickets yet.',
+					title: __('No tickets found'),
+					description: __('You haven\'t purchased any tickets yet.'),
 				},
 			}"
 		>
@@ -41,10 +43,10 @@ import { session } from "../data/session";
 import { dayjsLocal } from "frappe-ui";
 
 const columns = [
-	{ label: "Attendee Name", key: "attendee_name" },
-	{ label: "Event", key: "event_title" },
-	{ label: "Ticket Type", key: "ticket_type_display" },
-	{ label: "Start Date", key: "start_date" },
+	{ label: __("Attendee Name"), key: "attendee_name" },
+	{ label: __("Event"), key: "event_title" },
+	{ label: __("Ticket Type"), key: "ticket_type_display" },
+	{ label: __("Start Date"), key: "start_date" },
 ];
 
 const tickets = useList({
