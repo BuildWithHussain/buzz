@@ -1,19 +1,19 @@
 <template>
 	<div class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6">
 		<div class="flex items-center justify-between mb-4">
-			<h3 class="text-lg font-semibold text-ink-gray-9">Payment Summary</h3>
+			<h3 class="text-lg font-semibold text-ink-gray-9">{{ __("Payment Summary") }}</h3>
 			<Badge v-if="(booking.total_amount || 0) > 0" variant="subtle" theme="green" size="sm">
 				<template #prefix>
 					<LucideCheck class="w-3 h-3" />
 				</template>
-				Paid
+				{{ __("Paid") }}
 			</Badge>
 		</div>
 
 		<div class="space-y-3">
 			<!-- Net Amount -->
 			<div class="flex justify-between items-center text-ink-gray-7">
-				<span>Subtotal</span>
+				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{
 					formatPrice(booking.net_amount || 0, booking.currency || "INR")
 				}}</span>
@@ -21,7 +21,7 @@
 
 			<!-- Tax Information -->
 			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
-				<span>GST ({{ booking.tax_percentage || 0 }}%)</span>
+				<span>{{ __("GST") }} ({{ booking.tax_percentage || 0 }}%)</span>
 				<span class="font-medium">{{
 					formatPrice(booking.tax_amount || 0, booking.currency || "INR")
 				}}</span>
@@ -32,7 +32,7 @@
 
 			<!-- Total Amount -->
 			<div class="flex justify-between items-center text-lg font-semibold text-ink-gray-9">
-				<span>Total Paid</span>
+				<span>{{ __("Total Paid") }}</span>
 				<span class="text-ink-green-2">{{
 					formatPrice(booking.total_amount || 0, booking.currency || "INR")
 				}}</span>
@@ -47,8 +47,8 @@
 			<div class="flex items-start">
 				<LucideGift class="w-4 h-4 text-ink-green-2 mt-0.5 mr-2 flex-shrink-0" />
 				<div class="text-sm text-ink-green-3">
-					<p class="font-medium">Free Event</p>
-					<p>This was a free event with no payment required.</p>
+					<p class="font-medium">{{ __("Free Event") }}</p>
+					<p>{{ __("This was a free event with no payment required.") }}</p>
 				</div>
 			</div>
 		</div>

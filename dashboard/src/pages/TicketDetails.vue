@@ -1,6 +1,6 @@
 <template>
 	<div class="mb-6">
-		<BackButton :to="{ name: 'tickets-list' }" label="Back to My Tickets" />
+		<BackButton :to="{ name: 'tickets-list' }" :label="__('Back to My Tickets')" />
 	</div>
 
 	<div class="w-4" v-if="ticketDetails.loading">
@@ -11,7 +11,8 @@
 		<div class="flex justify-between items-start mb-6">
 			<div>
 				<h2 class="text-ink-gray-9 font-semibold text-lg mb-1">
-					Ticket Details <span class="text-ink-gray-5 font-mono">(#{{ ticketId }})</span>
+					{{ __("Ticket Details") }}
+					<span class="text-ink-gray-5 font-mono">(#{{ ticketId }})</span>
 				</h2>
 			</div>
 
@@ -26,7 +27,7 @@
 					<template #prefix>
 						<LucideDownload class="w-4 h-4" />
 					</template>
-					Download
+					{{ __("Download") }}
 				</Button>
 
 				<Button
@@ -38,7 +39,7 @@
 					<template #prefix>
 						<LucideUserPlus class="w-4 h-4" />
 					</template>
-					Transfer
+					{{ __("Transfer") }}
 				</Button>
 			</div>
 		</div>
@@ -51,8 +52,10 @@
 				<LucideTriangleAlert class="w-5 h-5 text-ink-amber-2 mr-3" />
 				<div>
 					<p class="text-ink-amber-3 text-sm">
-						<strong>Add-on preference changes are no longer available</strong> - The
-						change window has closed as the event is approaching.
+						<strong>{{
+							__("Add-on preference changes are no longer available")
+						}}</strong>
+						- {{ __("The change window has closed as the event is approaching.") }}
 					</p>
 				</div>
 			</div>
@@ -61,25 +64,29 @@
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 			<!-- Ticket Information -->
 			<div class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6">
-				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">Ticket Information</h3>
+				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">
+					{{ __("Ticket Information") }}
+				</h3>
 
 				<div class="space-y-3">
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Attendee Name</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Attendee Name")
+						}}</label>
 						<p class="text-ink-gray-9">{{ ticketDetails.data.doc.attendee_name }}</p>
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Attendee Email</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Attendee Email")
+						}}</label>
 						<p class="text-ink-gray-9">{{ ticketDetails.data.doc.attendee_email }}</p>
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Event</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Event")
+						}}</label>
 						<p class="text-ink-gray-9">{{ ticketDetails.data.doc.event_title }}</p>
 					</div>
 
@@ -90,16 +97,18 @@
 							)
 						"
 					>
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Ticket Type</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Ticket Type")
+						}}</label>
 						<p class="text-ink-gray-9">
 							{{ ticketDetails.data.doc.ticket_type_title }}
 						</p>
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Status</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Status")
+						}}</label>
 						<Badge
 							:theme="getTicketStatusTheme(ticketDetails.data.doc.ticket_status)"
 							variant="subtle"
@@ -116,16 +125,16 @@
 				v-if="ticketDetails.data.doc.qr_code"
 				class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6"
 			>
-				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">QR Code</h3>
+				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">{{ __("QR Code") }}</h3>
 				<div class="flex justify-center">
 					<img
 						:src="ticketDetails.data.doc.qr_code"
-						alt="Ticket QR Code"
+						:alt="__('Ticket QR Code')"
 						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100"
 					/>
 				</div>
 				<p class="text-sm text-ink-gray-6 text-center mt-2">
-					Present this QR code at the event entrance
+					{{ __("Present this QR code at the event entrance") }}
 				</p>
 			</div>
 
@@ -135,7 +144,7 @@
 				class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6"
 			>
 				<div class="flex justify-between items-center mb-4">
-					<h3 class="text-ink-gray-8 font-semibold text-lg">Add-ons</h3>
+					<h3 class="text-ink-gray-8 font-semibold text-lg">{{ __("Add-ons") }}</h3>
 					<Button
 						v-if="hasCustomizableAddOns && canChangeAddOns"
 						variant="outline"
@@ -145,7 +154,7 @@
 						<template #prefix>
 							<LucideEdit class="w-4 h-4" />
 						</template>
-						Edit
+						{{ __("Edit") }}
 					</Button>
 				</div>
 
@@ -169,32 +178,40 @@
 
 			<!-- Event Information -->
 			<div class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6">
-				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">Event Information</h3>
+				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">
+					{{ __("Event Information") }}
+				</h3>
 
 				<div class="space-y-3">
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Start Date</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Start Date")
+						}}</label>
 						<p class="text-ink-gray-9">
 							{{ ticketDetails.data.doc.formatted_start_date }}
 						</p>
 					</div>
 
 					<div v-if="ticketDetails.data.doc.formatted_end_date">
-						<label class="block text-sm font-medium text-ink-gray-6">End Date</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("End Date")
+						}}</label>
 						<p class="text-ink-gray-9">
 							{{ ticketDetails.data.doc.formatted_end_date }}
 						</p>
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Venue</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Venue")
+						}}</label>
 						<p class="text-ink-gray-9">{{ ticketDetails.data.doc.venue }}</p>
 					</div>
 
 					<div v-if="ticketDetails.data.doc.description">
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Description</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Description")
+						}}</label>
 						<p class="text-ink-gray-9">{{ ticketDetails.data.doc.description }}</p>
 					</div>
 				</div>
@@ -205,11 +222,15 @@
 				v-if="ticketDetails.data.booking"
 				class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6"
 			>
-				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">Booking Information</h3>
+				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">
+					{{ __("Booking Information") }}
+				</h3>
 
 				<div class="space-y-3">
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Booking ID</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Booking ID")
+						}}</label>
 						<RouterLink
 							:to="{
 								name: 'booking-details',
@@ -222,9 +243,9 @@
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Booking Status</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Booking Status")
+						}}</label>
 						<Badge
 							:theme="
 								ticketDetails.data.doc.booking_status === 'Confirmed'
@@ -239,16 +260,18 @@
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6"
-							>Total Amount</label
-						>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Total Amount")
+						}}</label>
 						<p class="text-ink-gray-9">
 							{{ ticketDetails.data.doc.formatted_amount }}
 						</p>
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-ink-gray-6">Booked On</label>
+						<label class="block text-sm font-medium text-ink-gray-6">{{
+							__("Booked On")
+						}}</label>
 						<p class="text-ink-gray-9">
 							{{ ticketDetails.data.doc.formatted_creation }}
 						</p>
@@ -334,14 +357,14 @@ const ticketDetails = createResource({
 						: "FREE",
 				booking_status: data.booking
 					? data.booking.docstatus === 1
-						? "Confirmed"
-						: "Cancelled"
-					: "Unknown",
+						? __("Confirmed")
+						: __("Cancelled")
+					: __("Unknown"),
 				ticket_status: data.booking
 					? data.booking.docstatus === 1
-						? "Confirmed"
-						: "Cancelled"
-					: "Unknown",
+						? __("Confirmed")
+						: __("Cancelled")
+					: __("Unknown"),
 				formatted_start_date: data.event?.start_date
 					? formatEventDateTime(data.event.start_date, data.event.start_time)
 					: "",

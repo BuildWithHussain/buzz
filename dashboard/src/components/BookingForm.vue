@@ -15,7 +15,7 @@
 						<CustomFieldsSection
 							v-model="bookingCustomFieldsData"
 							:custom-fields="bookingCustomFields"
-							title="Booking Information"
+							:title="__('Booking Information')"
 						/>
 					</div>
 
@@ -39,7 +39,7 @@
 							@click="addAttendee"
 							class="w-full max-w-md border-dashed border-2 border-outline-gray-2 hover:border-outline-gray-3 text-ink-gray-7 hover:text-ink-gray-8 py-4"
 						>
-							+ Add Another Attendee
+							{{ __("+ Add Another Attendee") }}
 						</Button>
 					</div>
 				</div>
@@ -66,10 +66,10 @@
 							>
 								{{
 									processBooking.loading
-										? "Processing..."
+										? __("Processing...")
 										: finalTotal > 0
-										? "Pay & Book"
-										: "Book Tickets"
+										? __("Pay & Book")
+										: __("Book Tickets")
 								}}
 							</Button>
 						</div>

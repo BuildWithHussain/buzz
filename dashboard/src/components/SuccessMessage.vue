@@ -15,9 +15,15 @@
 			<div class="flex items-center">
 				<LucideCheckCircle class="w-6 h-6 text-ink-green-2 mr-3" />
 				<div>
-					<h3 class="text-ink-green-3 font-semibold">Payment Successful! 🎉</h3>
+					<h3 class="text-ink-green-3 font-semibold">
+						{{ __("Payment Successful! 🎉") }}
+					</h3>
 					<p class="text-ink-green-2">
-						Your booking has been confirmed. Check your email for tickets and details.
+						{{
+							__(
+								"Your booking has been confirmed. Check your email for tickets and details."
+							)
+						}}
 					</p>
 				</div>
 			</div>

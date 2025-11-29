@@ -14,6 +14,7 @@
 					<LucideSun v-if="userTheme === 'dark'" class="w-4 h-4" />
 					<LucideMoon v-else class="w-4 h-4" />
 				</Button>
+				<LanguageSwitcher />
 				<Button
 					:loading="session.logout.loading"
 					@click="session.logout.submit"
@@ -21,7 +22,7 @@
 					variant="ghost"
 					size="md"
 				>
-					Log Out
+					{{ __("Log Out") }}
 				</Button>
 			</div>
 		</nav>
@@ -34,6 +35,7 @@ import LucideMoon from "~icons/lucide/moon";
 import { session } from "../data/session";
 import BuzzLogo from "./common/BuzzLogo.vue";
 import { userResource } from "@/data/user";
+import LanguageSwitcher from "./LanguageSwitcher.vue";
 
 import { onMounted } from "vue";
 import { useStorage } from "@vueuse/core";

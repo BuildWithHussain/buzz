@@ -19,9 +19,9 @@ const route = useRoute();
 const router = useRouter();
 
 const tabs = [
-	{ label: "My Bookings", name: "bookings-list" },
-	{ label: "My Tickets", name: "tickets-list" },
-	{ label: "Sponsorships", name: "sponsorships-list" },
+	{ label: __("My Bookings"), name: "bookings-list" },
+	{ label: __("My Tickets"), name: "tickets-list" },
+	{ label: __("Sponsorships"), name: "sponsorships-list" },
 ];
 
 // Find the tab index based on current route path

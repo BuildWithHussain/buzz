@@ -23,6 +23,7 @@ declare module 'vue' {
     EventDetailsHeader: typeof import('./src/components/EventDetailsHeader.vue')['default']
     EventSelector: typeof import('./src/components/EventSelector.vue')['default']
     EventSponsorForm: typeof import('./src/components/EventSponsorForm.vue')['default']
+    LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     Navbar: typeof import('./src/components/Navbar.vue')['default']
     ProfileView: typeof import('./src/components/ProfileView.vue')['default']
     QRScanner: typeof import('./src/components/QRScanner.vue')['default']

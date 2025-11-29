@@ -4,6 +4,8 @@ import App from "./App.vue";
 import router from "./router";
 import { initSocket } from "./socket";
 
+import translationPlugin from "./translation";
+
 import {
 	Alert,
 	Badge,
@@ -37,6 +39,7 @@ const app = createApp(App);
 setConfig("resourceFetcher", frappeRequest);
 
 app.use(router);
+app.use(translationPlugin);
 app.use(resourcesPlugin);
 app.use(pageMetaPlugin);
 

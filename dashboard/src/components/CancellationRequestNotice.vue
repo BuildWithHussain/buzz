@@ -4,15 +4,19 @@
 			<div class="flex items-center">
 				<LucideInfo class="w-5 h-5 text-ink-blue-2 mr-3" />
 				<div>
-					<h3 class="text-ink-blue-3 font-semibold">Cancellation Requested</h3>
+					<h3 class="text-ink-blue-3 font-semibold">
+						{{ __("Cancellation Requested") }}
+					</h3>
 					<p class="text-ink-blue-2">
 						<span v-if="cancellationRequest.cancel_full_booking">
-							Full booking cancellation has been requested.
+							{{ __("Full booking cancellation has been requested.") }}
 						</span>
 						<span v-else>
-							Partial cancellation has been requested for selected tickets.
+							{{
+								__("Partial cancellation has been requested for selected tickets.")
+							}}
 						</span>
-						Request submitted on
+						{{ __("Request submitted on") }}
 						{{ formatDate(cancellationRequest.creation) }}.
 					</p>
 				</div>

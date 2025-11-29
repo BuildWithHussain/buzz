@@ -12,8 +12,8 @@
 					params: { enquiryId: row.name },
 				}),
 				emptyState: {
-					title: 'No sponsorship inquiries yet',
-					description: 'Your sponsorship inquiries will appear here',
+					title: __('No sponsorship inquiries yet'),
+					description: __('Your sponsorship inquiries will appear here'),
 				},
 			}"
 		>
@@ -32,7 +32,7 @@
 					variant="subtle"
 					size="sm"
 				>
-					{{ row.has_sponsor ? "Sponsored" : "Inquiry Only" }}
+					{{ row.has_sponsor ? __("Sponsored") : __("Inquiry Only") }}
 				</Badge>
 				<span v-else>{{ item }}</span>
 			</template>
@@ -46,8 +46,12 @@
 			v-else-if="sponsorships.data && sponsorships.data.length === 0"
 			class="text-center py-8"
 		>
-			<div class="text-ink-gray-5 text-lg mb-2">No sponsorship inquiries yet</div>
-			<div class="text-ink-gray-4 text-sm">Your sponsorship inquiries will appear here</div>
+			<div class="text-ink-gray-5 text-lg mb-2">
+				{{ __("No sponsorship inquiries yet") }}
+			</div>
+			<div class="text-ink-gray-4 text-sm">
+				{{ __("Your sponsorship inquiries will appear here") }}
+			</div>
 		</div>
 	</div>
 </template>
@@ -57,12 +61,12 @@ import { ListView, Badge, Spinner, createResource } from "frappe-ui";
 import { dayjsLocal } from "frappe-ui";
 
 const columns = [
-	{ label: "Company", key: "company_name" },
-	{ label: "Event", key: "event_title" },
-	{ label: "Tier", key: "tier_title" },
-	{ label: "Status", key: "status" },
-	{ label: "Sponsorship", key: "sponsorship_status" },
-	{ label: "Submitted", key: "formatted_creation" },
+	{ label: __("Company"), key: "company_name" },
+	{ label: __("Event"), key: "event_title" },
+	{ label: __("Tier"), key: "tier_title" },
+	{ label: __("Status"), key: "status" },
+	{ label: __("Sponsorship"), key: "sponsorship_status" },
+	{ label: __("Submitted"), key: "formatted_creation" },
 ];
 
 const sponsorships = createResource({
@@ -74,7 +78,7 @@ const sponsorships = createResource({
 		return data.map((inquiry) => ({
 			...inquiry,
 			formatted_creation: dayjsLocal(inquiry.creation).format("MMM DD, YYYY"),
-			sponsorship_status: inquiry.has_sponsor ? "Sponsored" : "Inquiry Only",
+			sponsorship_status: inquiry.has_sponsor ? __("Sponsored") : __("Inquiry Only"),
 		}));
 	},
 });

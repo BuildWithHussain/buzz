@@ -1,11 +1,11 @@
 <!-- BookingSummary.vue -->
 <template>
 	<div class="bg-surface-gray-1 border border-outline-gray-1 rounded-lg p-4">
-		<h2 class="text-xl font-bold text-ink-gray-9 mb-4">Booking Summary</h2>
+		<h2 class="text-xl font-bold text-ink-gray-9 mb-4">{{ __("Booking Summary") }}</h2>
 
 		<!-- Tickets Section -->
 		<div v-if="Object.keys(summary.tickets).length" class="mb-4">
-			<h3 class="text-lg font-semibold text-ink-gray-8 mb-2">Tickets</h3>
+			<h3 class="text-lg font-semibold text-ink-gray-8 mb-2">{{ __("Tickets") }}</h3>
 			<div
 				v-for="(ticket, name) in summary.tickets"
 				:key="name"
@@ -24,7 +24,7 @@
 
 		<!-- Add-ons Section -->
 		<div v-if="Object.keys(summary.add_ons).length" class="mb-4">
-			<h3 class="text-lg font-semibold text-ink-gray-8 mb-2">Add-ons</h3>
+			<h3 class="text-lg font-semibold text-ink-gray-8 mb-2">{{ __("Add-ons") }}</h3>
 			<div
 				v-for="(addOn, name) in summary.add_ons"
 				:key="name"
@@ -47,7 +47,7 @@
 
 			<!-- Subtotal -->
 			<div class="flex justify-between items-center text-ink-gray-7 mb-2">
-				<span>Subtotal</span>
+				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{ formatPriceOrFree(netAmount, totalCurrency) }}</span>
 			</div>
 
@@ -56,14 +56,14 @@
 				v-if="shouldApplyGst"
 				class="flex justify-between items-center text-ink-gray-7 mb-2"
 			>
-				<span>GST ({{ taxPercentage }}%)</span>
+				<span>{{ __("GST") }} ({{ taxPercentage }}%)</span>
 				<span class="font-medium">{{ formatPriceOrFree(taxAmount, totalCurrency) }}</span>
 			</div>
 
 			<!-- Final Total Section -->
 			<hr v-if="shouldApplyGst" class="my-2 border-t border-outline-gray-1" />
 			<div class="flex justify-between items-center text-xl font-bold text-ink-gray-9">
-				<h3>Total</h3>
+				<h3>{{ __("Total") }}</h3>
 				<span>{{ formatPriceOrFree(total, totalCurrency) }}</span>
 			</div>
 		</template>
@@ -72,7 +72,7 @@
 		<template v-else>
 			<hr class="my-2 border-t border-outline-gray-1" />
 			<div class="text-center pt-2">
-				<div class="text-xl font-bold text-green-600">Free Event</div>
+				<div class="text-xl font-bold text-green-600">{{ __("Free Event") }}</div>
 			</div>
 		</template>
 	</div>

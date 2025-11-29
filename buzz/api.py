@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today
 
 from buzz.payments import get_payment_link_for_booking
@@ -745,6 +746,7 @@ def get_user_info() -> dict:
 		"user_image": user.user_image,
 		"roles": user.roles,
 		"brand_image": frappe.get_single_value("Website Settings", "banner_image"),
+		"language": user.language,
 	}
 
 
@@ -836,3 +838,24 @@ def checkin_ticket(ticket_id: str) -> dict:
 			"check_in_date": checkin_date,
 		},
 	}
+
+
+@frappe.whitelist()
+def get_enabled_languages():
+	"""Get all enabled languages from the Language doctype."""
+	languages = frappe.get_all(
+		"Language",
+		filters={"enabled": 1},
+		fields=["name", "language_name", "language_code"],
+		order_by="language_name",
+	)
+	return languages
+
+
+@frappe.whitelist()
+def update_user_language(language_code: str):
+	"""Update the current user's preferred language."""
+	if not frappe.db.exists("Language", {"language_code": language_code}):
+		frappe.throw(_("Invalid language"))
+
+	frappe.db.set_value("User", frappe.session.user, "language", language_code)

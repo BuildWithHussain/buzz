@@ -91,6 +91,8 @@ const getFormControlType = (fieldtype) => {
 			return "email";
 		case "Select":
 			return "select";
+		case "Number":
+			return "number";
 		default:
 			return "text";
 	}

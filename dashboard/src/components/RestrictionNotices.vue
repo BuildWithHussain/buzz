@@ -9,14 +9,18 @@
 					/>
 					<div>
 						<p class="text-ink-amber-3 text-sm font-medium mb-2">
-							Some options are no longer available as the event is approaching:
+							{{
+								__(
+									"Some options are no longer available as the event is approaching:"
+								)
+							}}
 						</p>
 						<ul class="text-ink-amber-3 text-sm space-y-1 list-disc list-inside">
 							<li v-if="!canRequestCancellation && !cancellationRequest">
-								Ticket cancellation requests
+								{{ __("Ticket cancellation requests") }}
 							</li>
-							<li v-if="!canTransferTickets">Ticket transfers</li>
-							<li v-if="!canChangeAddOns">Add-on preference changes</li>
+							<li v-if="!canTransferTickets">{{ __("Ticket transfers") }}</li>
+							<li v-if="!canChangeAddOns">{{ __("Add-on preference changes") }}</li>
 						</ul>
 					</div>
 				</div>
