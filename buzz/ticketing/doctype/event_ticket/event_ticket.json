@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2025-07-22 19:49:30.385500",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -13,6 +14,7 @@
   "attendee_email",
   "ticket_type",
   "qr_code",
+  "naming_series",
   "section_break_ijdn",
   "additional_fields",
   "section_break_cgvb",
@@ -113,6 +115,14 @@
    "fieldtype": "Table",
    "label": "Additional Fields",
    "options": "Additional Field"
+  },
+  {
+   "description": "Configurable through <strong>Document Naming Settings</strong>",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "T.###",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
@@ -125,10 +135,11 @@
    "link_fieldname": "ticket"
   }
  ],
- "modified": "2025-11-01 11:39:46.084897",
+ "modified": "2025-11-29 16:03:34.031381",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Ticket",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

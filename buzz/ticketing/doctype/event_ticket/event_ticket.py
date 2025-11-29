@@ -26,6 +26,7 @@ class EventTicket(Document):
 		booking: DF.Link | None
 		coupon_used: DF.Link | None
 		event: DF.Link | None
+		naming_series: DF.Literal["T.###"]
 		qr_code: DF.AttachImage | None
 		ticket_type: DF.Link
 	# end: auto-generated types

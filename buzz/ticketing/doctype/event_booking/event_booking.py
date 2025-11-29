@@ -26,6 +26,7 @@ class EventBooking(Document):
 		attendees: DF.Table[EventBookingAttendee]
 		currency: DF.Link
 		event: DF.Link
+		naming_series: DF.Literal["B.###"]
 		net_amount: DF.Currency
 		tax_amount: DF.Currency
 		tax_percentage: DF.Percent

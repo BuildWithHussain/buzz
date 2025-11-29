@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "naming_series:",
  "creation": "2025-07-22 19:39:32.418375",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -8,6 +9,7 @@
   "event",
   "column_break_cjxu",
   "user",
+  "naming_series",
   "section_break_xvkp",
   "attendees",
   "section_break_suav",
@@ -123,6 +125,12 @@
    "fieldtype": "Table",
    "label": "Additional Fields",
    "options": "Additional Field"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "B.###"
   }
  ],
  "grid_page_length": 50,
@@ -138,10 +146,11 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2025-11-01 11:38:55.175532",
+ "modified": "2025-11-29 16:04:32.159196",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
