@@ -746,6 +746,7 @@ def get_user_info() -> dict:
 		"user_image": user.user_image,
 		"roles": user.roles,
 		"brand_image": frappe.get_single_value("Website Settings", "banner_image"),
+		"language": user.language,
 	}
 
 
@@ -839,11 +840,22 @@ def checkin_ticket(ticket_id: str) -> dict:
 	}
 
 
-@frappe.whitelist(allow_guest=True)
-def get_translations():
-	if frappe.session.user != "Guest":
-		language = frappe.db.get_value("User", frappe.session.user, "language")
-	else:
-		language = frappe.db.get_single_value("System Settings", "language")
+@frappe.whitelist()
+def get_enabled_languages():
+	"""Get all enabled languages from the Language doctype."""
+	languages = frappe.get_all(
+		"Language",
+		filters={"enabled": 1},
+		fields=["name", "language_name", "language_code"],
+		order_by="language_name",
+	)
+	return languages
 
-	return get_all_translations(language)
+
+@frappe.whitelist()
+def update_user_language(language_code: str):
+	"""Update the current user's preferred language."""
+	if not frappe.db.exists("Language", {"language_code": language_code}):
+		frappe.throw(_("Invalid language"))
+
+	frappe.db.set_value("User", frappe.session.user, "language", language_code)
