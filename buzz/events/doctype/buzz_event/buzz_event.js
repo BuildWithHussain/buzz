@@ -28,5 +28,14 @@ frappe.ui.form.on("Buzz Event", {
 				},
 			};
 		});
+
+		frm.set_query("default_ticket_type", (doc) => {
+			return {
+				filters: {
+					event: doc.name,
+					is_published: 1,
+				},
+			};
+		});
 	},
 });

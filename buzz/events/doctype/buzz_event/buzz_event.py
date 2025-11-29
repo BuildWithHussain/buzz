@@ -22,6 +22,7 @@ class BuzzEvent(Document):
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
 		category: DF.Link
+		default_ticket_type: DF.Link | None
 		end_date: DF.Date | None
 		end_time: DF.Time | None
 		external_registration_page: DF.Check

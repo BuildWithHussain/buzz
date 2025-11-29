@@ -153,18 +153,28 @@ const ticketCustomFields = computed(() =>
 	props.customFields.filter((field) => field.applied_to === "Ticket")
 );
 
-// --- METHODS ---
+const getDefaultTicketType = () => {
+	// Use the default ticket type from event details if set
+	const defaultTicketType = props.eventDetails?.default_ticket_type;
+	if (defaultTicketType) {
+		// Verify that the default ticket type is available
+		const isAvailable = props.availableTicketTypes.some((tt) => tt.name == defaultTicketType);
+		if (isAvailable) {
+			return defaultTicketType;
+		}
+	}
+	// Fall back to the first available ticket type
+	return props.availableTicketTypes[0]?.name || "";
+};
+
 const createNewAttendee = () => {
 	attendeeIdCounter.value++;
 	const newAttendee = {
 		id: attendeeIdCounter.value,
 		full_name: "",
 		email: "",
-		// Auto-select ticket type if there's only one available
-		ticket_type:
-			props.availableTicketTypes.length === 1
-				? props.availableTicketTypes[0]?.name
-				: props.availableTicketTypes[0]?.name || "",
+		// Use default ticket type from event details, or first available
+		ticket_type: getDefaultTicketType(),
 		add_ons: {},
 		custom_fields: {},
 	};
@@ -318,15 +328,15 @@ watch(
 	{ immediate: true, deep: true }
 );
 
-// Auto-select ticket type if there's only one available
+// Auto-select ticket type based on event's default or if there's only one available
 watch(
 	() => props.availableTicketTypes,
 	(newTicketTypes) => {
-		if (newTicketTypes && newTicketTypes.length === 1) {
-			// Auto-select the only ticket type for all attendees
+		if (newTicketTypes && newTicketTypes.length > 0) {
+			const defaultTicketType = getDefaultTicketType();
 			for (const attendee of attendees.value) {
 				if (!attendee.ticket_type || attendee.ticket_type === "") {
-					attendee.ticket_type = newTicketTypes[0].name;
+					attendee.ticket_type = defaultTicketType;
 				}
 			}
 		}

@@ -28,6 +28,7 @@
   "website_tab",
   "is_published",
   "route",
+  "default_ticket_type",
   "column_break_ndtl",
   "external_registration_page",
   "registration_url",
@@ -294,6 +295,13 @@
    "fieldtype": "Table",
    "label": "Attachments",
    "options": "Sponsorship Deck Item"
+  },
+  {
+   "description": "Will be selected by default in the booking form",
+   "fieldname": "default_ticket_type",
+   "fieldtype": "Link",
+   "label": "Default Ticket Type",
+   "options": "Event Ticket Type"
   }
  ],
  "grid_page_length": 50,
@@ -366,7 +374,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2025-11-01 12:04:09.030132",
+ "modified": "2025-11-29 14:45:16.601103",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
