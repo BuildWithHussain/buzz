@@ -60,7 +60,7 @@
 					:key="field.fieldname"
 					:model-value="getCustomFieldValue(field.fieldname)"
 					@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
-					:label="field.label"
+					:label="__(field.label)"
 					:type="getFormControlType(field.fieldtype)"
 					:options="getFieldOptions(field)"
 					:required="field.mandatory"

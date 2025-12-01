@@ -1,7 +1,7 @@
 <template>
 	<div v-if="customFields.length > 0" class="space-y-4">
 		<h5 v-if="showTitle" class="text-base font-medium text-ink-gray-8 border-b pb-2">
-			{{ title || "Additional Information" }}
+			{{ __(title) || __("Additional Information") }}
 		</h5>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -10,7 +10,7 @@
 				:key="field.fieldname"
 				:model-value="getFieldValue(field.fieldname)"
 				@update:model-value="updateFieldValue(field.fieldname, $event)"
-				:label="field.label"
+				:label="__(field.label)"
 				:type="getFormControlType(field.fieldtype)"
 				:options="getFieldOptions(field)"
 				:required="field.mandatory"
