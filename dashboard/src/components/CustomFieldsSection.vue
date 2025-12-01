@@ -151,7 +151,7 @@ const getFieldPlaceholder = (field) => {
 	// If custom placeholder is provided, use it
 	if (field.placeholder?.trim()) {
 		const placeholder = field.placeholder.trim();
-		return field.mandatory ? `${placeholder} (required)` : placeholder;
+		return field.mandatory ? `${placeholder} (${__("required")})` : placeholder;
 	}
 
 	// If no custom placeholder is provided, return empty string (no placeholder)
