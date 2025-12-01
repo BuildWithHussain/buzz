@@ -5,23 +5,51 @@
 		</h5>
 
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			<FormControl
-				v-for="field in customFields"
-				:key="field.fieldname"
-				:model-value="getFieldValue(field.fieldname)"
-				@update:model-value="updateFieldValue(field.fieldname, $event)"
-				:label="__(field.label)"
-				:type="getFormControlType(field.fieldtype)"
-				:options="getFieldOptions(field)"
-				:required="field.mandatory"
-				:placeholder="getFieldPlaceholder(field)"
-			/>
+			<template v-for="field in customFields" :key="field.fieldname">
+				<!-- Date field -->
+				<div v-if="field.fieldtype === 'Date'" class="space-y-1.5">
+					<label class="text-xs text-ink-gray-5 block">
+						{{ __(field.label) }}
+						<span v-if="field.mandatory" class="text-ink-red-4">*</span>
+					</label>
+					<DatePicker
+						:model-value="getFieldValue(field.fieldname)"
+						@update:model-value="updateFieldValue(field.fieldname, $event)"
+						:placeholder="getFieldPlaceholder(field)"
+					/>
+				</div>
+
+				<!-- DateTime field -->
+				<div v-else-if="field.fieldtype === 'Datetime'">
+					<label class="block text-xs text-ink-gray-5">
+						{{ __(field.label) }}
+						<span v-if="field.mandatory" class="text-ink-red-4">*</span>
+					</label>
+					<DateTimePicker
+						:model-value="getFieldValue(field.fieldname)"
+						@update:model-value="updateFieldValue(field.fieldname, $event)"
+						:placeholder="getFieldPlaceholder(field)"
+					/>
+				</div>
+
+				<!-- All other field types -->
+				<FormControl
+					v-else
+					:model-value="getFieldValue(field.fieldname)"
+					@update:model-value="updateFieldValue(field.fieldname, $event)"
+					:label="__(field.label)"
+					:type="getFormControlType(field.fieldtype)"
+					:options="getFieldOptions(field)"
+					:required="field.mandatory"
+					:placeholder="getFieldPlaceholder(field)"
+				/>
+			</template>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { DatePicker, DateTimePicker } from "frappe-ui";
 
 const props = defineProps({
 	customFields: {
@@ -85,8 +113,6 @@ const getFormControlType = (fieldtype) => {
 	switch (fieldtype) {
 		case "Phone":
 			return "text";
-		case "Date":
-			return "date";
 		case "Email":
 			return "email";
 		case "Select":
