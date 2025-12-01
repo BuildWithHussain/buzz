@@ -55,17 +55,45 @@
 
 			<!-- Custom Fields for Tickets integrated with basic fields -->
 			<template v-if="customFields.length > 0">
-				<FormControl
-					v-for="field in customFields"
-					:key="field.fieldname"
-					:model-value="getCustomFieldValue(field.fieldname)"
-					@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
-					:label="__(field.label)"
-					:type="getFormControlType(field.fieldtype)"
-					:options="getFieldOptions(field)"
-					:required="field.mandatory"
-					:placeholder="getFieldPlaceholder(field)"
-				/>
+				<template v-for="field in customFields" :key="field.fieldname">
+					<!-- Date field -->
+					<div v-if="field.fieldtype === 'Date'" class="space-y-1.5">
+						<label class="text-xs text-ink-gray-5 block">
+							{{ __(field.label) }}
+							<span v-if="field.mandatory" class="text-ink-red-4">*</span>
+						</label>
+						<DatePicker
+							:model-value="getCustomFieldValue(field.fieldname)"
+							@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
+							:placeholder="getFieldPlaceholder(field)"
+						/>
+					</div>
+
+					<!-- DateTime field -->
+					<div v-else-if="field.fieldtype === 'Datetime'" class="space-y-1.5">
+						<label class="text-xs text-ink-gray-5 block">
+							{{ __(field.label) }}
+							<span v-if="field.mandatory" class="text-ink-red-4">*</span>
+						</label>
+						<DateTimePicker
+							:model-value="getCustomFieldValue(field.fieldname)"
+							@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
+							:placeholder="getFieldPlaceholder(field)"
+						/>
+					</div>
+
+					<!-- All other field types -->
+					<FormControl
+						v-else
+						:model-value="getCustomFieldValue(field.fieldname)"
+						@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
+						:label="__(field.label)"
+						:type="getFormControlType(field.fieldtype)"
+						:options="getFieldOptions(field)"
+						:required="field.mandatory"
+						:placeholder="getFieldPlaceholder(field)"
+					/>
+				</template>
 			</template>
 		</div>
 
@@ -110,7 +138,7 @@
 </template>
 
 <script setup>
-import { Tooltip } from "frappe-ui";
+import { Tooltip, DatePicker, DateTimePicker } from "frappe-ui";
 import { formatPrice, formatPriceOrFree } from "../utils/currency.js";
 
 const props = defineProps({
