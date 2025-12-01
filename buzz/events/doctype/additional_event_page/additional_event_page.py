@@ -14,7 +14,7 @@ class AdditionalEventPage(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		content: DF.TextEditor | None
+		content: DF.TextEditor
 		event: DF.Link
 		is_published: DF.Check
 		route: DF.Data | None
@@ -23,10 +23,20 @@ class AdditionalEventPage(Document):
 
 	def validate(self):
 		self.validate_route()
+		self.validate_duplicate()
 
 	def validate_route(self):
 		if self.is_published and not self.route:
-			event_route = frappe.db.get_value("Buzz Event", self.event, "route")
-
 			self.route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
-			self.route = event_route + "/" + self.route
+
+	def validate_duplicate(self):
+		if not self.route:
+			return
+
+		if frappe.db.exists(
+			"Additional Event Page",
+			{"route": self.route, "event": self.event, "name": ["!=", self.name]},
+		):
+			frappe.throw(
+				frappe._("An Additional Event Page with the same route already exists for this event.")
+			)
