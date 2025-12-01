@@ -55,45 +55,13 @@
 
 			<!-- Custom Fields for Tickets integrated with basic fields -->
 			<template v-if="customFields.length > 0">
-				<template v-for="field in customFields" :key="field.fieldname">
-					<!-- Date field -->
-					<div v-if="field.fieldtype === 'Date'" class="space-y-1.5">
-						<label class="text-xs text-ink-gray-5 block">
-							{{ __(field.label) }}
-							<span v-if="field.mandatory" class="text-ink-red-4">*</span>
-						</label>
-						<DatePicker
-							:model-value="getCustomFieldValue(field.fieldname)"
-							@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
-							:placeholder="getFieldPlaceholder(field)"
-						/>
-					</div>
-
-					<!-- DateTime field -->
-					<div v-else-if="field.fieldtype === 'Datetime'" class="space-y-1.5">
-						<label class="text-xs text-ink-gray-5 block">
-							{{ __(field.label) }}
-							<span v-if="field.mandatory" class="text-ink-red-4">*</span>
-						</label>
-						<DateTimePicker
-							:model-value="getCustomFieldValue(field.fieldname)"
-							@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
-							:placeholder="getFieldPlaceholder(field)"
-						/>
-					</div>
-
-					<!-- All other field types -->
-					<FormControl
-						v-else
-						:model-value="getCustomFieldValue(field.fieldname)"
-						@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
-						:label="__(field.label)"
-						:type="getFormControlType(field.fieldtype)"
-						:options="getFieldOptions(field)"
-						:required="field.mandatory"
-						:placeholder="getFieldPlaceholder(field)"
-					/>
-				</template>
+				<CustomFieldInput
+					v-for="field in customFields"
+					:key="field.fieldname"
+					:field="field"
+					:model-value="getCustomFieldValue(field.fieldname)"
+					@update:model-value="updateCustomFieldValue(field.fieldname, $event)"
+				/>
 			</template>
 		</div>
 
@@ -138,8 +106,10 @@
 </template>
 
 <script setup>
-import { Tooltip, DatePicker, DateTimePicker } from "frappe-ui";
+import { Tooltip } from "frappe-ui";
 import { formatPrice, formatPriceOrFree } from "../utils/currency.js";
+import CustomFieldInput from "./CustomFieldInput.vue";
+import { getFieldOptions, getFieldDefaultValue } from "@/composables/useCustomFields.js";
 
 const props = defineProps({
 	attendee: { type: Object, required: true },
@@ -209,16 +179,14 @@ const getCustomFieldValue = (fieldname) => {
 	ensureCustomFieldsExists();
 	const currentValue = props.attendee.custom_fields[fieldname];
 
-	// Apply default for select fields that don't have values yet
+	// Apply default for fields that don't have values yet
 	if (!currentValue && currentValue !== "") {
 		const field = props.customFields.find((f) => f.fieldname === fieldname);
-		if (field && field.fieldtype === "Select") {
-			const options = getFieldOptions(field);
-			if (options.length > 0) {
-				// Set the first option as default
-				const firstOptionValue = options[0].value;
-				updateCustomFieldValue(fieldname, firstOptionValue);
-				return firstOptionValue;
+		if (field) {
+			const defaultValue = getFieldDefaultValue(field);
+			if (defaultValue) {
+				updateCustomFieldValue(fieldname, defaultValue);
+				return defaultValue;
 			}
 		}
 	}
@@ -229,79 +197,5 @@ const getCustomFieldValue = (fieldname) => {
 const updateCustomFieldValue = (fieldname, value) => {
 	ensureCustomFieldsExists();
 	props.attendee.custom_fields[fieldname] = value;
-};
-
-// Convert Frappe field types to form control types
-const getFormControlType = (fieldtype) => {
-	switch (fieldtype) {
-		case "Phone":
-			return "text";
-		case "Email":
-			return "email";
-		case "Select":
-			return "select";
-		default:
-			return "text";
-	}
-};
-
-// Get field options for select fields
-const getFieldOptions = (field) => {
-	if (field.fieldtype === "Select" && field.options) {
-		// Handle different formats of options
-		let options = [];
-
-		if (typeof field.options === "string") {
-			// Split by newlines and filter out empty options
-			options = field.options
-				.split("\n")
-				.map((option) => option.trim())
-				.filter((option) => option.length > 0);
-		} else if (Array.isArray(field.options)) {
-			// If options is already an array
-			options = field.options.filter((option) => {
-				try {
-					return option != null && String(option).trim().length > 0;
-				} catch {
-					return false;
-				}
-			});
-		}
-
-		const formattedOptions = options.map((option) => {
-			const optionStr = String(option).trim();
-			return {
-				label: optionStr,
-				value: optionStr,
-			};
-		});
-
-		// Debug log for development
-		if (
-			process.env.NODE_ENV === "development" &&
-			formattedOptions.length === 0 &&
-			field.options
-		) {
-			console.warn(
-				`CustomField "${field.fieldname}" has Select type but no valid options:`,
-				field.options
-			);
-		}
-
-		return formattedOptions;
-	}
-	return [];
-};
-
-// Get placeholder text - use custom placeholder if available, otherwise no placeholder
-const getFieldPlaceholder = (field) => {
-	// If custom placeholder is provided, use it
-	if (field.placeholder?.trim()) {
-		const placeholder = field.placeholder.trim();
-		return field.mandatory ? `${placeholder} (required)` : placeholder;
-	}
-
-	// If no custom placeholder is provided, return empty string (no placeholder)
-	return "";
 };
 </script>
