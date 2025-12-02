@@ -7,11 +7,19 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "submitted_by",
+  "column_break_npnb",
+  "proposal",
+  "event",
   "section_break_rnda",
-  "speakers"
+  "speakers",
+  "section_break_nrdk",
+  "description"
  ],
  "fields": [
   {
+   "fetch_from": "proposal.title",
+   "fetch_if_empty": 1,
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -27,12 +35,49 @@
    "fieldtype": "Table",
    "label": "Speakers",
    "options": "Talk Speaker"
+  },
+  {
+   "fetch_from": "proposal.submitted_by",
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Submitted By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_npnb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "proposal",
+   "fieldtype": "Link",
+   "label": "Proposal",
+   "options": "Talk Proposal"
+  },
+  {
+   "fetch_from": "proposal.event",
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "label": "Event",
+   "options": "Buzz Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_nrdk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "proposal.description",
+   "fetch_if_empty": 1,
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-07-26 11:14:06.847485",
+ "modified": "2025-12-02 15:48:57.329842",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Talk",

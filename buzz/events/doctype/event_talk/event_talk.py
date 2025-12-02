@@ -1,7 +1,7 @@
 # Copyright (c) 2025, BWH Studios and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
@@ -16,9 +16,15 @@ class EventTalk(Document):
 
 		from buzz.events.doctype.talk_speaker.talk_speaker import TalkSpeaker
 
+		description: DF.TextEditor | None
+		event: DF.Link
 		name: DF.Int | None
+		proposal: DF.Link | None
 		speakers: DF.Table[TalkSpeaker]
+		submitted_by: DF.Link
 		title: DF.Data
 	# end: auto-generated types
 
-	pass
+	def validate(self):
+		if frappe.db.exists("Event Talk", {"proposal": self.proposal, "name": ["!=", self.name]}):
+			frappe.throw("Talk already created for this proposal!")

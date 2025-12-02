@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.model.mapper import get_mapped_doc
 
 
 class TalkProposal(Document):
@@ -28,3 +29,25 @@ class TalkProposal(Document):
 	def validate(self):
 		if not self.submitted_by:
 			self.submitted_by = frappe.session.user
+
+	@frappe.whitelist()
+	def create_talk(self):
+		talk = get_mapped_doc("Talk Proposal", self.name, {"Talk Proposal": {"doctype": "Event Talk"}})
+
+		for speaker in self.speakers:
+			user = frappe.db.exists("User", speaker.email)
+			if not user:
+				user = (
+					frappe.get_doc(
+						{"doctype": "User", "first_name": speaker.first_name, "last_name": speaker.last_name}
+					)
+					.insert()
+					.name
+				)
+
+			speaker_profile = frappe.db.exists("Speaker Profile", {"user": user})
+			if not speaker_profile:
+				speaker_profile = frappe.get_doc({"doctype": "Speaker Profile", "user": user}).insert().name
+
+			talk.append("speakers", {"speaker": speaker_profile})
+		return talk.save()
