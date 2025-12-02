@@ -16,7 +16,7 @@
 		<!-- Event Info without banner -->
 		<div v-else class="mb-6">
 			<h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-ink-gray-9 mb-4">
-				{{ eventDetails.title }}
+				{{ __(eventDetails.title) }}
 			</h1>
 		</div>
 
@@ -66,7 +66,9 @@
 				v-if="eventDetails.short_description"
 				class="mt-4 pt-4 border-t border-outline-gray-2"
 			>
-				<p class="text-ink-gray-7 leading-relaxed">{{ eventDetails.short_description }}</p>
+				<p class="text-ink-gray-7 leading-relaxed">
+					{{ __(eventDetails.short_description) }}
+				</p>
 			</div>
 		</div>
 	</div>

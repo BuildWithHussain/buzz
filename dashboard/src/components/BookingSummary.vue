@@ -12,10 +12,10 @@
 				class="flex justify-between items-center text-ink-gray-7 mb-1"
 			>
 				<span v-if="total > 0"
-					>{{ ticket.title }} (x {{ ticket.count }} x
+					>{{ __(ticket.title) }} (x {{ ticket.count }} x
 					{{ formatPriceOrFree(ticket.price, ticket.currency) }})</span
 				>
-				<span v-else>{{ ticket.title }} (x {{ ticket.count }})</span>
+				<span v-else>{{ __(ticket.title) }} (x {{ ticket.count }})</span>
 				<span v-if="total > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
@@ -31,10 +31,10 @@
 				class="flex justify-between items-center text-ink-gray-7 mb-1"
 			>
 				<span v-if="total > 0"
-					>{{ addOn.title }} (x {{ addOn.count }} x
+					>{{ __(addOn.title) }} (x {{ addOn.count }} x
 					{{ formatPriceOrFree(addOn.price, addOn.currency) }})</span
 				>
-				<span v-else>{{ addOn.title }} (x {{ addOn.count }})</span>
+				<span v-else>{{ __(addOn.title) }} (x {{ addOn.count }})</span>
 				<span v-if="total > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>

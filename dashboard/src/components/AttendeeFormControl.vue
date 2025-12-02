@@ -47,7 +47,7 @@
 				type="select"
 				:options="
 					availableTicketTypes.map((tt) => ({
-						label: `${tt.title} (${formatPriceOrFree(tt.price, tt.currency)})`,
+						label: `${__(tt.title)} (${formatPriceOrFree(tt.price, tt.currency)})`,
 						value: tt.name,
 					}))
 				"
@@ -81,7 +81,7 @@
 
 					<div class="text-ink-gray-5 text-sm" v-if="addOn.description">
 						<p>
-							{{ addOn.description }}
+							{{ __(addOn.description) }}
 						</p>
 					</div>
 				</div>
@@ -95,7 +95,7 @@
 						@update:model-value="updateAddOnOption(addOn.name, $event)"
 						type="select"
 						:options="
-							addOn.options.map((option) => ({ label: option, value: option }))
+							addOn.options.map((option) => ({ label: __(option), value: option }))
 						"
 						size="sm"
 					/>

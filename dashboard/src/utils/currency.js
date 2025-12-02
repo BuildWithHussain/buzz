@@ -24,7 +24,7 @@ export function formatPrice(price, currencyCode = "INR", locale = "en-US") {
 
 export function formatPriceOrFree(price, currencyCode = "INR", locale = "en-US") {
 	if (price === 0 || price === "0") {
-		return "Free";
+		return __("Free");
 	}
 	return formatPrice(price, currencyCode, locale);
 }

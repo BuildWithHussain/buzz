@@ -13,7 +13,7 @@
 				<div v-else class="space-y-4">
 					<div v-for="addon in addOnsWithOptions" :key="addon.id" class="space-y-2">
 						<label class="block text-sm font-medium text-ink-gray-8">
-							{{ addon.title }}
+							{{ __(addon.title) }}
 						</label>
 						<p class="text-xs text-ink-gray-6 mb-2">Current: {{ addon.value }}</p>
 						<FormControl
@@ -76,7 +76,7 @@ const addOnsWithOptions = computed(() => {
 		.map((addon) => ({
 			...addon,
 			selectOptions: addon.options.map((option) => ({
-				label: option,
+				label: __(option),
 				value: option,
 			})),
 		}));
