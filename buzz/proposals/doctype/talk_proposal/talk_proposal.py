@@ -39,7 +39,12 @@ class TalkProposal(Document):
 			if not user:
 				user = (
 					frappe.get_doc(
-						{"doctype": "User", "first_name": speaker.first_name, "last_name": speaker.last_name}
+						{
+							"doctype": "User",
+							"first_name": speaker.first_name,
+							"last_name": speaker.last_name,
+							"email": speaker.email,
+						}
 					)
 					.insert()
 					.name
