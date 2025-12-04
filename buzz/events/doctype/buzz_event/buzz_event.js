@@ -37,5 +37,25 @@ frappe.ui.form.on("Buzz Event", {
 				},
 			};
 		});
+
+		frm.trigger("add_zoom_custom_actions");
+	},
+
+	add_zoom_custom_actions(frm) {
+		const installed_apps = frappe.boot.app_data.map((app) => app.app_name);
+		if (!installed_apps.includes("zoom_integration") || frm.doc.category != "Webinars") {
+			return;
+		}
+
+		const btn = frm.add_custom_button(__("Create Webinar on Zoom"), () => {
+			frm.call({
+				doc: frm.doc,
+				method: "create_webinar_on_zoom",
+				btn,
+			}).then(({ message }) => {
+				console.log(message); // TODO: show a dialog with link to this webinar
+				frappe.show_alert(__("Webinar successfully created!"));
+			});
+		});
 	},
 });

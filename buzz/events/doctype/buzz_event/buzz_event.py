@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils.data import time_diff_in_seconds
 
 
 class BuzzEvent(Document):
@@ -67,3 +68,31 @@ class BuzzEvent(Document):
 		]
 		for record in records:
 			frappe.get_doc({**record, "event": self.name}).insert(ignore_permissions=True)
+
+	@frappe.whitelist()
+	def create_webinar_on_zoom(self):
+		installed_apps = frappe.get_installed_apps()
+		if "zoom_integration" not in installed_apps:
+			frappe.throw(
+				frappe._(
+					"Please install <a href='https://github.com/BuildWithHussain/zoom_integration'>Zoom Integration</a> app!"
+				)
+			)
+
+		if not self.end_time:
+			frappe.throw(frappe._("End time is needed for Zoom Webinar creation"))
+
+		zoom_webinar = frappe.get_doc(
+			{
+				"doctype": "Zoom Webinar",
+				"title": self.title,
+				"date": self.start_date,
+				"time": self.start_time,
+				"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
+				"timezone": self.time_zone,
+			}
+		).insert()
+
+		self.db_set("zoom_webinar", zoom_webinar.name)
+
+		return zoom_webinar
