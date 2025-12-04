@@ -76,10 +76,9 @@
 						:model-value="getAddOnSelected(addOn.name)"
 						@update:model-value="updateAddOnSelection(addOn.name, $event)"
 						:id="`add_on_${addOn.name}_${index}`"
-						:label="addOn.title"
+						:label="__(addOn.title)"
 					/>
-
-					<div class="text-ink-gray-5 text-sm" v-if="addOn.description">
+					<div class="text-ink-gray-5 text-sm/4" v-if="addOn.description">
 						<p>
 							{{ __(addOn.description) }}
 						</p>
