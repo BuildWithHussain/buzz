@@ -1,5 +1,27 @@
 import frappe
 
+from buzz.utils import get_custom_fields_creator
+
+_create_custom_fields = get_custom_fields_creator("Buzz")
+
+ZOOM_INTEGRATION_CUSTOM_FIELDS = {
+	"Buzz Event": [
+		{
+			"fieldname": "zoom_integration_tab",
+			"label": "Zoom Integration",
+			"fieldtype": "Tab Break",
+			"insert_after": "ticket_print_format",
+		},
+		{
+			"fieldname": "zoom_webinar",
+			"label": "Zoom Webinar",
+			"fieldtype": "Link",
+			"options": "Zoom Webinar",
+			"insert_after": "zoom_integration_tab",
+		},
+	],
+}
+
 
 def before_tests():
 	setup_test_records()
@@ -34,6 +56,23 @@ def setup_test_records():
 
 def after_install():
 	create_event_categories()
+	create_custom_fields()
+
+
+def after_app_install(app_name: str):
+	if app_name == "zoom_integration":
+		create_zoom_integration_custom_fields()
+
+
+def create_custom_fields():
+	installed_apps = frappe.get_installed_apps()
+
+	if "zoom_integration" in installed_apps:
+		create_zoom_integration_custom_fields()
+
+
+def create_zoom_integration_custom_fields():
+	_create_custom_fields(ZOOM_INTEGRATION_CUSTOM_FIELDS, ignore_validate=True)
 
 
 def create_event_categories():

@@ -79,6 +79,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.medium!=\"Online\"",
    "fieldname": "venue",
    "fieldtype": "Link",
    "label": "Venue",
@@ -372,9 +373,14 @@
    "group": "Customisations",
    "link_doctype": "Buzz Custom Field",
    "link_fieldname": "event"
+  },
+  {
+   "group": "Proposals",
+   "link_doctype": "Flash Talk Proposal",
+   "link_fieldname": "event"
   }
  ],
- "modified": "2025-11-29 14:45:16.601103",
+ "modified": "2025-12-04 17:56:26.590389",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
