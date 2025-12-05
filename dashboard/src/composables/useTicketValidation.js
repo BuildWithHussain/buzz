@@ -43,7 +43,6 @@ const showDebouncedToast = (message, type = "error") => {
 const validateTicketResource = createResource({
 	url: "buzz.api.validate_ticket_for_checkin",
 	onSuccess: (data) => {
-		console.log("validateTicketResource onSuccess", data);
 		validationResult.value = data;
 		showTicketModal.value = true;
 		playSuccessSound();
@@ -62,6 +61,8 @@ const validateTicketResource = createResource({
 			showDebouncedToast("This ticket is not confirmed and cannot be used for check-in");
 		} else if (errorData.includes("This ticket was already checked in today")) {
 			showDebouncedToast("This ticket was already checked in today.");
+		} else if (errorData.includes("cancelled")) {
+			showDebouncedToast("This ticket has been cancelled and cannot be checked in");
 		} else {
 			showDebouncedToast("Error validating ticket");
 		}

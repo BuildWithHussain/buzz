@@ -16,9 +16,9 @@
 						<LucideCheckCircle class="w-8 h-8 text-green-600 dark:text-green-400" />
 					</div>
 					<h4 class="text-lg font-semibold text-gray-900 dark:text-white">
-						Valid Ticket
+						{{ __("Valid Ticket") }}
 					</h4>
-					<p class="text-gray-600 dark:text-gray-400">Ready for check-in</p>
+					<p class="text-gray-600 dark:text-gray-400">{{ __("Ready for check-in") }}</p>
 				</div>
 
 				<div class="space-y-4 mb-6">
@@ -26,36 +26,36 @@
 						<div>
 							<label
 								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Attendee</label
+								>{{ __("Attendee") }}</label
 							>
-							<p class="text-gray-900 dark:text-white">
+							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.attendee_name }}
 							</p>
 						</div>
 						<div>
 							<label
 								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Email</label
+								>{{ __("Email") }}</label
 							>
-							<p class="text-gray-900 dark:text-white text-sm">
+							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.attendee_email }}
 							</p>
 						</div>
 						<div>
 							<label
 								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Ticket Type</label
+								>{{ __("Ticket Type") }}</label
 							>
-							<p class="text-gray-900 dark:text-white">
+							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.ticket_type }}
 							</p>
 						</div>
 						<div>
 							<label
 								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>Ticket ID</label
+								>{{ __("Ticket ID") }}</label
 							>
-							<p class="text-gray-900 dark:text-white font-mono text-sm">
+							<p class="text-sm font-mono text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.id }}
 							</p>
 						</div>
@@ -68,7 +68,7 @@
 					>
 						<label
 							class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-							>Add-ons</label
+							>{{ __("Add-ons") }}</label
 						>
 						<div class="space-y-2">
 							<div
@@ -77,7 +77,7 @@
 								class="flex justify-between text-sm"
 							>
 								<span class="text-gray-900 dark:text-white">{{
-									addon.add_on_title || addon.add_on
+									__(addon.add_on_title || addon.add_on)
 								}}</span>
 								<span class="text-gray-600 dark:text-gray-400">{{
 									addon.value
@@ -112,15 +112,17 @@
 					<template #prefix>
 						<LucideUserCheck class="w-4 h-4" />
 					</template>
-					Check In
+					{{ __("Check In") }}
 				</Button>
 				<Button @click="handleModalClose" variant="outline" class="w-full">
-					Cancel
+					{{ __("Cancel") }}
 				</Button>
 			</div>
 
 			<div v-else>
-				<Button @click="handleModalClose" class="w-full" variant="outline"> Close </Button>
+				<Button @click="handleModalClose" class="w-full" variant="outline">
+					{{ __("Close") }}
+				</Button>
 			</div>
 		</template>
 	</Dialog>
@@ -149,10 +151,5 @@ const handleCheckIn = () => {
 
 const handleModalClose = () => {
 	closeModal();
-};
-
-const formatDateTime = (datetime) => {
-	if (!datetime) return "";
-	return dayjsLocal(datetime).format("MMM DD, YYYY [at] h:mm A");
 };
 </script>
