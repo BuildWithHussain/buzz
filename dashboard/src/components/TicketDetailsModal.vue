@@ -76,9 +76,11 @@
 								:key="addon.add_on"
 								class="flex justify-between text-sm"
 							>
-								<span class="text-gray-900 dark:text-white">{{
-									__(addon.add_on_title || addon.add_on)
-								}}</span>
+								<span class="text-gray-900 dark:text-white"
+									>{{ __(addon.add_on_title || addon.add_on) }} ({{
+										formatPriceOrFree(addon.price, addon.currency)
+									}})</span
+								>
 								<span class="text-gray-600 dark:text-gray-400">{{
 									addon.value
 								}}</span>
@@ -134,6 +136,7 @@ import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideUserCheck from "~icons/lucide/user-check";
 import LucideXCircle from "~icons/lucide/x-circle";
 import { useTicketValidation } from "../composables/useTicketValidation.js";
+import { formatPriceOrFree } from "../utils/currency.js";
 
 const props = defineProps({
 	selectedEvent: {
