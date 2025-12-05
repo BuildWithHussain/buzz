@@ -74,8 +74,8 @@
 
 <script setup>
 import { Button, Spinner, TextInput, toast } from "frappe-ui";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { onUnmounted, ref } from "vue";
+import { Html5Qrcode } from "html5-qrcode";
+import { onMounted, onUnmounted, ref } from "vue";
 import LucideQrCode from "~icons/lucide/qr-code";
 import { useTicketValidation } from "../composables/useTicketValidation.js";
 
@@ -87,27 +87,44 @@ const manualTicketId = ref("");
 const lastScannedTicketId = ref(null);
 const scanTimeout = ref(null);
 
-const startScanner = () => {
+const startScanner = async () => {
 	if (scannerActive.value) return;
 
-	qrScanner.value = new Html5QrcodeScanner(
-		"qr-reader",
-		{
-			fps: 10,
-			qrbox: { width: 250, height: 250 },
-			aspectRatio: 1.0,
-		},
-		false
-	);
+	try {
+		// Clear any existing scanner content first
+		const container = document.getElementById("qr-reader");
+		if (container) {
+			container.innerHTML = "";
+		}
 
-	qrScanner.value.render(onScanSuccess, onScanFailure);
-	scannerActive.value = true;
+		qrScanner.value = new Html5Qrcode("qr-reader");
+
+		// Start scanning with the back camera (environment) as default
+		await qrScanner.value.start(
+			{ facingMode: "environment" },
+			{
+				fps: 10,
+				qrbox: { width: 250, height: 250 },
+				aspectRatio: 1.0,
+			},
+			onScanSuccess,
+			onScanFailure
+		);
+		scannerActive.value = true;
+	} catch (error) {
+		console.error("Failed to start scanner:", error);
+		toast.error(__("Failed to start camera. Please check permissions."));
+	}
 };
 
-const stopScanner = () => {
+const stopScanner = async () => {
 	if (!scannerActive.value || !qrScanner.value) return;
 
-	qrScanner.value.clear();
+	try {
+		await qrScanner.value.stop();
+	} catch (error) {
+		console.error("Failed to stop scanner:", error);
+	}
 	qrScanner.value = null;
 	scannerActive.value = false;
 };
@@ -169,9 +186,26 @@ const handleManualEntry = () => {
 	manualTicketId.value = "";
 };
 
+onMounted(() => {
+	// Automatically start the scanner when component mounts
+	startScanner();
+});
+
 onUnmounted(() => {
 	if (qrScanner.value) {
-		qrScanner.value.clear();
+		qrScanner.value
+			.stop()
+			.then(() => {
+				qrScanner.value.clear();
+			})
+			.catch((error) => {
+				console.error("Failed to cleanup scanner:", error);
+			})
+			.finally(() => {
+				qrScanner.value = null;
+				scannerActive.value = false;
+			});
+	} else {
 		qrScanner.value = null;
 		scannerActive.value = false;
 	}
@@ -210,13 +244,13 @@ defineExpose({
 	border-radius: 0 !important;
 }
 
-:global(#qr-reader__dashboard) {
-	padding: 16px !important;
+/* Hide duplicate shaded regions - only show the first one */
+:global(#qr-shaded-region:not(:first-of-type)) {
+	display: none !important;
 }
 
-:global(#qr-reader__dashboard button) {
-	margin: 4px !important;
-	padding: 8px 16px !important;
-	border-radius: 6px !important;
+/* Hide the dashboard UI since we're using our own controls */
+:global(#qr-reader__dashboard) {
+	display: none !important;
 }
 </style>
