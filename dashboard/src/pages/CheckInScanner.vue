@@ -49,9 +49,7 @@
 			<!-- Scanner Interface -->
 			<div v-else class="space-y-6">
 				<!-- Selected Event Info -->
-				<Button @click="clearEventSelection" class="w-full" icon-left="arrow-left">
-					{{ selectedEvent.title }}
-				</Button>
+				<BackButton :label="selectedEvent.title" @click="clearEventSelection" />
 
 				<!-- QR Scanner -->
 				<QRScanner ref="qrScannerRef" />
@@ -89,6 +87,7 @@
 <script setup>
 import { Button } from "frappe-ui";
 import { computed, onMounted, ref } from "vue";
+import BackButton from "../components/common/BackButton.vue";
 import EventSelector from "../components/EventSelector.vue";
 import QRScanner from "../components/QRScanner.vue";
 import TicketDetailsModal from "../components/TicketDetailsModal.vue";

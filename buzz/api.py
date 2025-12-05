@@ -757,6 +757,10 @@ def validate_ticket_for_checkin(ticket_id: str) -> dict:
 		frappe.throw(_("Ticket not found"))
 
 	ticket_doc = frappe.get_cached_doc("Event Ticket", ticket_id)
+
+	if ticket_doc.docstatus == 2:
+		frappe.throw(_("This ticket has been cancelled and cannot be checked in"))
+
 	event_doc = frappe.get_cached_doc("Buzz Event", ticket_doc.event)
 	ticket_type_doc = (
 		frappe.get_cached_doc("Event Ticket Type", ticket_doc.ticket_type) if ticket_doc.ticket_type else None
