@@ -3,7 +3,9 @@
 		class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
 	>
 		<div class="p-4 border-b border-gray-200 dark:border-gray-700">
-			<h3 class="font-medium text-gray-900 dark:text-white">Scan Ticket QR Code</h3>
+			<h3 class="font-medium text-gray-900 dark:text-white">
+				{{ __("Scan Ticket QR Code") }}
+			</h3>
 		</div>
 
 		<!-- Scanner Container -->
@@ -44,7 +46,7 @@
 					class="flex-1"
 					icon-left="square"
 				>
-					Stop Scanner
+					{{ __("Stop Scanner") }}
 				</Button>
 			</div>
 
@@ -62,7 +64,7 @@
 						:loading="isProcessingTicket"
 						:disabled="!manualTicketId.trim()"
 					>
-						Check
+						{{ __("Check") }}
 					</Button>
 				</div>
 			</div>
@@ -114,7 +116,7 @@ const onScanSuccess = (decodedText) => {
 	// Extract ticket ID from QR code
 	const ticketId = extractTicketId(decodedText);
 	if (!ticketId) {
-		toast.error("Invalid QR code format");
+		toast.error(__("Invalid QR code format"));
 		return;
 	}
 
