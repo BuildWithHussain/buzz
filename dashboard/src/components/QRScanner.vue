@@ -107,8 +107,7 @@ const startScanner = async () => {
 				qrbox: { width: 250, height: 250 },
 				aspectRatio: 1.0,
 			},
-			onScanSuccess,
-			onScanFailure
+			onScanSuccess
 		);
 		scannerActive.value = true;
 	} catch (error) {
@@ -151,10 +150,6 @@ const onScanSuccess = (decodedText) => {
 	scanTimeout.value = setTimeout(() => {
 		lastScannedTicketId.value = null;
 	}, 2000);
-};
-
-const onScanFailure = (error) => {
-	console.warn("QR Scanner Error:", error);
 };
 
 const extractTicketId = (qrData) => {
