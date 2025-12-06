@@ -59,6 +59,7 @@ frappe.ui.form.on("Buzz Event", {
 				doc: frm.doc,
 				method: "create_webinar_on_zoom",
 				btn,
+				freeze: true,
 			}).then(({ message }) => {
 				frm.layout.tabs.find((t) => t.label == "Zoom Integration").set_active();
 			});
