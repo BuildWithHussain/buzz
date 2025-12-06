@@ -11,6 +11,7 @@
 				:gstSettings="eventBookingData.gstSettings"
 				:eventDetails="eventBookingData.eventDetails"
 				:customFields="eventBookingData.customFields"
+				:eventRoute="eventRoute"
 			/>
 		</div>
 	</div>

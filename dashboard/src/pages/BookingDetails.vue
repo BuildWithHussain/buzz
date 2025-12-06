@@ -6,9 +6,6 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
-		<!-- Success Message (only shown on payment success) -->
-		<SuccessMessage :show="showSuccessMessage" />
-
 		<!-- Event Information and Payment Summary in two columns -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Event Information -->
@@ -19,13 +16,15 @@
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
-				v-if="bookingDetails.data.doc"
+				v-if="!bookingDetails.data.event.free_webinar && bookingDetails.data.doc"
 				:booking="bookingDetails.data.doc"
 			/>
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
-				v-if="bookingDetails.data.booking_summary"
+				v-if="
+					!bookingDetails.data.event.free_webinar && bookingDetails.data.booking_summary
+				"
 				:summary="bookingDetails.data.booking_summary"
 			/>
 		</div>
@@ -33,12 +32,13 @@
 		<!-- Cancellation Request Section -->
 		<!-- Only show if there's a pending cancellation request (not yet submitted/accepted) -->
 		<CancellationRequestNotice
-			v-if="hasPendingCancellationRequest"
+			v-if="!bookingDetails.data.event.free_webinar && hasPendingCancellationRequest"
 			:cancellation-request="bookingDetails.data.cancellation_request"
 		/>
 
 		<!-- Tickets Section -->
 		<TicketsSection
+			v-if="!bookingDetails.data.event.free_webinar"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -64,6 +64,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { createResource, Spinner } from "frappe-ui";
+import { useRoute } from "vue-router";
 import { usePaymentSuccess } from "../composables/usePaymentSuccess.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import BookingHeader from "../components/BookingHeader.vue";
@@ -74,6 +75,8 @@ import CancellationRequestDialog from "../components/CancellationRequestDialog.v
 import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
 import BookingEventInfo from "../components/BookingEventInfo.vue";
 
+const route = useRoute();
+
 const props = defineProps({
 	bookingId: {
 		type: String,
@@ -81,16 +84,11 @@ const props = defineProps({
 	},
 });
 
-// Use booking form storage composable to clear data on successful payment
-const { clearStoredData } = useBookingFormStorage();
+// Check if this is a successful payment redirect (check URL immediately)
+const isPaymentSuccess = route.query.success === "true";
 
-// Use payment success composable with callback to clear booking form data
-const { showSuccessMessage } = usePaymentSuccess({
-	onSuccess: () => {
-		// Clear any stored booking form data when payment is successful
-		clearStoredData();
-	},
-});
+// Use payment success composable for UI effects (confetti, message, URL cleanup)
+const { showSuccessMessage } = usePaymentSuccess();
 
 const showCancellationDialog = ref(false);
 
@@ -98,6 +96,13 @@ const bookingDetails = createResource({
 	url: "buzz.api.get_booking_details",
 	params: { booking_id: props.bookingId },
 	auto: true,
+	onSuccess: (data) => {
+		// Clear stored booking form data if this was a successful payment
+		if (isPaymentSuccess && data?.event?.route) {
+			const { clearStoredData } = useBookingFormStorage(data.event.route);
+			clearStoredData();
+		}
+	},
 });
 
 const canTransferTickets = computed(() => {

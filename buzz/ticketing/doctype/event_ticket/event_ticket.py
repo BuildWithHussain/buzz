@@ -52,7 +52,22 @@ class EventTicket(Document):
 
 	@only_if_app_installed("zoom_integration")
 	def create_zoom_registration_if_applicable(self):
-		pass
+		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
+
+		if event_doc.zoom_webinar:
+			registration = frappe.get_doc(
+				{
+					"doctype": "Zoom Webinar Registration",
+					"webinar": event_doc.zoom_webinar,
+					"email": self.attendee_email,
+					"first_name": self.attendee_name,
+				}
+			).insert()
+
+			try:
+				registration.submit()
+			except Exception:
+				frappe.log_error("Failed to create registration on Zoom")
 
 	def send_user_invitation(self):
 		invite_by_email(

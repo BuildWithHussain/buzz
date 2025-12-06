@@ -115,15 +115,19 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
+	eventRoute: {
+		type: String,
+		required: true,
+	},
 });
 
 // --- STATE ---
-// Use the booking form storage composable
+// Use the booking form storage composable with event-scoped keys
 const {
 	attendees,
 	attendeeIdCounter,
 	bookingCustomFields: storedBookingCustomFields,
-} = useBookingFormStorage();
+} = useBookingFormStorage(props.eventRoute);
 
 // Use stored booking custom fields data
 const bookingCustomFieldsData = storedBookingCustomFields;
@@ -471,7 +475,7 @@ async function submit() {
 				window.location.href = data.payment_link;
 			} else {
 				// free event
-				router.replace(`/bookings/${data.booking_name}`);
+				router.replace(`/bookings/${data.booking_name}?success=true`);
 			}
 		},
 	});
