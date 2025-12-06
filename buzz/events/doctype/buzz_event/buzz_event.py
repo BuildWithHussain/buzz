@@ -3,6 +3,9 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils.data import time_diff_in_seconds
+
+from buzz.utils import only_if_app_installed
 
 
 class BuzzEvent(Document):
@@ -27,6 +30,7 @@ class BuzzEvent(Document):
 		end_time: DF.Time | None
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
+		free_webinar: DF.Check
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]
@@ -67,3 +71,48 @@ class BuzzEvent(Document):
 		]
 		for record in records:
 			frappe.get_doc({**record, "event": self.name}).insert(ignore_permissions=True)
+
+	@frappe.whitelist()
+	@only_if_app_installed("zoom_integration", raise_exception=True)
+	def create_webinar_on_zoom(self):
+		if not self.end_time:
+			frappe.throw(frappe._("End time is needed for Zoom Webinar creation"))
+
+		zoom_webinar = frappe.get_doc(
+			{
+				"doctype": "Zoom Webinar",
+				"title": self.title,
+				"date": self.start_date,
+				"start_time": self.start_time,
+				"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
+				"timezone": self.time_zone,
+				"template": frappe.get_cached_doc("Buzz Settings").default_webinar_template,
+			}
+		).insert()
+
+		self.db_set("zoom_webinar", zoom_webinar.name)
+
+		return zoom_webinar
+
+	def on_update(self):
+		self.update_zoom_webinar()
+
+	@only_if_app_installed("zoom_integration")
+	def update_zoom_webinar(self):
+		if not self.zoom_webinar:
+			return
+
+		if (
+			self.has_value_changed("start_date")
+			or self.has_value_changed("end_time")
+			or self.has_value_changed("start_time")
+		):
+			webinar = frappe.get_doc("Zoom Webinar", self.zoom_webinar)
+			webinar.update(
+				{
+					"date": self.start_date,
+					"start_time": self.start_time,
+					"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
+				}
+			)
+			webinar.save()

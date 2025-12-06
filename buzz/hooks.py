@@ -14,6 +14,8 @@ export_python_type_annotations = True
 
 after_install = "buzz.install.after_install"
 
+before_uninstall = "buzz.uninstall.before_uninstall"
+
 
 website_route_rules = [
 	{"from_route": "/dashboard/<path:app_path>", "to_route": "dashboard"},
@@ -43,6 +45,8 @@ user_invitation = {"allowed_roles": {"Event Manager": ["Buzz User"], "Buzz User"
 
 
 ignore_links_on_delete = ["Ticket Cancellation Request", "Ticket Add-on Value"]
+
+after_app_install = "buzz.install.after_app_install"
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -133,7 +137,7 @@ ignore_links_on_delete = ["Ticket Cancellation Request", "Ticket Add-on Value"]
 # Name of the app being installed is passed as an argument
 
 # before_app_install = "events.utils.before_app_install"
-# after_app_install = "events.utils.after_app_install"
+
 
 # Integration Cleanup
 # -------------------

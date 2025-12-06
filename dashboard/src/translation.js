@@ -37,7 +37,7 @@ function translate(message, replace, context = null) {
 
 function fetchTranslations(lang) {
 	createResource({
-		url: "frappe.translate.get_app_translations",
+		url: "buzz.api.get_translations",
 		auto: true,
 		transform: (data) => {
 			window.translatedMessages = data;

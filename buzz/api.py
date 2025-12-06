@@ -883,3 +883,13 @@ def update_user_language(language_code: str):
 		frappe.throw(_("Invalid language"))
 
 	frappe.db.set_value("User", frappe.session.user, "language", language_code)
+
+
+@frappe.whitelist(allow_guest=True)
+def get_translations():
+	if frappe.session.user != "Guest":
+		language = frappe.db.get_value("User", frappe.session.user, "language")
+	else:
+		language = frappe.db.get_single_value("System Settings", "language")
+
+	return get_all_translations(language)
