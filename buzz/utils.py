@@ -1,7 +1,35 @@
 import functools
+from collections.abc import Callable
 
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+
+
+def only_if_app_installed(app_name: str, raise_exception: bool = False) -> Callable:
+	"""
+	Decorator to check if a specified app is installed before running the function.
+
+	:param app_name: The name of the app to check for installation.
+	:param raise_exception: If True, raises an exception if the app is not installed.
+	                        If False, the function silently returns None.
+	:return: The decorated function.
+	"""
+
+	def decorator(func: Callable) -> Callable:
+		@functools.wraps(func)
+		def wrapper(*args, **kwargs):
+			installed_apps = frappe.get_installed_apps()
+			if app_name not in installed_apps:
+				if raise_exception:
+					frappe.throw(
+						frappe._("This feature requires the <b>{0}</b> app to be installed.").format(app_name)
+					)
+				return None
+			return func(*args, **kwargs)
+
+		return wrapper
+
+	return decorator
 
 
 def add_buzz_user_role(doc, event=None):

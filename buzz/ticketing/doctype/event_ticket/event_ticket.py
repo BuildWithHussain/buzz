@@ -5,6 +5,8 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
+from buzz.utils import only_if_app_installed
+
 
 class EventTicket(Document):
 	# begin: auto-generated types
@@ -46,6 +48,11 @@ class EventTicket(Document):
 		# 	self.send_user_invitation()
 		# except Exception as e:
 		# 	frappe.log_error("Error sending user invitation: " + str(e))
+		self.create_zoom_registration_if_applicable()
+
+	@only_if_app_installed("zoom_integration")
+	def create_zoom_registration_if_applicable(self):
+		pass
 
 	def send_user_invitation(self):
 		invite_by_email(

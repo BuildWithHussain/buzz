@@ -5,6 +5,8 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils.data import time_diff_in_seconds
 
+from buzz.utils import only_if_app_installed
+
 
 class BuzzEvent(Document):
 	# begin: auto-generated types
@@ -28,6 +30,7 @@ class BuzzEvent(Document):
 		end_time: DF.Time | None
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
+		free_webinar: DF.Check
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]
@@ -70,15 +73,8 @@ class BuzzEvent(Document):
 			frappe.get_doc({**record, "event": self.name}).insert(ignore_permissions=True)
 
 	@frappe.whitelist()
+	@only_if_app_installed("zoom_integration", raise_exception=True)
 	def create_webinar_on_zoom(self):
-		installed_apps = frappe.get_installed_apps()
-		if "zoom_integration" not in installed_apps:
-			frappe.throw(
-				frappe._(
-					"Please install <a href='https://github.com/BuildWithHussain/zoom_integration'>Zoom Integration</a> app!"
-				)
-			)
-
 		if not self.end_time:
 			frappe.throw(frappe._("End time is needed for Zoom Webinar creation"))
 
@@ -101,11 +97,8 @@ class BuzzEvent(Document):
 	def on_update(self):
 		self.update_zoom_webinar()
 
+	@only_if_app_installed("zoom_integration")
 	def update_zoom_webinar(self):
-		installed_apps = frappe.get_installed_apps()
-		if "zoom_integration" not in installed_apps:
-			return
-
 		if not self.zoom_webinar:
 			return
 
