@@ -12,7 +12,7 @@ frappe.ui.form.on("Buzz Event", {
 		}
 
 		if (frm.doc.route) {
-			frm.add_web_link(`/dashboard/book-tickets/${frm.doc.route}`, "View Booking Page");
+			frm.add_web_link(`/dashboard/book-tickets/${frm.doc.route}`, "View Registration Page");
 		}
 
 		const button_label = frm.doc.is_published ? __("Unpublish") : __("Publish");
