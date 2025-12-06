@@ -69,7 +69,7 @@
 										? __("Processing...")
 										: finalTotal > 0
 										? __("Pay & Book")
-										: __("Book Tickets")
+										: __("Register")
 								}}
 							</Button>
 						</div>
