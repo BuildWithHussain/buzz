@@ -41,7 +41,10 @@
 
 			<!-- Show selector only if there are multiple ticket types -->
 			<FormControl
-				v-if="availableTicketTypes.length > 1"
+				v-if="
+					availableTicketTypes.length > 1 &&
+					!(eventDetails.category == 'Webinars' && eventDetails.free_webinar)
+				"
 				v-model="attendee.ticket_type"
 				:label="__('Ticket Type')"
 				type="select"
@@ -106,9 +109,9 @@
 
 <script setup>
 import { Tooltip } from "frappe-ui";
-import { formatPrice, formatPriceOrFree } from "../utils/currency.js";
+import { formatPriceOrFree } from "../utils/currency.js";
 import CustomFieldInput from "./CustomFieldInput.vue";
-import { getFieldOptions, getFieldDefaultValue } from "@/composables/useCustomFields.js";
+import { getFieldDefaultValue } from "@/composables/useCustomFields.js";
 
 const props = defineProps({
 	attendee: { type: Object, required: true },
@@ -117,6 +120,11 @@ const props = defineProps({
 	availableAddOns: { type: Array, required: true },
 	customFields: { type: Array, default: () => [] },
 	showRemove: { type: Boolean, default: false },
+	eventDetails: {
+		type: Object,
+		required: false,
+		default: () => ({}),
+	},
 });
 
 defineEmits(["remove"]);

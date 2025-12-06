@@ -28,6 +28,7 @@
 						:available-add-ons="availableAddOns"
 						:custom-fields="ticketCustomFields"
 						:show-remove="attendees.length > 1"
+						:eventDetails="eventDetails"
 						@remove="removeAttendee(index)"
 					/>
 
@@ -48,6 +49,8 @@
 				<div class="lg:col-span-1">
 					<div class="sticky top-4 w-full">
 						<BookingSummary
+							class="mb-6"
+							v-if="!eventDetails.free_webinar"
 							:summary="summary"
 							:net-amount="netAmount"
 							:tax-amount="taxAmount"
@@ -56,21 +59,16 @@
 							:total="finalTotal"
 							:total-currency="totalCurrency"
 						/>
+
 						<div class="w-full">
 							<Button
 								variant="solid"
 								size="lg"
-								class="w-full mt-6"
+								class="w-full"
 								type="submit"
 								:loading="processBooking.loading"
 							>
-								{{
-									processBooking.loading
-										? __("Processing...")
-										: finalTotal > 0
-										? __("Pay & Book")
-										: __("Register")
-								}}
+								{{ submitButtonText }}
 							</Button>
 						</div>
 					</div>
@@ -478,4 +476,20 @@ async function submit() {
 		},
 	});
 }
+
+const submitButtonText = computed(() => {
+	if (processBooking.loading) {
+		return __("Processing...");
+	}
+
+	if (finalTotal > 0) {
+		return __("Pay & Book");
+	}
+
+	if (props.eventDetails.category === "Webinars") {
+		return __("Register");
+	}
+
+	return __("Book Tickets");
+});
 </script>

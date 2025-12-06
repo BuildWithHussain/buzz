@@ -45,6 +45,7 @@
 					<div>
 						<p class="font-medium text-ink-gray-8">
 							{{ formatEventTime(eventDetails.start_time, eventDetails.end_time) }}
+							({{ eventDetails.time_zone }})
 						</p>
 					</div>
 				</div>
@@ -57,6 +58,19 @@
 					</div>
 					<div>
 						<p class="font-medium text-ink-gray-8">{{ eventDetails.venue }}</p>
+					</div>
+				</div>
+
+				<div
+					v-else-if="eventDetails.medium === 'Online'"
+					class="flex flex-col items-start gap-3"
+				>
+					<div class="flex items-center gap-2">
+						<LucideMapPin class="h-4 w-4 text-ink-gray-6" />
+						<p class="text-ink-gray-6 text-base">{{ __("Venue") }}</p>
+					</div>
+					<div>
+						<p class="font-medium text-ink-gray-8">{{ __("Online") }}</p>
 					</div>
 				</div>
 			</div>
@@ -78,7 +92,7 @@
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideClock from "~icons/lucide/clock";
 import LucideMapPin from "~icons/lucide/map-pin";
-import { dayjsLocal } from "frappe-ui/src/utils/dayjs";
+import { dayjsLocal, dayjs } from "frappe-ui/src/utils/dayjs";
 
 const props = defineProps({
 	eventDetails: {
@@ -117,7 +131,7 @@ const formatEventTime = (startTime, endTime) => {
 		return startFormatted;
 	}
 
-	const endDateTime = dayjsLocal()
+	const endDateTime = dayjs()
 		.hour(Number.parseInt(endTime.split(":")[0]))
 		.minute(Number.parseInt(endTime.split(":")[1]));
 	const endFormatted = endDateTime.format("h:mm A");

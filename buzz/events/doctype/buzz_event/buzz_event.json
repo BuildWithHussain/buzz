@@ -8,6 +8,7 @@
  "field_order": [
   "title",
   "category",
+  "free_webinar",
   "medium",
   "column_break_cxqh",
   "banner_image",
@@ -303,6 +304,13 @@
    "fieldtype": "Link",
    "label": "Default Ticket Type",
    "options": "Event Ticket Type"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.category==\"Webinars\"",
+   "fieldname": "free_webinar",
+   "fieldtype": "Check",
+   "label": "Free Webinar?"
   }
  ],
  "grid_page_length": 50,
@@ -380,7 +388,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2025-12-04 17:56:26.590389",
+ "modified": "2025-12-06 13:48:23.569043",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
