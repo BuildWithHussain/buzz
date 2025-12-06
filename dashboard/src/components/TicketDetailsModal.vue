@@ -1,8 +1,9 @@
+<!-- TODO: This component needs a refactor -->
 <template>
 	<Dialog v-model="showTicketModal">
 		<template #body-title>
 			<h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-				{{ validationResult ? "Valid Ticket" : "Invalid Ticket" }}
+				{{ validationResult ? __("Valid Ticket") : __("Invalid Ticket") }}
 			</h3>
 		</template>
 
@@ -24,37 +25,33 @@
 				<div class="space-y-4 mb-6">
 					<div class="grid grid-cols-2 gap-4">
 						<div>
-							<label
-								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>{{ __("Attendee") }}</label
-							>
+							<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{{ __("Attendee") }}
+							</h3>
 							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.attendee_name }}
 							</p>
 						</div>
 						<div>
-							<label
-								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>{{ __("Email") }}</label
-							>
+							<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{{ __("Email") }}
+							</h3>
 							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.attendee_email }}
 							</p>
 						</div>
 						<div>
-							<label
-								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>{{ __("Ticket Type") }}</label
-							>
+							<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{{ __("Ticket Type") }}
+							</h3>
 							<p class="text-sm text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.ticket_type }}
 							</p>
 						</div>
 						<div>
-							<label
-								class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-								>{{ __("Ticket ID") }}</label
-							>
+							<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+								{{ __("Ticket ID") }}
+							</h3>
 							<p class="text-sm font-mono text-gray-900 dark:text-white">
 								{{ validationResult?.ticket?.id }}
 							</p>
@@ -66,10 +63,9 @@
 						v-if="validationResult?.ticket?.add_ons?.length"
 						class="border-t border-gray-200 dark:border-gray-600 pt-4"
 					>
-						<label
-							class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-							>{{ __("Add-ons") }}</label
-						>
+						<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							{{ __("Add-ons") }}
+						</h3>
 						<div class="space-y-2">
 							<div
 								v-for="addon in validationResult?.ticket?.add_ons"
@@ -84,6 +80,35 @@
 								<span class="text-gray-600 dark:text-gray-400">{{
 									addon.value
 								}}</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Payment details -->
+					<div v-if="validationResult?.payment_details">
+						<h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+							{{ __("Payment Details") }}
+						</h3>
+
+						<div class="grid grid-cols-2 mt-3 text-sm text-gray-900 dark:text-white">
+							<div class="space-y-1">
+								<p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+									{{ __("ID") }}
+								</p>
+								<p>{{ validationResult?.payment_details?.name }}</p>
+							</div>
+							<div class="space-y-1">
+								<p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+									{{ __("Amount Paid") }}
+								</p>
+								<p>
+									{{
+										formatPriceOrFree(
+											validationResult?.payment_details?.amount,
+											validationResult?.payment_details?.currency
+										)
+									}}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -121,6 +146,7 @@
 				</Button>
 			</div>
 
+			<!-- TODO: I don't understand why this is here. -->
 			<div v-else>
 				<Button @click="handleModalClose" class="w-full" variant="outline">
 					{{ __("Close") }}
@@ -131,7 +157,7 @@
 </template>
 
 <script setup>
-import { Button, Dialog, dayjsLocal } from "frappe-ui";
+import { Button, Dialog } from "frappe-ui";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideUserCheck from "~icons/lucide/user-check";
 import LucideXCircle from "~icons/lucide/x-circle";
