@@ -97,3 +97,29 @@ class BuzzEvent(Document):
 		self.db_set("zoom_webinar", zoom_webinar.name)
 
 		return zoom_webinar
+
+	def on_update(self):
+		self.update_zoom_webinar()
+
+	def update_zoom_webinar(self):
+		installed_apps = frappe.get_installed_apps()
+		if "zoom_integration" not in installed_apps:
+			return
+
+		if not self.zoom_webinar:
+			return
+
+		if (
+			self.has_value_changed("start_date")
+			or self.has_value_changed("end_time")
+			or self.has_value_changed("start_time")
+		):
+			webinar = frappe.get_doc("Zoom Webinar", self.zoom_webinar)
+			webinar.update(
+				{
+					"date": self.start_date,
+					"start_time": self.start_time,
+					"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
+				}
+			)
+			webinar.save()
