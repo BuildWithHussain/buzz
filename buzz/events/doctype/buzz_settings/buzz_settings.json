@@ -15,7 +15,9 @@
   "allow_ticket_cancellation_request_before_event_start_days",
   "billing_section",
   "apply_gst_on_bookings",
-  "gst_percentage"
+  "gst_percentage",
+  "section_break_vtep",
+  "custom_fields_go_after_this"
  ],
  "fields": [
   {
@@ -82,13 +84,22 @@
    "fieldtype": "Data",
    "label": "Support Email",
    "options": "Email"
+  },
+  {
+   "fieldname": "section_break_vtep",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "custom_fields_go_after_this",
+   "fieldtype": "HTML",
+   "label": "Custom Fields Go After This"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-10-28 17:04:47.412532",
+ "modified": "2025-12-06 11:52:38.161009",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Settings",

@@ -90,6 +90,7 @@ class BuzzEvent(Document):
 				"start_time": self.start_time,
 				"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
 				"timezone": self.time_zone,
+				"template": frappe.get_cached_doc("Buzz Settings").default_webinar_template,
 			}
 		).insert()
 
