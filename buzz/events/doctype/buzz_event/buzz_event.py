@@ -87,7 +87,7 @@ class BuzzEvent(Document):
 				"doctype": "Zoom Webinar",
 				"title": self.title,
 				"date": self.start_date,
-				"time": self.start_time,
+				"start_time": self.start_time,
 				"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
 				"timezone": self.time_zone,
 			}

@@ -47,14 +47,20 @@ frappe.ui.form.on("Buzz Event", {
 			return;
 		}
 
+		if (frm.doc.zoom_webinar) {
+			frm.add_custom_button(__("View Webinar on Zoom"), () => {
+				window.open(`https://zoom.us/webinar/${frm.doc.zoom_webinar}`, "_blank");
+			});
+			return;
+		}
+
 		const btn = frm.add_custom_button(__("Create Webinar on Zoom"), () => {
 			frm.call({
 				doc: frm.doc,
 				method: "create_webinar_on_zoom",
 				btn,
 			}).then(({ message }) => {
-				console.log(message); // TODO: show a dialog with link to this webinar
-				frappe.show_alert(__("Webinar successfully created!"));
+				frm.layout.tabs.find((t) => t.label == "Zoom Integration").set_active();
 			});
 		});
 	},
