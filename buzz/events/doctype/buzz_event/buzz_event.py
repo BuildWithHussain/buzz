@@ -24,6 +24,7 @@ class BuzzEvent(Document):
 		about: DF.TextEditor | None
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
+		booking_naming_series: DF.Data | None
 		category: DF.Link
 		default_ticket_type: DF.Link | None
 		end_date: DF.Date | None
@@ -47,6 +48,7 @@ class BuzzEvent(Document):
 		start_date: DF.Date
 		start_time: DF.Time | None
 		ticket_email_template: DF.Link | None
+		ticket_naming_series: DF.Data | None
 		ticket_print_format: DF.Link | None
 		time_zone: DF.Autocomplete | None
 		title: DF.Data

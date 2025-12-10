@@ -117,7 +117,7 @@
    "options": "Additional Field"
   },
   {
-   "description": "Configurable through <strong>Document Naming Settings</strong>",
+   "description": "Configurable through event",
    "fieldname": "naming_series",
    "fieldtype": "Select",
    "label": "Naming Series",
@@ -135,7 +135,7 @@
    "link_fieldname": "ticket"
   }
  ],
- "modified": "2025-11-29 16:03:34.031381",
+ "modified": "2025-12-06 17:28:19.969265",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Ticket",
