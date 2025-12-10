@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-12-10 17:17:09.702412",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "event_category",
+  "column_break_bixo",
+  "status",
+  "naming_series",
+  "section_break_zajc",
+  "description",
+  "host_tab",
+  "host_company",
+  "additional_notes"
+ ],
+ "fields": [
+  {
+   "default": "Received",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Received\nIn Review\nApproved\nRejected"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "EPR-.###"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_category",
+   "fieldtype": "Link",
+   "label": "Event Category",
+   "options": "Event Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bixo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_zajc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "host_tab",
+   "fieldtype": "Tab Break",
+   "label": "Host"
+  },
+  {
+   "fieldname": "host_company",
+   "fieldtype": "Data",
+   "label": "Host Company"
+  },
+  {
+   "fieldname": "additional_notes",
+   "fieldtype": "Small Text",
+   "label": "Additional Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-10 17:20:13.100170",
+ "modified_by": "Administrator",
+ "module": "Proposals",
+ "name": "Event Proposal",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
