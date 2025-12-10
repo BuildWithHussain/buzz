@@ -49,6 +49,11 @@
   "section_break_mieu",
   "sponsor_deck_attachments",
   "customisations_tab",
+  "naming_series_section",
+  "ticket_naming_series",
+  "column_break_fits",
+  "booking_naming_series",
+  "section_break_vmpu",
   "ticket_email_template",
   "column_break_ukql",
   "ticket_print_format"
@@ -311,6 +316,29 @@
    "fieldname": "free_webinar",
    "fieldtype": "Check",
    "label": "Free Webinar?"
+  },
+  {
+   "fieldname": "naming_series_section",
+   "fieldtype": "Section Break",
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "ticket_naming_series",
+   "fieldtype": "Data",
+   "label": "Ticket Naming Series"
+  },
+  {
+   "fieldname": "column_break_fits",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "booking_naming_series",
+   "fieldtype": "Data",
+   "label": "Booking Naming Series"
+  },
+  {
+   "fieldname": "section_break_vmpu",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
@@ -388,7 +416,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2025-12-06 13:48:23.569043",
+ "modified": "2025-12-06 17:27:31.435837",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
