@@ -51,7 +51,9 @@
   "customisations_tab",
   "ticket_email_template",
   "column_break_ukql",
-  "ticket_print_format"
+  "ticket_print_format",
+  "connections_tab",
+  "proposal"
  ],
  "fields": [
   {
@@ -311,6 +313,18 @@
    "fieldname": "free_webinar",
    "fieldtype": "Check",
    "label": "Free Webinar?"
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections"
+  },
+  {
+   "fieldname": "proposal",
+   "fieldtype": "Link",
+   "label": "Proposal",
+   "options": "Event Proposal",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -381,14 +395,9 @@
    "group": "Customisations",
    "link_doctype": "Buzz Custom Field",
    "link_fieldname": "event"
-  },
-  {
-   "group": "Proposals",
-   "link_doctype": "Flash Talk Proposal",
-   "link_fieldname": "event"
   }
  ],
- "modified": "2025-12-06 13:48:23.569043",
+ "modified": "2025-12-11 11:26:46.409529",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

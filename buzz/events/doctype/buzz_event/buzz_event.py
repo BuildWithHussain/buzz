@@ -36,6 +36,7 @@ class BuzzEvent(Document):
 		medium: DF.Literal["In Person", "Online"]
 		name: DF.Int | None
 		payment_gateway: DF.Link | None
+		proposal: DF.Link | None
 		registration_url: DF.Data | None
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
