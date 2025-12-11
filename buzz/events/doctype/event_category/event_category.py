@@ -1,7 +1,7 @@
 # Copyright (c) 2025, BWH Studios and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
@@ -14,8 +14,15 @@ class EventCategory(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		banner_image: DF.AttachImage | None
 		enabled: DF.Check
 		icon_svg: DF.Code | None
+		slug: DF.Data | None
 	# end: auto-generated types
 
-	pass
+	def validate(self):
+		if not self.slug:
+			self.set_slug()
+
+	def set_slug(self):
+		self.slug = frappe.website.utils.cleanup_page_name(self.name).replace("_", "-")

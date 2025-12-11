@@ -7,6 +7,9 @@
  "engine": "InnoDB",
  "field_order": [
   "enabled",
+  "slug",
+  "column_break_mrmh",
+  "banner_image",
   "icon_svg"
  ],
  "fields": [
@@ -21,12 +24,28 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
+  },
+  {
+   "fieldname": "banner_image",
+   "fieldtype": "Attach Image",
+   "label": "Banner Image"
+  },
+  {
+   "fieldname": "slug",
+   "fieldtype": "Data",
+   "label": "Slug",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_mrmh",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
+ "image_field": "banner_image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-04 12:53:09.908371",
+ "modified": "2025-12-11 12:34:55.467301",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Category",

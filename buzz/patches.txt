@@ -5,3 +5,4 @@ buzz.patches.rename_doctypes_for_buzz
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+buzz.patches.populate_slug_in_event_category
