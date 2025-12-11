@@ -8,6 +8,7 @@
  "field_order": [
   "enabled",
   "slug",
+  "description",
   "column_break_mrmh",
   "banner_image",
   "icon_svg"
@@ -39,13 +40,18 @@
   {
    "fieldname": "column_break_mrmh",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
   }
  ],
  "grid_page_length": 50,
  "image_field": "banner_image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-11 12:34:55.467301",
+ "modified": "2025-12-11 16:13:22.249406",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Category",
