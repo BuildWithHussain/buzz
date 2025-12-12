@@ -72,14 +72,14 @@ def get_summary_for_event(event: str) -> dict:
 	sales = frappe.db.get_all(
 		"Event Booking",
 		filters={"docstatus": 1, "event": event},
-		fields=["sum(total_amount) as sales"],
+		fields=[{"SUM": "total_amount", "as": "sales"}],
 		pluck="sales",
 	)[0]
 
 	num_add_ons_sold = frappe.db.get_all(
 		"Ticket Add-on Value",
 		filters={"parenttype": "Event Ticket", "parentfield": "add_ons", "parent": ["in", event_tickets]},
-		fields=["count(*) as num_add_ons_sold"],
+		fields=[{"COUNT": "*", "as": "num_add_ons_sold"}],
 		pluck="num_add_ons_sold",
 	)[0]
 
