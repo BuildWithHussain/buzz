@@ -9,13 +9,15 @@
 			<div
 				v-for="(ticket, name) in summary.tickets"
 				:key="name"
-				class="flex justify-between items-center text-ink-gray-7 mb-1"
+				class="flex justify-between items-start text-ink-gray-7 mb-2"
 			>
-				<span v-if="total > 0"
-					>{{ __(ticket.title) }} (x {{ ticket.count }} x
-					{{ formatPriceOrFree(ticket.price, ticket.currency) }})</span
-				>
-				<span v-else>{{ __(ticket.title) }} (x {{ ticket.count }})</span>
+				<div class="flex flex-col">
+					<span>{{ __(ticket.title) }}</span>
+					<span v-if="total > 0" class="text-sm text-ink-gray-5">
+						{{ ticket.count }} x {{ formatPriceOrFree(ticket.price, ticket.currency) }}
+					</span>
+					<span v-else class="text-sm text-ink-gray-5">x {{ ticket.count }}</span>
+				</div>
 				<span v-if="total > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
@@ -28,13 +30,15 @@
 			<div
 				v-for="(addOn, name) in summary.add_ons"
 				:key="name"
-				class="flex justify-between items-center text-ink-gray-7 mb-1"
+				class="flex justify-between items-start text-ink-gray-7 mb-2"
 			>
-				<span v-if="total > 0"
-					>{{ __(addOn.title) }} (x {{ addOn.count }} x
-					{{ formatPriceOrFree(addOn.price, addOn.currency) }})</span
-				>
-				<span v-else>{{ __(addOn.title) }} (x {{ addOn.count }})</span>
+				<div class="flex flex-col">
+					<span>{{ __(addOn.title) }}</span>
+					<span v-if="total > 0" class="text-sm text-ink-gray-5">
+						{{ addOn.count }} x {{ formatPriceOrFree(addOn.price, addOn.currency) }}
+					</span>
+					<span v-else class="text-sm text-ink-gray-5">x {{ addOn.count }}</span>
+				</div>
 				<span v-if="total > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>
