@@ -12,6 +12,7 @@
 				:eventDetails="eventBookingData.eventDetails"
 				:customFields="eventBookingData.customFields"
 				:eventRoute="eventRoute"
+				:paymentGateways="eventBookingData.paymentGateways"
 			/>
 		</div>
 	</div>
@@ -28,6 +29,7 @@ const eventBookingData = reactive({
 	gstSettings: null,
 	eventDetails: null,
 	customFields: null,
+	paymentGateways: [],
 });
 
 const props = defineProps({
@@ -52,6 +54,7 @@ const eventBookingResource = createResource({
 		};
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];
+		eventBookingData.paymentGateways = data.payment_gateways || [];
 	},
 	onError: (error) => {
 		if (error.message.includes("DoesNotExistError")) {

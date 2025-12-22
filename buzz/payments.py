@@ -6,15 +6,35 @@ def get_payment_gateway_for_event(event: str):
 	return frappe.get_cached_value("Buzz Event", event, "payment_gateway")
 
 
+def get_payment_gateways_for_event(event: str) -> list[str]:
+	"""Get all payment gateways configured for an event."""
+	gateways = frappe.get_all(
+		"Event Payment Gateway",
+		filters={"parent": event, "parenttype": "Buzz Event"},
+		pluck="payment_gateway",
+	)
+	if not gateways:
+		# Fallback to legacy field
+		legacy = frappe.get_cached_value("Buzz Event", event, "payment_gateway")
+		return [legacy] if legacy else []
+	return gateways
+
+
 def get_controller(payment_gateway):
 	return get_payment_gateway_controller(payment_gateway)
 
 
 @frappe.whitelist()
-def get_payment_link_for_booking(booking_id: str, redirect_to: str = "/events") -> str:
+def get_payment_link_for_booking(
+	booking_id: str, redirect_to: str = "/events", payment_gateway: str | None = None
+) -> str:
 	booking_doc = frappe.get_cached_doc("Event Booking", booking_id)
 	event_title = frappe.get_cached_value("Buzz Event", booking_doc.event, "title")
-	payment_gateway = get_payment_gateway_for_event(booking_doc.event)
+	if not payment_gateway:
+		gateways = get_payment_gateways_for_event(booking_doc.event)
+		if not gateways:
+			frappe.throw("No payment gateway configured for this event")
+		payment_gateway = gateways[0]
 	return get_payment_link(
 		"Event Booking",
 		booking_id,
@@ -28,10 +48,17 @@ def get_payment_link_for_booking(booking_id: str, redirect_to: str = "/events") 
 
 @frappe.whitelist()
 def get_payment_link_for_sponsorship(
-	sponsorship_enquiry: str, sponsorship_tier: str, redirect_to: str = "/events"
+	sponsorship_enquiry: str,
+	sponsorship_tier: str,
+	redirect_to: str = "/events",
+	payment_gateway: str | None = None,
 ) -> str:
 	tier_doc = frappe.get_cached_doc("Sponsorship Tier", sponsorship_tier)
-	payment_gateway = get_payment_gateway_for_event(tier_doc.event)
+	if not payment_gateway:
+		gateways = get_payment_gateways_for_event(tier_doc.event)
+		if not gateways:
+			frappe.throw("No payment gateway configured for this event")
+		payment_gateway = gateways[0]
 	event_title = frappe.get_cached_value("Buzz Event", tier_doc.event, "title")
 	frappe.db.set_value(
 		"Sponsorship Enquiry", sponsorship_enquiry, "tier", sponsorship_tier

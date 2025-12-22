@@ -3,6 +3,13 @@
 	<div>
 		<EventDetailsHeader :event-details="eventDetails" />
 
+		<!-- Payment Gateway Selection Dialog -->
+		<PaymentGatewayDialog
+			v-model:open="showGatewayDialog"
+			:payment-gateways="paymentGateways"
+			@gateway-selected="onGatewaySelected"
+		/>
+
 		<form @submit.prevent="submit">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
@@ -84,6 +91,7 @@ import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
+import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import { createResource, toast } from "frappe-ui";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter } from "vue-router";
@@ -119,6 +127,10 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	paymentGateways: {
+		type: Array,
+		default: () => [],
+	},
 });
 
 // --- STATE ---
@@ -131,6 +143,10 @@ const {
 
 // Use stored booking custom fields data
 const bookingCustomFieldsData = storedBookingCustomFields;
+
+// Payment gateway dialog state
+const showGatewayDialog = ref(false);
+const pendingPayload = ref(null);
 
 // Ensure user data is loaded
 if (!userResource.data) {
@@ -469,16 +485,42 @@ async function submit() {
 			Object.keys(cleanedBookingCustomFields).length > 0 ? cleanedBookingCustomFields : null,
 	};
 
-	processBooking.submit(final_payload, {
-		onSuccess: (data) => {
-			if (data.payment_link) {
-				window.location.href = data.payment_link;
-			} else {
-				// free event
-				router.replace(`/bookings/${data.booking_name}?success=true`);
-			}
+	// Check if we need to show gateway selection dialog
+	// Only show dialog if there's a payment (finalTotal > 0) and multiple gateways
+	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+		pendingPayload.value = final_payload;
+		showGatewayDialog.value = true;
+		return;
+	}
+
+	// Single gateway or free event - submit directly
+	submitBooking(final_payload, props.paymentGateways[0] || null);
+}
+
+function submitBooking(payload, paymentGateway) {
+	processBooking.submit(
+		{
+			...payload,
+			payment_gateway: paymentGateway,
 		},
-	});
+		{
+			onSuccess: (data) => {
+				if (data.payment_link) {
+					window.location.href = data.payment_link;
+				} else {
+					// free event
+					router.replace(`/bookings/${data.booking_name}?success=true`);
+				}
+			},
+		}
+	);
+}
+
+function onGatewaySelected(gateway) {
+	if (pendingPayload.value) {
+		submitBooking(pendingPayload.value, gateway);
+		pendingPayload.value = null;
+	}
 }
 
 const submitButtonText = computed(() => {

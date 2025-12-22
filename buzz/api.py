@@ -3,7 +3,13 @@ from frappe import _
 from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today
 
-from buzz.payments import get_payment_link_for_booking
+from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
+
+
+@frappe.whitelist()
+def get_event_payment_gateways(event: str) -> list[str]:
+	"""Get available payment gateways for an event."""
+	return get_payment_gateways_for_event(event)
 
 
 def is_ticket_transfer_allowed(event_id: str | int) -> bool:
@@ -155,11 +161,19 @@ def get_event_booking_data(event_route: str) -> dict:
 	)
 	data.custom_fields = custom_fields
 
+	# Payment Gateways
+	data.payment_gateways = get_payment_gateways_for_event(event_doc.name)
+
 	return data
 
 
 @frappe.whitelist()
-def process_booking(attendees: list[dict], event: str, booking_custom_fields: dict | None = None) -> dict:
+def process_booking(
+	attendees: list[dict],
+	event: str,
+	booking_custom_fields: dict | None = None,
+	payment_gateway: str | None = None,
+) -> dict:
 	booking = frappe.new_doc("Event Booking")
 	booking.event = event
 	booking.user = frappe.session.user
@@ -216,7 +230,9 @@ def process_booking(attendees: list[dict], event: str, booking_custom_fields: di
 
 	return {
 		"payment_link": get_payment_link_for_booking(
-			booking.name, redirect_to=f"/dashboard/bookings/{booking.name}?success=true"
+			booking.name,
+			redirect_to=f"/dashboard/bookings/{booking.name}?success=true",
+			payment_gateway=payment_gateway,
 		)
 	}
 
@@ -569,7 +585,7 @@ def get_user_sponsorship_inquiries() -> list:
 
 
 @frappe.whitelist()
-def create_sponsorship_payment_link(enquiry_id: str, tier_id: str) -> str:
+def create_sponsorship_payment_link(enquiry_id: str, tier_id: str, payment_gateway: str | None = None) -> str:
 	"""Create a payment link for a sponsorship enquiry with selected tier."""
 	from buzz.payments import get_payment_link_for_sponsorship
 
@@ -580,7 +596,9 @@ def create_sponsorship_payment_link(enquiry_id: str, tier_id: str) -> str:
 
 	# Create payment link
 	redirect_url = f"/dashboard/account/sponsorships/{enquiry_id}?success=true"
-	return get_payment_link_for_sponsorship(enquiry_id, tier_id, redirect_url)
+	return get_payment_link_for_sponsorship(
+		enquiry_id, tier_id, redirect_url, payment_gateway=payment_gateway
+	)
 
 
 @frappe.whitelist()
