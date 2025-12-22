@@ -36,8 +36,8 @@
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
-  "payment_gateway",
-  "column_break_klhx",
+  "section_break_owtc",
+  "payment_gateways",
   "sponsorships_tab",
   "automations_section",
   "auto_send_pitch_deck",
@@ -174,12 +174,6 @@
    "label": "Payments"
   },
   {
-   "fieldname": "payment_gateway",
-   "fieldtype": "Link",
-   "label": "Payment Gateway",
-   "options": "Payment Gateway"
-  },
-  {
    "description": "Used by Frappe Builder",
    "fieldname": "route",
    "fieldtype": "Data",
@@ -206,10 +200,6 @@
   },
   {
    "fieldname": "column_break_ndtl",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_klhx",
    "fieldtype": "Column Break"
   },
   {
@@ -325,6 +315,16 @@
    "label": "Proposal",
    "options": "Event Proposal",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_owtc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_gateways",
+   "fieldtype": "Table",
+   "label": "Payment Gateways",
+   "options": "Event Payment Gateway"
   }
  ],
  "grid_page_length": 50,
@@ -397,7 +397,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2025-12-11 11:26:46.409529",
+ "modified": "2025-12-22 14:29:30.898160",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
