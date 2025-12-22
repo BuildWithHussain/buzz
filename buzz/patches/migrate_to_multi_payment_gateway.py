@@ -7,6 +7,7 @@ def execute():
 	)
 
 	frappe.reload_doc("Events", "doctype", "buzz_event")
+	frappe.reload_doc("Events", "doctype", "event_payment_gateway")
 
 	for event in events:
 		doc = frappe.get_cached_doc("Buzz Event", event.name)
