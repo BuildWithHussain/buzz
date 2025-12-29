@@ -411,6 +411,11 @@ def get_booking_details(booking_id: str) -> dict:
 
 	details.tickets = tickets
 	details.event = frappe.get_cached_doc("Buzz Event", booking_doc.event)
+
+	# Get venue details if venue is set
+	if details.event.venue:
+		details.venue = frappe.get_cached_doc("Event Venue", details.event.venue)
+
 	details.can_transfer_ticket = can_transfer_ticket(details.event.name)
 	details.can_change_add_ons = can_change_add_ons(details.event.name)
 	details.can_request_cancellation = can_request_cancellation(details.event.name)

@@ -12,6 +12,7 @@
 			<BookingEventInfo
 				v-if="bookingDetails.data.event"
 				:event="bookingDetails.data.event"
+				:venue="bookingDetails.data.venue"
 			/>
 
 			<!-- Booking Financial Summary -->
