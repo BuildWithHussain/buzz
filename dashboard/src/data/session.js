@@ -2,6 +2,7 @@ import router from "@/router";
 import { createResource } from "frappe-ui";
 import { computed, reactive } from "vue";
 import { userResource } from "./user";
+import { useRoute } from "vue-router";
 
 export function sessionUser() {
 	const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
@@ -33,7 +34,8 @@ export const session = reactive({
 		onSuccess() {
 			userResource.reset();
 			session.user = sessionUser();
-			window.location.href = "/login?redirect=/dashboard";
+			const redirect_to = window.location.pathname + window.location.search;
+			window.location.href = `/login?redirect-to=${encodeURIComponent(redirect_to)}`;
 		},
 	}),
 	user: sessionUser(),
