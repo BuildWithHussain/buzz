@@ -4,6 +4,7 @@
 import frappe
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
+from frappe.utils import get_url
 
 from buzz.payments import mark_payment_as_received
 
@@ -26,6 +27,13 @@ class SponsorshipEnquiry(Document):
 		tier: DF.Link | None
 		website: DF.Data | None
 	# end: auto-generated types
+
+	def on_update(self):
+		if self.has_value_changed("status") and self.status == "Payment Pending":
+			try:
+				self.send_approval_notification()
+			except Exception:
+				frappe.log_error("Error sending Sponsorship Approval Notification")
 
 	def on_payment_authorized(self, payment_status: str):
 		if payment_status in ("Authorized", "Completed"):
@@ -89,4 +97,28 @@ class SponsorshipEnquiry(Document):
 			reference_name=self.name,
 			now=now,
 			attachments=[{"file_url": attachment.file} for attachment in event.sponsor_deck_attachments],
+		)
+
+	def send_approval_notification(self):
+		event = frappe.get_cached_doc("Buzz Event", self.event)
+		host_name = event.host or "The Event Team"
+		dashboard_link = get_url(f"/dashboard/account/sponsorships/{self.name}")
+
+		subject = f"[Payment Pending] Your Sponsorship for {event.title} has been Approved!"
+		message = f"""
+		<p>Dear {self.company_name},</p>
+
+		<p>We are pleased to inform you that your sponsorship enquiry for <strong>{event.title}</strong> has been approved.</p>
+
+		<p>You can now proceed to select a sponsorship tier and complete the payment by visiting your dashboard <a href="{dashboard_link}">here</a>.</p>
+
+		<br>{host_name}</p>
+		"""
+
+		frappe.sendmail(
+			recipients=[self.owner],
+			subject=subject,
+			message=message,
+			reference_doctype=self.doctype,
+			reference_name=self.name,
 		)
