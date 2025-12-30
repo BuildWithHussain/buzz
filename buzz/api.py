@@ -928,3 +928,7 @@ def get_translations():
 		language = frappe.db.get_single_value("System Settings", "language")
 
 	return get_all_translations(language)
+
+
+def has_app_permission():
+	return True
