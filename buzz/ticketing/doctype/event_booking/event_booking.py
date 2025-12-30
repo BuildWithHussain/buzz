@@ -16,20 +16,22 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
+		from frappe.types import DF
 
 		additional_fields: DF.Table[AdditionalField]
 		amended_from: DF.Link | None
 		attendees: DF.Table[EventBookingAttendee]
+		coupon_code: DF.Link | None
 		currency: DF.Link
+		discount_amount: DF.Currency
 		event: DF.Link
 		naming_series: DF.Literal["B.###"]
 		net_amount: DF.Currency
 		tax_amount: DF.Currency
+		tax_label: DF.Data | None
 		tax_percentage: DF.Percent
 		total_amount: DF.Currency
 		user: DF.Link
@@ -41,6 +43,7 @@ class EventBooking(Document):
 		self.fetch_amounts_from_ticket_types()
 		self.set_currency()
 		self.set_total()
+		self.apply_coupon_if_applicable()
 		self.apply_taxes_if_applicable()
 
 	def set_currency(self):
@@ -70,7 +73,7 @@ class EventBooking(Document):
 		self.tax_percentage = event.tax_percentage or 0
 
 		if self.tax_percentage > 0:
-			self.tax_amount = self.net_amount * (self.tax_percentage / 100)
+			self.tax_amount = self.total_amount * (self.tax_percentage / 100)
 			self.total_amount += self.tax_amount
 
 	def validate_ticket_availability(self):
@@ -173,3 +176,59 @@ class EventBooking(Document):
 		tickets = frappe.db.get_all("Event Ticket", filters={"booking": self.name}, pluck="name")
 		for ticket in tickets:
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
+
+	def apply_coupon_if_applicable(self):
+		self.discount_amount = 0
+
+		if not self.coupon_code:
+			return
+
+		coupon = frappe.get_doc("Coupon Code", self.coupon_code)
+
+		is_valid, error_msg = coupon.is_valid_for_event(self.event)
+		if not is_valid:
+			frappe.throw(error_msg)
+
+		is_available, error_msg = coupon.is_usage_available()
+		if not is_available:
+			frappe.throw(error_msg)
+
+		if coupon.coupon_type == "Discount":
+			if coupon.discount_type == "Percentage":
+				self.discount_amount = self.net_amount * (coupon.discount_value / 100)
+			else: 
+				self.discount_amount = min(coupon.discount_value, self.net_amount)
+
+			self.total_amount = self.net_amount - self.discount_amount
+
+		# Free Tickets - only discount attendees with matching ticket type
+		elif coupon.coupon_type == "Free Tickets":
+			remaining = coupon.number_of_free_tickets - coupon.get_free_tickets_claimed()
+			free_add_on_names = [row.add_on for row in coupon.free_add_ons]
+
+			# Only discount attendees with matching ticket type
+			# Use str() to handle int/string type mismatch in document names
+			coupon_ticket_type = str(coupon.ticket_type) if coupon.ticket_type else ""
+			discounted = 0
+			for attendee in self.attendees:
+				if discounted >= remaining:
+					break
+				attendee_ticket_type = str(attendee.ticket_type) if attendee.ticket_type else ""
+				if attendee_ticket_type != coupon_ticket_type:
+					continue
+
+				self.discount_amount += attendee.amount
+				attendee.amount = 0
+				discounted += 1
+
+				# Discount free add-ons for this attendee
+				if attendee.add_ons and free_add_on_names:
+					add_on_doc = frappe.get_cached_doc("Attendee Ticket Add-on", attendee.add_ons)
+					for add_on_row in add_on_doc.add_ons:
+						if add_on_row.add_on in free_add_on_names:
+							self.discount_amount += add_on_row.price
+
+			if discounted == 0:
+				frappe.throw(_("No attendees with eligible ticket type for this coupon"))
+
+			self.total_amount = self.net_amount - self.discount_amount

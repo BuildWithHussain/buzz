@@ -22,6 +22,8 @@
   "column_break_naeh",
   "total_amount",
   "currency",
+  "coupon_code",
+  "discount_amount",
   "section_break_sdfp",
   "amended_from",
   "marketing_tab",
@@ -152,6 +154,19 @@
    "label": "UTM Parameters",
    "options": "UTM Parameter",
    "read_only": 1
+  },
+  {
+   "fieldname": "coupon_code",
+   "fieldtype": "Link",
+   "label": "Coupon Code",
+   "options": "Coupon Code"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount",
+   "options": "currency",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -167,7 +182,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2025-12-30 11:26:26.120514",
+ "modified": "2025-12-30 20:44:10.577707",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",

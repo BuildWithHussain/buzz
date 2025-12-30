@@ -1,0 +1,706 @@
+# Copyright (c) 2025, BWH Studios and Contributors
+# See license.txt
+
+import frappe
+from frappe.tests import IntegrationTestCase
+
+EXTRA_TEST_RECORD_DEPENDENCIES = []
+IGNORE_TEST_RECORD_DEPENDENCIES = []
+
+
+class IntegrationTestCouponCode(IntegrationTestCase):
+	"""
+	Integration tests for CouponCode.
+	Use this class for testing interactions between multiple components.
+	"""
+
+	def setUp(self):
+		"""Set up test fixtures."""
+		self.test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		self.test_event.apply_tax = False
+		self.test_event.save()
+
+		# Create test ticket type
+		self.test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": self.test_event.name,
+				"title": "Coupon Test Ticket",
+				"price": 500,
+				"is_published": True,
+			}
+		).insert()
+
+		# Create test add-on
+		self.test_add_on = frappe.get_doc(
+			{
+				"doctype": "Ticket Add-on",
+				"event": self.test_event.name,
+				"title": "Test T-Shirt",
+				"price": 200,
+			}
+		).insert()
+
+	# ==================== DISCOUNT COUPON TESTS ====================
+
+	def test_percentage_discount_applies_correctly(self):
+		"""Test that percentage discount is calculated correctly."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 20,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "John Doe",
+						"email": "john@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Jane Doe",
+						"email": "jane@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 2 tickets x 500 = 1000, 20% discount = 200
+		self.assertEqual(booking.net_amount, 1000)
+		self.assertEqual(booking.discount_amount, 200)
+		self.assertEqual(booking.total_amount, 800)
+
+	def test_flat_discount_applies_correctly(self):
+		"""Test that flat amount discount is calculated correctly."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Flat Amount",
+				"discount_value": 300,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "John Doe",
+						"email": "john@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 1 ticket x 500 = 500, flat 300 discount
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.discount_amount, 300)
+		self.assertEqual(booking.total_amount, 200)
+
+	def test_flat_discount_does_not_exceed_total(self):
+		"""Test that flat discount is capped at net amount."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Flat Amount",
+				"discount_value": 1000,  # More than ticket price
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "John Doe",
+						"email": "john@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# Discount should be capped at 500 (net amount), not 1000
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.discount_amount, 500)
+		self.assertEqual(booking.total_amount, 0)
+
+	def test_discount_coupon_usage_limit_enforced(self):
+		"""Test that discount coupon usage limit is enforced."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"max_usage_count": 2,
+				"is_active": True,
+			}
+		).insert()
+
+		# First booking - should succeed
+		booking1 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User 1",
+						"email": "user1@test.com",
+					},
+				],
+			}
+		).insert()
+		booking1.submit()
+
+		# Second booking - should succeed
+		booking2 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User 2",
+						"email": "user2@test.com",
+					},
+				],
+			}
+		).insert()
+		booking2.submit()
+
+		# Third booking - should fail (usage limit reached)
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": self.test_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": self.test_ticket_type.name,
+							"full_name": "User 3",
+							"email": "user3@test.com",
+						},
+					],
+				}
+			).insert()
+
+	def test_discount_coupon_unlimited_usage(self):
+		"""Test that coupon with max_usage_count=0 has unlimited usage."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 5,
+				"max_usage_count": 0,  # Unlimited
+				"is_active": True,
+			}
+		).insert()
+
+		# Create 5 bookings - all should succeed
+		for i in range(5):
+			booking = frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": self.test_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": self.test_ticket_type.name,
+							"full_name": f"User {i}",
+							"email": f"user{i}@test.com",
+						},
+					],
+				}
+			).insert()
+			booking.submit()
+
+		# Verify all 5 bookings were created
+		self.assertEqual(coupon.get_times_used(), 5)
+
+	# ==================== FREE TICKETS COUPON TESTS ====================
+
+	def test_free_tickets_applied_correctly(self):
+		"""Test that free tickets coupon makes tickets free."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 2,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Speaker 1",
+						"email": "speaker1@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Speaker 2",
+						"email": "speaker2@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# Both tickets should be free
+		self.assertEqual(booking.net_amount, 1000)
+		self.assertEqual(booking.discount_amount, 1000)
+		self.assertEqual(booking.total_amount, 0)
+
+	def test_partial_free_tickets(self):
+		"""Test that only N tickets are free when booking more than free limit."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 2,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Person 1",
+						"email": "person1@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Person 2",
+						"email": "person2@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Person 3",
+						"email": "person3@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 3 tickets x 500 = 1500, 2 free = 1000 discount
+		self.assertEqual(booking.net_amount, 1500)
+		self.assertEqual(booking.discount_amount, 1000)
+		self.assertEqual(booking.total_amount, 500)
+
+	def test_free_tickets_tracking_across_bookings(self):
+		"""Test that free tickets are tracked across multiple bookings."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 5,
+				"is_active": True,
+			}
+		).insert()
+
+		# First booking: claim 2 free tickets
+		booking1 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User A1",
+						"email": "usera1@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User A2",
+						"email": "usera2@test.com",
+					},
+				],
+			}
+		).insert()
+		booking1.submit()
+
+		# Verify 2 claimed
+		self.assertEqual(coupon.get_free_tickets_claimed(), 2)
+
+		# Second booking: claim 2 more (4 total, 1 remaining)
+		booking2 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User B1",
+						"email": "userb1@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User B2",
+						"email": "userb2@test.com",
+					},
+				],
+			}
+		).insert()
+		booking2.submit()
+
+		# Verify 4 claimed
+		self.assertEqual(coupon.get_free_tickets_claimed(), 4)
+
+		# Third booking: try to claim 3, but only 1 remaining
+		booking3 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User C1",
+						"email": "userc1@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User C2",
+						"email": "userc2@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User C3",
+						"email": "userc3@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 3 tickets x 500 = 1500, only 1 free remaining = 500 discount
+		self.assertEqual(booking3.discount_amount, 500)
+		self.assertEqual(booking3.total_amount, 1000)
+
+	def test_free_tickets_with_free_addons(self):
+		"""Test that free add-ons are discounted for free ticket holders."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 1,
+				"free_add_ons": [{"add_on": self.test_add_on.name}],
+				"is_active": True,
+			}
+		).insert()
+
+		# Create attendee add-on
+		attendee_add_on = frappe.get_doc(
+			{
+				"doctype": "Attendee Ticket Add-on",
+				"add_ons": [{"add_on": self.test_add_on.name, "value": "XL"}],
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Speaker",
+						"email": "speaker@test.com",
+						"add_ons": attendee_add_on.name,
+					},
+				],
+			}
+		).insert()
+
+		# Ticket (500) + Add-on (200) = 700, both free
+		self.assertEqual(booking.net_amount, 700)
+		self.assertEqual(booking.discount_amount, 700)
+		self.assertEqual(booking.total_amount, 0)
+
+	# ==================== VALIDATION TESTS ====================
+
+	def test_coupon_event_scope_validation(self):
+		"""Test that coupon scoped to event rejects other events."""
+		# Get category and host from test event
+		category = self.test_event.category
+		host = self.test_event.host
+
+		other_event = frappe.get_doc(
+			{
+				"doctype": "Buzz Event",
+				"title": "Other Event",
+				"route": "other-event-test",
+				"start_date": "2025-12-31",
+				"category": category,
+				"host": host,
+			}
+		).insert()
+
+		other_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": other_event.name,
+				"title": "Other Ticket",
+				"price": 100,
+				"is_published": True,
+			}
+		).insert()
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"event": self.test_event.name,  # Scoped to test_event
+				"is_active": True,
+			}
+		).insert()
+
+		# Try to use on other event - should fail
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": other_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": other_ticket_type.name,
+							"full_name": "Test User",
+							"email": "test@test.com",
+						},
+					],
+				}
+			).insert()
+
+	def test_inactive_coupon_rejected(self):
+		"""Test that inactive coupon is rejected."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"is_active": False,  # Inactive
+			}
+		).insert()
+
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": self.test_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": self.test_ticket_type.name,
+							"full_name": "Test User",
+							"email": "test@test.com",
+						},
+					],
+				}
+			).insert()
+
+	def test_free_tickets_requires_event(self):
+		"""Test that Free Tickets coupon requires event."""
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Coupon Code",
+					"coupon_type": "Free Tickets",
+					"ticket_type": self.test_ticket_type.name,
+					"number_of_free_tickets": 5,
+					"is_active": True,
+					# No event - should fail
+				}
+			).insert()
+
+	def test_percentage_discount_cannot_exceed_100(self):
+		"""Test that percentage discount cannot exceed 100%."""
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Coupon Code",
+					"coupon_type": "Discount",
+					"discount_type": "Percentage",
+					"discount_value": 150,  # More than 100%
+					"is_active": True,
+				}
+			).insert()
+
+	def test_coupon_code_auto_generated(self):
+		"""Test that coupon code is auto-generated if not provided."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"is_active": True,
+				# No code provided
+			}
+		).insert()
+
+		self.assertIsNotNone(coupon.code)
+		self.assertEqual(len(coupon.code), 8)
+
+	def test_coupon_tracked_in_booking(self):
+		"""Test that coupon code is tracked in booking document."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"code": "TESTTRACK",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Test User",
+						"email": "test@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# Coupon should be tracked in booking
+		self.assertEqual(booking.coupon_code, "TESTTRACK")
+
+
+class TestValidateCouponAPI(IntegrationTestCase):
+	"""Test the validate_coupon API endpoint."""
+
+	def setUp(self):
+		self.test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		self.test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": self.test_event.name,
+				"title": "API Test Ticket",
+				"price": 100,
+				"is_published": True,
+			}
+		).insert()
+
+	def test_validate_coupon_returns_discount_info(self):
+		"""Test that validate_coupon returns correct discount info."""
+		from buzz.api import validate_coupon
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"code": "APITEST",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 25,
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("APITEST", str(self.test_event.name))
+
+		self.assertTrue(result["valid"])
+		self.assertEqual(result["coupon_type"], "Discount")
+		self.assertEqual(result["discount_type"], "Percentage")
+		self.assertEqual(result["discount_value"], 25)
+
+	def test_validate_coupon_returns_free_tickets_info(self):
+		"""Test that validate_coupon returns correct free tickets info."""
+		from buzz.api import validate_coupon
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Coupon Code",
+				"code": "FREEAPI",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 3,
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("FREEAPI", str(self.test_event.name))
+
+		self.assertTrue(result["valid"])
+		self.assertEqual(result["coupon_type"], "Free Tickets")
+		self.assertEqual(result["remaining_tickets"], 3)
+
+	def test_validate_coupon_invalid_code(self):
+		"""Test that invalid coupon code returns error."""
+		from buzz.api import validate_coupon
+
+		result = validate_coupon("INVALIDCODE", str(self.test_event.name))
+
+		self.assertFalse(result["valid"])
+		self.assertIn("error", result)

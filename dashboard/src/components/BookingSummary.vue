@@ -13,12 +13,12 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(ticket.title) }}</span>
-					<span v-if="total > 0" class="text-sm text-ink-gray-5">
+					<span v-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ ticket.count }} x {{ formatPriceOrFree(ticket.price, ticket.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ ticket.count }}</span>
 				</div>
-				<span v-if="total > 0" class="font-medium">{{
+				<span v-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
 			</div>
@@ -34,25 +34,34 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(addOn.title) }}</span>
-					<span v-if="total > 0" class="text-sm text-ink-gray-5">
+					<span v-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ addOn.count }} x {{ formatPriceOrFree(addOn.price, addOn.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ addOn.count }}</span>
 				</div>
-				<span v-if="total > 0" class="font-medium">{{
+				<span v-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>
 			</div>
 		</div>
 
-		<!-- Only show pricing summary if total > 0 -->
-		<template v-if="total > 0">
+		<!-- Show pricing summary if total > 0 OR coupon made it free -->
+		<template v-if="total > 0 || (couponApplied && netAmount > 0)">
 			<hr class="my-4 border-t border-outline-gray-1" />
 
 			<!-- Subtotal -->
 			<div class="flex justify-between items-center text-ink-gray-7 mb-2">
 				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{ formatPriceOrFree(netAmount, totalCurrency) }}</span>
+			</div>
+
+			<!-- Discount Section -->
+			<div
+				v-if="couponApplied && discountAmount > 0"
+				class="flex justify-between items-center text-green-600 mb-2"
+			>
+				<span>{{ couponType === "Free Tickets" ? __("Free Tickets") : __("Discount") }}</span>
+				<span class="font-medium">-{{ formatPriceOrFree(discountAmount, totalCurrency) }}</span>
 			</div>
 
 			<!-- Tax Section -->
@@ -93,6 +102,18 @@ defineProps({
 	netAmount: {
 		type: Number,
 		required: true,
+	},
+	discountAmount: {
+		type: Number,
+		default: 0,
+	},
+	couponApplied: {
+		type: Boolean,
+		default: false,
+	},
+	couponType: {
+		type: String,
+		default: "",
 	},
 	taxAmount: {
 		type: Number,

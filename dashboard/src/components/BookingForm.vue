@@ -52,14 +52,73 @@
 					</div>
 				</div>
 
-				<!-- Right Side: Summary and Submit -->
+				<!-- Right Side: Coupon, Summary and Submit -->
 				<div class="lg:col-span-1">
 					<div class="sticky top-4 w-full">
+						<!-- Coupon Code Section -->
+						<div
+							v-if="finalTotal > 0 || couponApplied"
+							class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 mb-4"
+						>
+							<h3 class="text-lg font-semibold text-ink-gray-8 mb-3">
+								{{ __("Have a coupon?") }}
+							</h3>
+
+							<div v-if="!couponApplied" class="flex gap-2">
+								<FormControl
+									v-model="couponCode"
+									:placeholder="__('Enter coupon code')"
+									class="flex-1"
+									@keyup.enter="applyCoupon"
+								/>
+								<Button
+									variant="outline"
+									@click="applyCoupon"
+									:loading="validateCoupon.loading"
+								>
+									{{ __("Apply") }}
+								</Button>
+							</div>
+
+							<!-- Applied coupon display -->
+							<div
+								v-else
+								class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3"
+							>
+								<div class="flex items-center gap-2">
+									<span class="text-green-700 font-medium">{{ couponCode }}</span>
+									<span class="text-green-600 text-sm">
+										<template v-if="couponData.coupon_type === 'Free Tickets'">
+											({{ matchingAttendeesCount }} {{ __("eligible") }},
+											{{ Math.min(matchingAttendeesCount, couponData.remaining_tickets) }} {{ __("free") }})
+										</template>
+										<template v-else>
+											({{
+												couponData.discount_type === "Percentage"
+													? couponData.discount_value + "% off"
+													: formatPriceOrFree(couponData.discount_value, totalCurrency) +
+														" off"
+											}})
+										</template>
+									</span>
+								</div>
+								<Button variant="ghost" size="sm" @click="removeCoupon"> ✕ </Button>
+							</div>
+
+							<!-- Error message -->
+							<p v-if="couponError" class="text-red-500 text-sm mt-2">
+								{{ couponError }}
+							</p>
+						</div>
+
 						<BookingSummary
 							class="mb-6"
 							v-if="!eventDetails.free_webinar"
 							:summary="summary"
 							:net-amount="netAmount"
+							:discount-amount="discountAmount"
+							:coupon-applied="couponApplied"
+							:coupon-type="couponData?.coupon_type || ''"
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
 							:tax-label="taxLabel"
@@ -93,7 +152,8 @@ import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
-import { createResource, toast } from "frappe-ui";
+import { createResource, toast, FormControl } from "frappe-ui";
+import { formatPriceOrFree } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
@@ -164,6 +224,12 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 const showGatewayDialog = ref(false);
 const pendingPayload = ref(null);
 
+// Coupon state
+const couponCode = ref('');
+const couponApplied = ref(false);
+const couponError = ref('');
+const couponData = ref(null);
+
 // Ensure user data is loaded
 if (!userResource.data) {
 	userResource.fetch();
@@ -230,7 +296,8 @@ const createNewAttendee = () => {
 };
 
 const addAttendee = () => {
-	attendees.value.push(createNewAttendee());
+	const newAttendee = createNewAttendee();
+	attendees.value.push(newAttendee);
 };
 
 const removeAttendee = (index) => {
@@ -308,12 +375,67 @@ const taxPercentage = computed(() => {
 	return shouldApplyTax.value ? props.taxSettings?.tax_percentage || 0 : 0;
 });
 
+// Count of attendees matching the coupon's ticket type (for Free Tickets)
+const matchingAttendeesCount = computed(() => {
+	if (!couponData.value || couponData.value.coupon_type !== "Free Tickets") return 0;
+	return attendees.value.filter((a) => a.ticket_type === couponData.value.ticket_type).length;
+});
+
+// Discount amount based on coupon
+const discountAmount = computed(() => {
+	if (!couponApplied.value || !couponData.value) return 0;
+
+	// Free Tickets - only discount attendees with matching ticket type
+	if (couponData.value.coupon_type === "Free Tickets") {
+		const couponTicketType = couponData.value.ticket_type;
+		const ticketInfo = ticketTypesMap.value[couponTicketType];
+		if (!ticketInfo) return 0;
+
+		// Count only attendees with matching ticket type
+		const matchingAttendees = attendees.value.filter(
+			(a) => a.ticket_type === couponTicketType
+		);
+		const freeTicketCount = Math.min(matchingAttendees.length, couponData.value.remaining_tickets);
+		let discount = freeTicketCount * ticketInfo.price;
+
+		// Add free add-ons discount for free ticket holders only
+		if (couponData.value.free_add_ons && couponData.value.free_add_ons.length > 0) {
+			for (let i = 0; i < freeTicketCount; i++) {
+				const attendee = matchingAttendees[i];
+				if (attendee) {
+					for (const freeAddOnName of couponData.value.free_add_ons) {
+						if (attendee.add_ons[freeAddOnName]?.selected) {
+							const addOnInfo = addOnsMap.value[freeAddOnName];
+							if (addOnInfo) {
+								discount += addOnInfo.price;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return discount;
+	}
+
+	// Discount coupon
+	if (couponData.value.discount_type === "Percentage") {
+		return netAmount.value * (couponData.value.discount_value / 100);
+	}
+	return Math.min(couponData.value.discount_value, netAmount.value);
+});
+
+// Amount after discount
+const amountAfterDiscount = computed(() => {
+	return netAmount.value - discountAmount.value;
+});
+
 const taxAmount = computed(() => {
-	return shouldApplyTax.value ? (netAmount.value * taxPercentage.value) / 100 : 0;
+	return shouldApplyTax.value ? (amountAfterDiscount.value * taxPercentage.value) / 100 : 0;
 });
 
 const finalTotal = computed(() => {
-	return netAmount.value + taxAmount.value;
+	return amountAfterDiscount.value + taxAmount.value;
 });
 
 // Determine the primary currency for the total (use the first ticket type's currency)
@@ -401,6 +523,60 @@ watch(
 const processBooking = createResource({
 	url: "buzz.api.process_booking",
 });
+
+const validateCoupon = createResource({
+	url: "buzz.api.validate_coupon",
+});
+
+// --- COUPON FUNCTIONS ---
+async function applyCoupon() {
+	if (!couponCode.value.trim()) {
+		couponError.value = __("Please enter a coupon code");
+		return;
+	}
+
+	couponError.value = "";
+	const result = await validateCoupon.submit({
+		coupon_code: couponCode.value.trim(),
+		event: eventId.value,
+	});
+
+	if (result.valid) {
+		couponApplied.value = true;
+
+		if (result.coupon_type === "Discount") {
+			couponData.value = {
+				coupon_type: "Discount",
+				discount_type: result.discount_type,
+				discount_value: result.discount_value,
+			};
+			toast.success(__("Coupon applied successfully!"));
+		} else if (result.coupon_type === "Free Tickets") {
+			couponData.value = {
+				coupon_type: "Free Tickets",
+				ticket_type: result.ticket_type,
+				remaining_tickets: result.remaining_tickets,
+				free_add_ons: result.free_add_ons || [],
+			};
+
+			// Note: Users can choose any ticket type - only matching types get free discount
+			toast.success(
+				__(`Free ticket coupon applied! Select "${ticketTypesMap.value[result.ticket_type]?.title || result.ticket_type}" to get free tickets (${result.remaining_tickets} available)`)
+			);
+		}
+	} else {
+		couponApplied.value = false;
+		couponData.value = null;
+		couponError.value = result.error;
+	}
+}
+
+function removeCoupon() {
+	couponCode.value = "";
+	couponApplied.value = false;
+	couponData.value = null;
+	couponError.value = "";
+}
 
 // --- FORM VALIDATION ---
 const validateForm = () => {
@@ -503,6 +679,7 @@ async function submit() {
 	const final_payload = {
 		event: eventId.value,
 		attendees: attendees_payload,
+		coupon_code: couponApplied.value ? couponCode.value.trim() : null,
 		booking_custom_fields:
 			Object.keys(cleanedBookingCustomFields).length > 0 ? cleanedBookingCustomFields : null,
 		utm_parameters: utmParameters.length > 0 ? utmParameters : null,
@@ -535,6 +712,10 @@ function submitBooking(payload, paymentGateway) {
 					router.replace(`/bookings/${data.booking_name}?success=true`);
 				}
 			},
+			onError: (error) => {
+				const message = error.messages?.[0] || error.message || __("Booking failed");
+				toast.error(message);
+			},
 		}
 	);
 }
@@ -551,7 +732,7 @@ const submitButtonText = computed(() => {
 		return __("Processing...");
 	}
 
-	if (finalTotal > 0) {
+	if (finalTotal.value > 0) {
 		return __("Pay & Book");
 	}
 

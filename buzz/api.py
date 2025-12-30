@@ -171,12 +171,14 @@ def get_event_booking_data(event_route: str) -> dict:
 def process_booking(
 	attendees: list[dict],
 	event: str,
+	coupon_code: str | None = None,
 	booking_custom_fields: dict | None = None,
 	payment_gateway: str | None = None,
 	utm_parameters: list[dict] | None = None,
 ) -> dict:
 	booking = frappe.new_doc("Event Booking")
 	booking.event = event
+	booking.coupon_code = coupon_code
 	booking.user = frappe.session.user
 
 	# Add UTM parameters (captured from URL query params starting with utm_)
@@ -932,3 +934,40 @@ def get_translations():
 
 def has_app_permission():
 	return True
+
+
+@frappe.whitelist()
+def validate_coupon(coupon_code: str, event: str) -> dict:
+
+	if not frappe.db.exists("Coupon Code", coupon_code):
+		return {"valid": False, "error": _("Invalid coupon code")}
+
+	coupon = frappe.get_cached_doc("Coupon Code", coupon_code)
+
+	is_valid, error = coupon.is_valid_for_event(event)
+	if not is_valid:
+		return {"valid": False, "error": error}
+
+	is_available, error = coupon.is_usage_available()
+	if not is_available:
+		return {"valid": False, "error": error}
+
+	if coupon.coupon_type == "Discount":
+		return {
+			"valid": True,
+			"coupon_type": "Discount",
+			"discount_type": coupon.discount_type,
+			"discount_value": coupon.discount_value,
+		}
+
+	remaining = coupon.number_of_free_tickets - coupon.get_free_tickets_claimed()
+	if remaining <= 0:
+		return {"valid": False, "error": _("All free tickets have been claimed")}
+
+	return {
+		"valid": True,
+		"coupon_type": "Free Tickets",
+		"ticket_type": coupon.ticket_type,
+		"remaining_tickets": remaining,
+		"free_add_ons": [a.add_on for a in coupon.free_add_ons],
+	}
