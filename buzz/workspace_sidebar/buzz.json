@@ -41,9 +41,21 @@
    "link_type": "DocType",
    "show_arrow": 0,
    "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "notebook-tabs",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Detailed Registrations",
+   "link_to": "Detailed Event Registrations",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
   }
  ],
- "modified": "2025-12-30 12:59:53.903537",
+ "modified": "2025-12-30 14:23:20.133967",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz",
