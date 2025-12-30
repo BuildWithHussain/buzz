@@ -49,15 +49,15 @@ ignore_links_on_delete = ["Ticket Cancellation Request", "Ticket Add-on Value"]
 after_app_install = "buzz.install.after_app_install"
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "events",
-# 		"logo": "/assets/events/logo.png",
-# 		"title": "Events",
-# 		"route": "/events",
-# 		"has_permission": "buzz.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "buzz",
+		"logo": "/assets/buzz/images/buzz-logo-rounded.png",
+		"title": "Buzz",
+		"route": "/app/buzz",
+		"has_permission": "buzz.api.has_app_permission",
+	}
+]
 
 # Includes in <head>
 # ------------------
