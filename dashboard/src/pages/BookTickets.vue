@@ -8,7 +8,7 @@
 				v-if="eventBookingData.availableAddOns && eventBookingData.availableTicketTypes"
 				:availableAddOns="eventBookingData.availableAddOns"
 				:availableTicketTypes="eventBookingData.availableTicketTypes"
-				:gstSettings="eventBookingData.gstSettings"
+				:taxSettings="eventBookingData.taxSettings"
 				:eventDetails="eventBookingData.eventDetails"
 				:customFields="eventBookingData.customFields"
 				:eventRoute="eventRoute"
@@ -26,7 +26,7 @@ import { Spinner, createResource } from "frappe-ui";
 const eventBookingData = reactive({
 	availableAddOns: null,
 	availableTicketTypes: null,
-	gstSettings: null,
+	taxSettings: null,
 	eventDetails: null,
 	customFields: null,
 	paymentGateways: [],
@@ -48,9 +48,10 @@ const eventBookingResource = createResource({
 	onSuccess: (data) => {
 		eventBookingData.availableAddOns = data.available_add_ons || [];
 		eventBookingData.availableTicketTypes = data.available_ticket_types || [];
-		eventBookingData.gstSettings = data.gst_settings || {
-			apply_gst_on_bookings: false,
-			gst_percentage: 18,
+		eventBookingData.taxSettings = data.tax_settings || {
+			apply_tax: false,
+			tax_label: "Tax",
+			tax_percentage: 0,
 		};
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];

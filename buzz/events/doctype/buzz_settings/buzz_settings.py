@@ -26,12 +26,6 @@ class BuzzSettings(Document):
 	def validate(self):
 		"""Validate the settings."""
 		self.validate_transfer_days()
-		self.set_tax_percentage()
-
-	def set_tax_percentage(self):
-		"""Set the GST percentage if applicable."""
-		if self.apply_gst_on_bookings and not self.gst_percentage:
-			self.gst_percentage = 18
 
 	def validate_transfer_days(self):
 		"""Validate that transfer days is a reasonable value."""

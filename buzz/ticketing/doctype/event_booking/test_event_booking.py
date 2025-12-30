@@ -23,10 +23,9 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 	def test_total_calculation_without_taxes(self):
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 
-		# Turn off GST for this test
-		event_settings = frappe.get_doc("Buzz Settings")
-		event_settings.apply_gst_on_bookings = False
-		event_settings.save()
+		# Disable tax at event level
+		test_event.apply_tax = False
+		test_event.save()
 
 		test_ticket_add_on = frappe.get_doc(
 			{
@@ -80,11 +79,11 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 	def test_total_calculation_with_taxes(self):
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 
-		# Turn on GST for this test
-		event_settings = frappe.get_doc("Buzz Settings")
-		event_settings.apply_gst_on_bookings = True
-		event_settings.gst_percentage = 18
-		event_settings.save()
+		# Enable tax at event level
+		test_event.apply_tax = True
+		test_event.tax_label = "GST"
+		test_event.tax_percentage = 18
+		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -108,9 +107,45 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 		).insert()
 
 		self.assertEqual(test_booking.net_amount, 1000)
+		self.assertEqual(test_booking.tax_label, "GST")
 		self.assertEqual(test_booking.tax_percentage, 18)
 		self.assertEqual(test_booking.tax_amount, 180)
 		self.assertEqual(test_booking.total_amount, 1180)
+
+	def test_total_calculation_with_custom_tax_label(self):
+		"""Test that custom tax labels (e.g., VAT) work correctly."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		# Enable tax with custom VAT label
+		test_event.apply_tax = True
+		test_event.tax_label = "VAT"
+		test_event.tax_percentage = 20
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Standard",
+				"price": 100,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+				],
+			}
+		).insert()
+
+		self.assertEqual(test_booking.tax_label, "VAT")
+		self.assertEqual(test_booking.tax_percentage, 20)
+		self.assertEqual(test_booking.tax_amount, 20)
+		self.assertEqual(test_booking.total_amount, 120)
 
 	def test_prevents_booking_if_tickets_unavailable(self):
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
@@ -328,10 +363,9 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			}
 		).insert()
 
-		# Turn off GST for this test
-		event_settings = frappe.get_doc("Buzz Settings")
-		event_settings.apply_gst_on_bookings = False
-		event_settings.save()
+		# Disable tax at event level
+		test_event.apply_tax = False
+		test_event.save()
 
 		attendees = [
 			{
@@ -387,10 +421,9 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			}
 		).insert()
 
-		# Turn off GST for this test
-		event_settings = frappe.get_doc("Buzz Settings")
-		event_settings.apply_gst_on_bookings = False
-		event_settings.save()
+		# Disable tax at event level
+		test_event.apply_tax = False
+		test_event.save()
 
 		attendees = [
 			{
@@ -428,10 +461,9 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			}
 		).insert()
 
-		# Turn off GST for this test
-		event_settings = frappe.get_doc("Buzz Settings")
-		event_settings.apply_gst_on_bookings = False
-		event_settings.save()
+		# Disable tax at event level
+		test_event.apply_tax = False
+		test_event.save()
 
 		attendees = [
 			{
