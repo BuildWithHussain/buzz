@@ -173,10 +173,22 @@ def process_booking(
 	event: str,
 	booking_custom_fields: dict | None = None,
 	payment_gateway: str | None = None,
+	utm_parameters: list[dict] | None = None,
 ) -> dict:
 	booking = frappe.new_doc("Event Booking")
 	booking.event = event
 	booking.user = frappe.session.user
+
+	# Add UTM parameters (captured from URL query params starting with utm_)
+	if utm_parameters:
+		for utm_param in utm_parameters:
+			booking.append(
+				"utm_parameters",
+				{
+					"utm_name": utm_param.get("utm_name"),
+					"value": utm_param.get("value"),
+				},
+			)
 
 	# Add booking-level custom fields
 	if booking_custom_fields:

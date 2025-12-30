@@ -94,10 +94,24 @@ import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import { createResource, toast } from "frappe-ui";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
 
 const router = useRouter();
+const route = useRoute();
+
+const getUtmParameters = () => {
+	const utmParams = [];
+	for (const [key, value] of Object.entries(route.query)) {
+		if (key.toLowerCase().startsWith("utm_") && value) {
+			utmParams.push({
+				utm_name: key,
+				value: String(value),
+			});
+		}
+	}
+	return utmParams;
+};
 
 const props = defineProps({
 	availableAddOns: {
@@ -478,11 +492,14 @@ async function submit() {
 		}
 	}
 
+	const utmParameters = getUtmParameters();
+
 	const final_payload = {
 		event: eventId.value,
 		attendees: attendees_payload,
 		booking_custom_fields:
 			Object.keys(cleanedBookingCustomFields).length > 0 ? cleanedBookingCustomFields : null,
+		utm_parameters: utmParameters.length > 0 ? utmParameters : null,
 	};
 
 	// Check if we need to show gateway selection dialog

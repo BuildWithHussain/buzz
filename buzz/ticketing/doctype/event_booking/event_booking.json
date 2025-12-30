@@ -22,7 +22,9 @@
   "total_amount",
   "currency",
   "section_break_sdfp",
-  "amended_from"
+  "amended_from",
+  "marketing_tab",
+  "utm_parameters"
  ],
  "fields": [
   {
@@ -131,6 +133,18 @@
    "fieldtype": "Select",
    "label": "Naming Series",
    "options": "B.###"
+  },
+  {
+   "fieldname": "marketing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Marketing"
+  },
+  {
+   "fieldname": "utm_parameters",
+   "fieldtype": "Table",
+   "label": "UTM Parameters",
+   "options": "UTM Parameter",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -146,7 +160,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2025-11-29 16:04:32.159196",
+ "modified": "2025-12-30 11:26:26.120514",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",
