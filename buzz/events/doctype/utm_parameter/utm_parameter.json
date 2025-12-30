@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-30 11:22:07.599974",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "utm_name",
+  "value"
+ ],
+ "fields": [
+  {
+   "fieldname": "utm_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "UTM Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "value",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Value",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-30 11:23:32.333785",
+ "modified_by": "Administrator",
+ "module": "Events",
+ "name": "UTM Parameter",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

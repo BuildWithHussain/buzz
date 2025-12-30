@@ -18,6 +18,7 @@ class EventBooking(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
 
@@ -32,6 +33,7 @@ class EventBooking(Document):
 		tax_percentage: DF.Percent
 		total_amount: DF.Currency
 		user: DF.Link
+		utm_parameters: DF.Table[UTMParameter]
 	# end: auto-generated types
 
 	def validate(self):
