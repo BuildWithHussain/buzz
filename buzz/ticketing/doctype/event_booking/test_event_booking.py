@@ -208,3 +208,247 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 					],
 				}
 			).insert()
+
+	def test_utm_parameters_are_saved(self):
+		"""Test that UTM parameters are correctly saved with bookings."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Standard",
+				"price": 100,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+				],
+				"utm_parameters": [
+					{"utm_name": "utm_source", "value": "google"},
+					{"utm_name": "utm_medium", "value": "cpc"},
+					{"utm_name": "utm_campaign", "value": "summer_sale"},
+				],
+			}
+		).insert()
+
+		self.assertEqual(len(test_booking.utm_parameters), 3)
+		self.assertEqual(test_booking.utm_parameters[0].utm_name, "utm_source")
+		self.assertEqual(test_booking.utm_parameters[0].value, "google")
+		self.assertEqual(test_booking.utm_parameters[1].utm_name, "utm_medium")
+		self.assertEqual(test_booking.utm_parameters[1].value, "cpc")
+		self.assertEqual(test_booking.utm_parameters[2].utm_name, "utm_campaign")
+		self.assertEqual(test_booking.utm_parameters[2].value, "summer_sale")
+
+	def test_booking_without_utm_parameters(self):
+		"""Test that bookings work correctly without UTM parameters."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Standard",
+				"price": 100,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+				],
+			}
+		).insert()
+
+		self.assertEqual(len(test_booking.utm_parameters), 0)
+
+	def test_custom_utm_parameters(self):
+		"""Test that custom UTM parameters (beyond standard ones) are saved."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Standard",
+				"price": 100,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+				],
+				"utm_parameters": [
+					{"utm_name": "utm_source", "value": "newsletter"},
+					{"utm_name": "utm_custom_param", "value": "special_offer"},
+				],
+			}
+		).insert()
+
+		self.assertEqual(len(test_booking.utm_parameters), 2)
+		# Check custom utm parameter is saved
+		custom_param = next(
+			(p for p in test_booking.utm_parameters if p.utm_name == "utm_custom_param"), None
+		)
+		self.assertIsNotNone(custom_param)
+		self.assertEqual(custom_param.value, "special_offer")
+
+
+class TestProcessBookingAPI(IntegrationTestCase):
+	"""Test the process_booking API endpoint for UTM parameter handling."""
+
+	def test_process_booking_with_utm_parameters(self):
+		"""Test that process_booking API correctly saves UTM parameters."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "API Test Ticket",
+				"price": 0,  # Free ticket to avoid payment flow
+				"is_published": True,
+			}
+		).insert()
+
+		# Turn off GST for this test
+		event_settings = frappe.get_doc("Buzz Settings")
+		event_settings.apply_gst_on_bookings = False
+		event_settings.save()
+
+		attendees = [
+			{
+				"full_name": "API Test User",
+				"email": "apitest@email.com",
+				"ticket_type": str(test_ticket_type.name),
+				"add_ons": [],
+			}
+		]
+
+		utm_parameters = [
+			{"utm_name": "utm_source", "value": "facebook"},
+			{"utm_name": "utm_medium", "value": "social"},
+			{"utm_name": "utm_campaign", "value": "winter_promo"},
+			{"utm_name": "utm_content", "value": "banner_ad"},
+			{"utm_name": "utm_term", "value": "event tickets"},
+		]
+
+		result = process_booking(
+			attendees=attendees,
+			event=str(test_event.name),
+			utm_parameters=utm_parameters,
+		)
+
+		# Verify booking was created
+		self.assertIn("booking_name", result)
+
+		# Fetch the booking and verify UTM parameters
+		booking = frappe.get_doc("Event Booking", result["booking_name"])
+		self.assertEqual(len(booking.utm_parameters), 5)
+
+		# Verify each UTM parameter
+		utm_dict = {p.utm_name: p.value for p in booking.utm_parameters}
+		self.assertEqual(utm_dict["utm_source"], "facebook")
+		self.assertEqual(utm_dict["utm_medium"], "social")
+		self.assertEqual(utm_dict["utm_campaign"], "winter_promo")
+		self.assertEqual(utm_dict["utm_content"], "banner_ad")
+		self.assertEqual(utm_dict["utm_term"], "event tickets")
+
+	def test_process_booking_without_utm_parameters(self):
+		"""Test that process_booking API works without UTM parameters."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "API Test Ticket No UTM",
+				"price": 0,
+				"is_published": True,
+			}
+		).insert()
+
+		# Turn off GST for this test
+		event_settings = frappe.get_doc("Buzz Settings")
+		event_settings.apply_gst_on_bookings = False
+		event_settings.save()
+
+		attendees = [
+			{
+				"full_name": "No UTM User",
+				"email": "noutm@email.com",
+				"ticket_type": str(test_ticket_type.name),
+				"add_ons": [],
+			}
+		]
+
+		result = process_booking(
+			attendees=attendees,
+			event=str(test_event.name),
+			utm_parameters=None,
+		)
+
+		self.assertIn("booking_name", result)
+
+		booking = frappe.get_doc("Event Booking", result["booking_name"])
+		self.assertEqual(len(booking.utm_parameters), 0)
+
+	def test_process_booking_with_empty_utm_parameters(self):
+		"""Test that process_booking API handles empty UTM list."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "API Test Ticket Empty UTM",
+				"price": 0,
+				"is_published": True,
+			}
+		).insert()
+
+		# Turn off GST for this test
+		event_settings = frappe.get_doc("Buzz Settings")
+		event_settings.apply_gst_on_bookings = False
+		event_settings.save()
+
+		attendees = [
+			{
+				"full_name": "Empty UTM User",
+				"email": "emptyutm@email.com",
+				"ticket_type": str(test_ticket_type.name),
+				"add_ons": [],
+			}
+		]
+
+		result = process_booking(
+			attendees=attendees,
+			event=str(test_event.name),
+			utm_parameters=[],
+		)
+
+		self.assertIn("booking_name", result)
+
+		booking = frappe.get_doc("Event Booking", result["booking_name"])
+		self.assertEqual(len(booking.utm_parameters), 0)
