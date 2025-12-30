@@ -99,7 +99,7 @@
   },
   {
    "depends_on": "eval:doc.coupon_type == 'Discount'",
-   "description": "0 is unlmited",
+   "description": "0 is unlimited",
    "fieldname": "max_usage_count",
    "fieldtype": "Int",
    "label": "Max Usage Count"
