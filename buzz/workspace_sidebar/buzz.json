@@ -1,0 +1,118 @@
+{
+ "app": "buzz",
+ "creation": "2025-11-26 22:26:27.527211",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "header_icon": "clapperboard",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "party-popper",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Events",
+   "link_to": "Buzz Event",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "circle-dollar-sign",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Bookings",
+   "link_to": "Event Booking",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "icon": "ticket-check",
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Tickets",
+   "link_to": "Event Ticket",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Create New Event",
+   "link_to": "Buzz Event",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Hosts",
+   "link_to": "Event Host",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Add-ons Overview",
+   "link_to": "Event Add-Ons Overview",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Talk Proposals This Week ",
+   "link_to": "Talk Proposal",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Events Overview Report",
+   "link_to": "Event Overview",
+   "link_type": "Report",
+   "show_arrow": 0,
+   "type": "Link"
+  },
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Sponsorship Enquiry",
+   "link_to": "Sponsorship Enquiry",
+   "link_type": "DocType",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-12-30 12:44:53.877231",
+ "modified_by": "Administrator",
+ "module": "Events",
+ "name": "Buzz",
+ "owner": "Administrator",
+ "title": "Buzz"
+}
