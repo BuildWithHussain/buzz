@@ -55,17 +55,17 @@
 				<span class="font-medium">{{ formatPriceOrFree(netAmount, totalCurrency) }}</span>
 			</div>
 
-			<!-- GST Section -->
+			<!-- Tax Section -->
 			<div
-				v-if="shouldApplyGst"
+				v-if="shouldApplyTax"
 				class="flex justify-between items-center text-ink-gray-7 mb-2"
 			>
-				<span>{{ __("GST") }} ({{ taxPercentage }}%)</span>
+				<span>{{ __(taxLabel) }} ({{ taxPercentage }}%)</span>
 				<span class="font-medium">{{ formatPriceOrFree(taxAmount, totalCurrency) }}</span>
 			</div>
 
 			<!-- Final Total Section -->
-			<hr v-if="shouldApplyGst" class="my-2 border-t border-outline-gray-1" />
+			<hr v-if="shouldApplyTax" class="my-2 border-t border-outline-gray-1" />
 			<div class="flex justify-between items-center text-xl font-bold text-ink-gray-9">
 				<h3>{{ __("Total") }}</h3>
 				<span>{{ formatPriceOrFree(total, totalCurrency) }}</span>
@@ -102,7 +102,11 @@ defineProps({
 		type: Number,
 		default: 0,
 	},
-	shouldApplyGst: {
+	taxLabel: {
+		type: String,
+		default: "Tax",
+	},
+	shouldApplyTax: {
 		type: Boolean,
 		default: false,
 	},

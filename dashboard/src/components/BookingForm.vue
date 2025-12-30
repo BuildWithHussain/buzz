@@ -62,7 +62,8 @@
 							:net-amount="netAmount"
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
-							:should-apply-gst="shouldApplyGST"
+							:tax-label="taxLabel"
+							:should-apply-tax="shouldApplyTax"
 							:total="finalTotal"
 							:total-currency="totalCurrency"
 						/>
@@ -122,11 +123,12 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
-	gstSettings: {
+	taxSettings: {
 		type: Object,
 		default: () => ({
-			apply_gst_on_bookings: false,
-			gst_percentage: 18,
+			apply_tax: false,
+			tax_label: "Tax",
+			tax_percentage: 0,
 		}),
 	},
 	eventDetails: {
@@ -294,16 +296,20 @@ const total = computed(() => {
 const netAmount = computed(() => total.value);
 
 // Tax calculations
-const shouldApplyGST = computed(() => {
-	return props.gstSettings?.apply_gst_on_bookings && totalCurrency.value === "INR";
+const shouldApplyTax = computed(() => {
+	return props.taxSettings?.apply_tax;
+});
+
+const taxLabel = computed(() => {
+	return props.taxSettings?.tax_label || "Tax";
 });
 
 const taxPercentage = computed(() => {
-	return shouldApplyGST.value ? props.gstSettings?.gst_percentage || 18 : 0;
+	return shouldApplyTax.value ? props.taxSettings?.tax_percentage || 0 : 0;
 });
 
 const taxAmount = computed(() => {
-	return shouldApplyGST.value ? (netAmount.value * taxPercentage.value) / 100 : 0;
+	return shouldApplyTax.value ? (netAmount.value * taxPercentage.value) / 100 : 0;
 });
 
 const finalTotal = computed(() => {

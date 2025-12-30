@@ -57,6 +57,15 @@ class BuzzEvent(Document):
 
 	def validate(self):
 		self.validate_route()
+		self.validate_tax_settings()
+
+	def validate_tax_settings(self):
+		"""Set default tax values when tax is enabled."""
+		if self.apply_tax:
+			if not self.tax_label:
+				self.tax_label = "GST"
+			if not self.tax_percentage:
+				self.tax_percentage = 18
 
 	def validate_route(self):
 		if self.is_published and not self.route:

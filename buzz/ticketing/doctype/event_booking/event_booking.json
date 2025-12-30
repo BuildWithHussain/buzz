@@ -17,6 +17,7 @@
   "section_break_tsys",
   "net_amount",
   "tax_percentage",
+  "tax_label",
   "tax_amount",
   "column_break_naeh",
   "total_amount",
@@ -109,6 +110,12 @@
    "fieldname": "tax_percentage",
    "fieldtype": "Percent",
    "label": "Tax Percentage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_label",
+   "fieldtype": "Data",
+   "label": "Tax Label",
    "read_only": 1
   },
   {

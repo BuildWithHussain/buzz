@@ -57,13 +57,19 @@ class EventBooking(Document):
 		self.total_amount = self.net_amount
 
 	def apply_taxes_if_applicable(self):
-		if self.currency != "INR":
+		"""Apply tax based on event-level tax configuration."""
+		self.tax_percentage = 0
+		self.tax_amount = 0
+		self.tax_label = None
+
+		event = frappe.get_cached_doc("Buzz Event", self.event)
+		if not event.apply_tax:
 			return
 
-		event_settings = frappe.get_cached_doc("Buzz Settings")
-		to_apply_gst = event_settings.apply_gst_on_bookings
-		if to_apply_gst:
-			self.tax_percentage = event_settings.gst_percentage or 18
+		self.tax_label = event.tax_label or "Tax"
+		self.tax_percentage = event.tax_percentage or 0
+
+		if self.tax_percentage > 0:
 			self.tax_amount = self.net_amount * (self.tax_percentage / 100)
 			self.total_amount += self.tax_amount
 

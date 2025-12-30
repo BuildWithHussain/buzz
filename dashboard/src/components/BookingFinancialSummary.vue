@@ -21,7 +21,11 @@
 
 			<!-- Tax Information -->
 			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
-				<span>{{ __("GST") }} ({{ booking.tax_percentage || 0 }}%)</span>
+				<span
+					>{{ __(booking.tax_label || "Tax") }} ({{
+						booking.tax_percentage || 0
+					}}%)</span
+				>
 				<span class="font-medium">{{
 					formatPrice(booking.tax_amount || 0, booking.currency || "INR")
 				}}</span>

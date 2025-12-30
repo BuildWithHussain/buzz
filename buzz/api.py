@@ -143,11 +143,11 @@ def get_event_booking_data(event_route: str) -> dict:
 
 	data.available_add_ons = add_ons
 
-	# GST Settings
-	event_settings = frappe.get_cached_doc("Buzz Settings")
-	data.gst_settings = {
-		"apply_gst_on_bookings": event_settings.apply_gst_on_bookings,
-		"gst_percentage": event_settings.gst_percentage or 18,
+	# Tax Settings (from Event)
+	data.tax_settings = {
+		"apply_tax": event_doc.apply_tax,
+		"tax_label": event_doc.tax_label or "Tax",
+		"tax_percentage": event_doc.tax_percentage or 0,
 	}
 
 	data.event_details = event_doc

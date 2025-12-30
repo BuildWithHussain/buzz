@@ -38,6 +38,10 @@
   "payments_tab",
   "section_break_owtc",
   "payment_gateways",
+  "tax_settings_section",
+  "apply_tax",
+  "tax_label",
+  "tax_percentage",
   "sponsorships_tab",
   "automations_section",
   "auto_send_pitch_deck",
@@ -325,6 +329,35 @@
    "fieldtype": "Table",
    "label": "Payment Gateways",
    "options": "Event Payment Gateway"
+  },
+  {
+   "fieldname": "tax_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_tax",
+   "fieldtype": "Check",
+   "label": "Apply Tax on Bookings?"
+  },
+  {
+   "default": "GST",
+   "depends_on": "eval:doc.apply_tax==1",
+   "description": "Label displayed to customers (e.g., GST, VAT, Sales Tax)",
+   "fieldname": "tax_label",
+   "fieldtype": "Data",
+   "label": "Tax Label",
+   "mandatory_depends_on": "eval:doc.apply_tax==1"
+  },
+  {
+   "default": "18",
+   "depends_on": "eval:doc.apply_tax==1",
+   "description": "Tax rate to apply on bookings",
+   "fieldname": "tax_percentage",
+   "fieldtype": "Percent",
+   "label": "Tax Percentage",
+   "mandatory_depends_on": "eval:doc.apply_tax==1"
   }
  ],
  "grid_page_length": 50,
