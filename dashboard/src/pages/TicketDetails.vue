@@ -93,7 +93,7 @@
 					<div
 						v-if="
 							!['Default', 'Normal'].includes(
-								ticketDetails.data.doc.ticket_type_title
+								ticketDetails.data.doc.ticket_type_title,
 							)
 						"
 					>
@@ -130,11 +130,16 @@
 					<img
 						:src="ticketDetails.data.doc.qr_code"
 						:alt="__('Ticket QR Code')"
-						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100"
+						:title="__('Click to enlarge')"
+						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100 cursor-pointer hover:opacity-80 transition-opacity"
+						@click="showQRExpanded = true"
 					/>
 				</div>
-				<p class="text-sm text-ink-gray-6 text-center mt-2">
-					{{ __("Present this QR code at the event entrance") }}
+				<p
+					class="text-sm text-ink-gray-5 text-center mt-2 cursor-pointer hover:text-ink-gray-7"
+					@click="showQRExpanded = true"
+				>
+					{{ __("Tap to enlarge") }}
 				</p>
 			</div>
 
@@ -293,12 +298,25 @@
 			:ticket="{ ...ticketDetails.data.doc, add_ons: ticketDetails.data.add_ons }"
 			@success="onAddOnPreferenceSuccess"
 		/>
+
+		<!-- QR Code Expanded Dialog -->
+		<Dialog v-model="showQRExpanded" :options="{ title: __('QR Code'), size: 'lg' }">
+			<template #body-content>
+				<div class="flex justify-center">
+					<img
+						:src="ticketDetails.data.doc.qr_code"
+						:alt="__('Ticket QR Code')"
+						class="w-full max-w-sm"
+					/>
+				</div>
+			</template>
+		</Dialog>
 	</div>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
-import { createResource, Spinner, Button, Badge } from "frappe-ui";
+import { createResource, Spinner, Button, Badge, Dialog } from "frappe-ui";
 import { formatCurrency } from "../utils/currency";
 import { dayjsLocal } from "frappe-ui";
 import TicketTransferDialog from "../components/TicketTransferDialog.vue";
@@ -338,6 +356,7 @@ const formatEventDateTime = (date, time) => {
 const downloadingTicket = ref(false);
 const showTransferDialog = ref(false);
 const showAddOnPreferenceDialog = ref(false);
+const showQRExpanded = ref(false);
 
 const ticketDetails = createResource({
 	url: "buzz.api.get_ticket_details",
@@ -372,7 +391,7 @@ const ticketDetails = createResource({
 					? formatEventDateTime(data.event.end_date, data.event.end_time)
 					: null,
 				formatted_creation: dayjsLocal(data.doc.creation).format(
-					"MMMM DD, YYYY [at] h:mm A"
+					"MMMM DD, YYYY [at] h:mm A",
 				),
 				event_title: data.event?.title || "",
 				venue: data.event?.venue || "",
@@ -409,7 +428,7 @@ const hasCustomizableAddOns = computed(() => {
 			"Checking addon:",
 			addon,
 			"has options:",
-			addon.options && addon.options.length > 0
+			addon.options && addon.options.length > 0,
 		);
 		return addon.options && addon.options.length > 0;
 	});

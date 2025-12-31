@@ -61,10 +61,27 @@
 				<img
 					:src="ticket.qr_code"
 					:alt="__('QR Code')"
-					class="w-20 h-20 contrast-100 brightness-100"
+					:title="__('Click to enlarge')"
+					class="w-20 h-20 contrast-100 brightness-100 cursor-pointer hover:opacity-80 transition-opacity"
+					@click.stop="showQRExpanded = true"
 				/>
+				<p
+					class="text-xs text-ink-gray-5 mt-1 cursor-pointer hover:text-ink-gray-7"
+					@click.stop="showQRExpanded = true"
+				>
+					{{ __("Tap to enlarge") }}
+				</p>
 			</div>
 		</div>
+
+		<!-- QR Code Expanded Dialog -->
+		<Dialog v-model="showQRExpanded" :options="{ title: __('QR Code'), size: 'lg' }">
+			<template #body-content>
+				<div class="flex justify-center">
+					<img :src="ticket.qr_code" :alt="__('QR Code')" class="w-full max-w-sm" />
+				</div>
+			</template>
+		</Dialog>
 
 		<!-- Ticket Transfer Dialog -->
 		<TicketTransferDialog
@@ -84,7 +101,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { Button, Dropdown, Badge } from "frappe-ui";
+import { Button, Dropdown, Badge, Dialog } from "frappe-ui";
 import TicketTransferDialog from "./TicketTransferDialog.vue";
 import AddOnPreferenceDialog from "./AddOnPreferenceDialog.vue";
 import LucideUserPen from "~icons/lucide/user-pen";
@@ -117,6 +134,7 @@ const emit = defineEmits(["transfer-success"]);
 
 const showTransferDialog = ref(false);
 const showPreferenceDialog = ref(false);
+const showQRExpanded = ref(false);
 
 // Check if ticket has customizable add-ons
 const hasCustomizableAddOns = computed(() => {
