@@ -85,6 +85,7 @@ class CouponCode(Document):
 			.on(EventBooking.name == EventBookingAttendee.parent)
 			.where(EventBooking.coupon_code == self.name)
 			.where(EventBooking.docstatus == 1)
+			.where(EventBookingAttendee.ticket_type == self.ticket_type)
 			.select(Count(EventBookingAttendee.name))
 		).run()[0][0]
 
