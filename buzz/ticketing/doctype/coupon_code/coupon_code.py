@@ -39,8 +39,10 @@ class CouponCode(Document):
 		self.validate_free_tickets_event()
 
 	def validate_discount_value(self):
-		if self.coupon_type == "Discount" and self.discount_type == "Percentage":
-			if self.discount_value > 100:
+		if self.coupon_type == "Discount":
+			if self.discount_value <= 0:
+				frappe.throw(_("Discount value must be greater than 0"))
+			if self.discount_type == "Percentage" and self.discount_value > 100:
 				frappe.throw(_("Percentage discount cannot exceed 100%"))
 
 	def validate_scope(self):

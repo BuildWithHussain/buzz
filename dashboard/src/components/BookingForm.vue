@@ -536,10 +536,16 @@ async function applyCoupon() {
 	}
 
 	couponError.value = "";
-	const result = await validateCoupon.submit({
-		coupon_code: couponCode.value.trim(),
-		event: eventId.value,
-	});
+	let result;
+	try {
+		result = await validateCoupon.submit({
+			coupon_code: couponCode.value.trim(),
+			event: eventId.value,
+		});
+	} catch (error) {
+		couponError.value = error.message || __("Failed to validate coupon");
+		return;
+	}
 
 	if (result.valid) {
 		couponApplied.value = true;
