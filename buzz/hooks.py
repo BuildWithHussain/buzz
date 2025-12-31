@@ -64,7 +64,7 @@ add_to_apps_screen = [
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/events/css/events.css"
-# app_include_js = "/assets/events/js/events.js"
+app_include_js = "/assets/buzz/js/events/create_from_template.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/events/css/events.css"

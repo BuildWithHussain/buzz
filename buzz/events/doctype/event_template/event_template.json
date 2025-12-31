@@ -1,0 +1,303 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:template_name",
+ "creation": "2025-12-31 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "template_name",
+  "category",
+  "medium",
+  "column_break_main",
+  "banner_image",
+  "host",
+  "venue",
+  "section_break_details",
+  "time_zone",
+  "short_description",
+  "about",
+  "payments_tab",
+  "section_break_payments",
+  "payment_gateways",
+  "tax_settings_section",
+  "apply_tax",
+  "tax_label",
+  "tax_percentage",
+  "sponsorships_tab",
+  "automations_section",
+  "auto_send_pitch_deck",
+  "section_break_sponsor",
+  "sponsor_deck_reply_to",
+  "sponsor_deck_email_template",
+  "column_break_sponsor",
+  "sponsor_deck_cc",
+  "section_break_attachments",
+  "sponsor_deck_attachments",
+  "customisations_tab",
+  "ticket_email_template",
+  "column_break_custom",
+  "ticket_print_format",
+  "ticket_types_tab",
+  "template_ticket_types",
+  "add_ons_tab",
+  "template_add_ons",
+  "custom_fields_tab",
+  "template_custom_fields"
+ ],
+ "fields": [
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Event Category"
+  },
+  {
+   "default": "In Person",
+   "fieldname": "medium",
+   "fieldtype": "Select",
+   "label": "Medium",
+   "options": "In Person\nOnline"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "banner_image",
+   "fieldtype": "Attach Image",
+   "label": "Banner Image"
+  },
+  {
+   "fieldname": "host",
+   "fieldtype": "Link",
+   "label": "Host",
+   "options": "Event Host"
+  },
+  {
+   "depends_on": "eval:doc.medium!=\"Online\"",
+   "fieldname": "venue",
+   "fieldtype": "Link",
+   "label": "Venue",
+   "options": "Event Venue"
+  },
+  {
+   "fieldname": "section_break_details",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "time_zone",
+   "fieldtype": "Autocomplete",
+   "label": "Time Zone"
+  },
+  {
+   "fieldname": "short_description",
+   "fieldtype": "Small Text",
+   "label": "Short Description"
+  },
+  {
+   "fieldname": "about",
+   "fieldtype": "Text Editor",
+   "label": "About"
+  },
+  {
+   "fieldname": "payments_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payments"
+  },
+  {
+   "fieldname": "section_break_payments",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_gateways",
+   "fieldtype": "Table",
+   "label": "Payment Gateways",
+   "options": "Event Payment Gateway"
+  },
+  {
+   "fieldname": "tax_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_tax",
+   "fieldtype": "Check",
+   "label": "Apply Tax on Bookings?"
+  },
+  {
+   "default": "GST",
+   "depends_on": "eval:doc.apply_tax==1",
+   "fieldname": "tax_label",
+   "fieldtype": "Data",
+   "label": "Tax Label"
+  },
+  {
+   "default": "18",
+   "depends_on": "eval:doc.apply_tax==1",
+   "fieldname": "tax_percentage",
+   "fieldtype": "Percent",
+   "label": "Tax Percentage"
+  },
+  {
+   "fieldname": "sponsorships_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sponsorships"
+  },
+  {
+   "fieldname": "automations_section",
+   "fieldtype": "Section Break",
+   "label": "Automations"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_send_pitch_deck",
+   "fieldtype": "Check",
+   "label": "Auto Send Pitch Deck?"
+  },
+  {
+   "fieldname": "section_break_sponsor",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck==true",
+   "fieldname": "sponsor_deck_reply_to",
+   "fieldtype": "Data",
+   "label": "Reply To"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck==true",
+   "fieldname": "sponsor_deck_email_template",
+   "fieldtype": "Link",
+   "label": "Email Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_sponsor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck==true",
+   "fieldname": "sponsor_deck_cc",
+   "fieldtype": "Small Text",
+   "label": "CC"
+  },
+  {
+   "fieldname": "section_break_attachments",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck==true",
+   "fieldname": "sponsor_deck_attachments",
+   "fieldtype": "Table",
+   "label": "Attachments",
+   "options": "Sponsorship Deck Item"
+  },
+  {
+   "fieldname": "customisations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Customisations"
+  },
+  {
+   "fieldname": "ticket_email_template",
+   "fieldtype": "Link",
+   "label": "Ticket Email Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_custom",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ticket_print_format",
+   "fieldtype": "Link",
+   "label": "Ticket Print Format",
+   "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Event Ticket\"]]",
+   "options": "Print Format"
+  },
+  {
+   "fieldname": "ticket_types_tab",
+   "fieldtype": "Tab Break",
+   "label": "Ticket Types"
+  },
+  {
+   "fieldname": "template_ticket_types",
+   "fieldtype": "Table",
+   "label": "Ticket Types",
+   "options": "Event Template Ticket Type"
+  },
+  {
+   "fieldname": "add_ons_tab",
+   "fieldtype": "Tab Break",
+   "label": "Add-ons"
+  },
+  {
+   "fieldname": "template_add_ons",
+   "fieldtype": "Table",
+   "label": "Add-ons",
+   "options": "Event Template Add-on"
+  },
+  {
+   "fieldname": "custom_fields_tab",
+   "fieldtype": "Tab Break",
+   "label": "Custom Fields"
+  },
+  {
+   "fieldname": "template_custom_fields",
+   "fieldtype": "Table",
+   "label": "Custom Fields",
+   "options": "Event Template Custom Field"
+  }
+ ],
+ "image_field": "banner_image",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-31 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Events",
+ "name": "Event Template",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Event Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "template_name",
+ "track_changes": 1
+}
