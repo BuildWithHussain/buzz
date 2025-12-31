@@ -2,144 +2,131 @@
 	<Dialog
 		v-model="isOpen"
 		:options="{
-			title:
-				currentStep === 'tier'
-					? __('Select Sponsorship Tier')
-					: __('Select Payment Method'),
+			title: __('Select Sponsorship Tier'),
 			size: 'xl',
-			description:
-				currentStep === 'tier'
-					? __('Choose your preferred sponsorship tier and proceed to payment')
-					: __('Choose your preferred payment method'),
+			description: __('Choose your preferred sponsorship tier and proceed to payment'),
 		}"
 	>
 		<template #body-content>
-			<!-- Step 1: Tier Selection -->
-			<div v-if="currentStep === 'tier'">
-				<div v-if="!props.eventId" class="text-center py-8">
-					<p class="text-ink-gray-5">{{ __("Loading event information...") }}</p>
-				</div>
+			<div v-if="!props.eventId" class="text-center py-8">
+				<p class="text-ink-gray-5">{{ __("Loading event information...") }}</p>
+			</div>
 
-				<div v-else-if="tiers.loading" class="flex justify-center py-8">
-					<Spinner />
-				</div>
+			<div v-else-if="tiers.loading" class="flex justify-center py-8">
+				<Spinner />
+			</div>
 
-				<div v-else-if="tiers.data && tiers.data.length > 0" class="space-y-4">
-					<p class="text-ink-gray-7 mb-6">
-						{{ __("Select a sponsorship tier for") }}
-						<strong>{{ eventTitle || __("this event") }}</strong>
-						{{ __("and proceed to payment.") }}
-					</p>
+			<div v-else-if="tiers.data && tiers.data.length > 0" class="space-y-6">
+				<p
+					class="text-ink-gray-7"
+					v-html="
+						__(
+							'Select a sponsorship tier for <strong>{0}</strong> and proceed to payment.',
+							[eventTitle || __('this event')]
+						)
+					"
+				></p>
 
-					<div class="space-y-3">
-						<div
-							v-for="tier in tiers.data"
-							:key="tier.name"
-							class="border border-outline-gray-2 rounded-lg p-4 cursor-pointer transition-all hover:border-outline-gray-3 hover:bg-surface-gray-1"
-							:class="{
-								'border-outline-gray-4 bg-surface-gray-2':
-									selectedTier?.name === tier.name,
-							}"
-							@click="selectedTier = tier"
-						>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center space-x-3">
-									<input
-										type="radio"
-										:checked="selectedTier?.name === tier.name"
-										@change="selectedTier = tier"
-										class="text-ink-gray-6"
-									/>
-									<div>
-										<h3 class="font-semibold text-ink-gray-9">
-											{{ tier.title }}
-										</h3>
-									</div>
-								</div>
-								<div class="text-right">
-									<p class="font-bold text-lg text-ink-gray-9">
-										{{ formatCurrency(tier.price, tier.currency) }}
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-
+				<!-- Tier Selection -->
+				<div class="space-y-3">
 					<div
-						v-if="selectedTier"
-						class="mt-6 p-4 bg-surface-green-1 border border-outline-green-1 rounded-lg"
+						v-for="tier in tiers.data"
+						:key="tier.name"
+						class="border border-outline-gray-2 rounded-lg p-4 cursor-pointer transition-all hover:border-outline-gray-3 hover:bg-surface-gray-1"
+						:class="{
+							'border-outline-gray-4 bg-surface-gray-2':
+								selectedTier?.name === tier.name,
+						}"
+						@click="selectedTier = tier"
 					>
 						<div class="flex items-center justify-between">
-							<div>
-								<h4 class="font-semibold text-ink-green-2">
-									{{ __("Selected Tier") }}
-								</h4>
-								<p class="text-ink-green-2">{{ selectedTier.title }}</p>
+							<div class="flex items-center space-x-3">
+								<input
+									type="radio"
+									:checked="selectedTier?.name === tier.name"
+									@change="selectedTier = tier"
+									class="text-ink-gray-6"
+								/>
+								<div>
+									<h3 class="font-semibold text-ink-gray-9">
+										{{ tier.title }}
+									</h3>
+								</div>
 							</div>
 							<div class="text-right">
-								<p class="text-sm text-ink-green-2">{{ __("Total Amount") }}</p>
-								<p class="font-bold text-xl text-ink-green-2">
-									{{ formatCurrency(selectedTier.price, selectedTier.currency) }}
+								<p class="font-bold text-lg text-ink-gray-9">
+									{{ formatCurrency(tier.price, tier.currency) }}
 								</p>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<div v-else-if="tiers.error" class="text-center py-8">
-					<p class="text-ink-red-2">{{ __("Error loading sponsorship tiers") }}</p>
-					<p class="text-ink-gray-5 text-sm">{{ tiers.error }}</p>
-				</div>
-
-				<div v-else class="text-center py-8">
-					<p class="text-ink-gray-5">
-						{{ __("No sponsorship tiers available for this event") }}
-					</p>
-				</div>
-			</div>
-
-			<!-- Step 2: Payment Gateway Selection -->
-			<div v-else-if="currentStep === 'gateway'" class="space-y-4">
-				<p class="text-ink-gray-7 mb-6">
-					{{ __("Select a payment method for your") }}
-					<strong>{{ selectedTier?.title }}</strong> {{ __("sponsorship.") }}
-				</p>
-
-				<div class="space-y-3">
-					<div
-						v-for="gateway in paymentGateways"
-						:key="gateway"
-						class="border border-outline-gray-2 rounded-lg p-4 cursor-pointer transition-all hover:border-outline-gray-3 hover:bg-surface-gray-1"
-						:class="{
-							'border-outline-gray-4 bg-surface-gray-2': selectedGateway === gateway,
-						}"
-						@click="selectedGateway = gateway"
-					>
-						<div class="flex items-center space-x-3">
-							<input
-								type="radio"
-								:checked="selectedGateway === gateway"
-								@change="selectedGateway = gateway"
-								class="text-ink-gray-6"
-							/>
-							<div>
-								<h3 class="font-semibold text-ink-gray-9">{{ gateway }}</h3>
+				<!-- Payment Gateway Selection (only shown when tier is selected and multiple gateways exist) -->
+				<div v-if="selectedTier && hasMultipleGateways" class="space-y-3">
+					<h4 class="font-semibold text-ink-gray-8">
+						{{ __("Select Payment Method") }}
+					</h4>
+					<div class="flex flex-wrap gap-3">
+						<div
+							v-for="gateway in paymentGateways"
+							:key="gateway"
+							class="border border-outline-gray-2 rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-outline-gray-3 hover:bg-surface-gray-1"
+							:class="{
+								'border-outline-gray-4 bg-surface-gray-2':
+									selectedGateway === gateway,
+							}"
+							@click="selectedGateway = gateway"
+						>
+							<div class="flex items-center space-x-2">
+								<input
+									type="radio"
+									:checked="selectedGateway === gateway"
+									@change="selectedGateway = gateway"
+									class="text-ink-gray-6"
+								/>
+								<span class="font-medium text-ink-gray-9">{{ gateway }}</span>
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<!-- Selected Summary -->
+				<div
+					v-if="selectedTier"
+					class="p-4 bg-surface-green-1 border border-outline-green-1 rounded-lg"
+				>
+					<div class="flex items-center justify-between">
+						<div>
+							<h4 class="font-semibold text-ink-green-2">
+								{{ __("Selected Tier") }}
+							</h4>
+							<p class="text-ink-green-2">{{ selectedTier.title }}</p>
+						</div>
+						<div class="text-right">
+							<p class="text-sm text-ink-green-2">{{ __("Total Amount") }}</p>
+							<p class="font-bold text-xl text-ink-green-2">
+								{{ formatCurrency(selectedTier.price, selectedTier.currency) }}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div v-else-if="tiers.error" class="text-center py-8">
+				<p class="text-ink-red-2">{{ __("Error loading sponsorship tiers") }}</p>
+				<p class="text-ink-gray-5 text-sm">{{ tiers.error }}</p>
+			</div>
+
+			<div v-else class="text-center py-8">
+				<p class="text-ink-gray-5">
+					{{ __("No sponsorship tiers available for this event") }}
+				</p>
 			</div>
 		</template>
 
 		<template #actions>
 			<div class="flex justify-end space-x-3">
-				<Button
-					v-if="currentStep === 'gateway'"
-					variant="ghost"
-					@click="goBackToTierSelection"
-				>
-					{{ __("Back") }}
-				</Button>
 				<Button variant="ghost" @click="closeDialog">{{ __("Cancel") }}</Button>
 				<Button
 					variant="solid"
@@ -183,14 +170,15 @@ const emit = defineEmits(["update:open", "payment-started"]);
 const isOpen = ref(props.open);
 const selectedTier = ref(null);
 const selectedGateway = ref(null);
-const currentStep = ref("tier"); // 'tier' or 'gateway'
 const paymentGateways = ref([]);
 
+const hasMultipleGateways = computed(() => paymentGateways.value.length > 1);
+
 const canProceed = computed(() => {
-	if (currentStep.value === "tier") {
-		return selectedTier.value !== null;
-	}
-	return selectedGateway.value !== null;
+	if (!selectedTier.value) return false;
+	// If multiple gateways, require gateway selection
+	if (hasMultipleGateways.value && !selectedGateway.value) return false;
+	return true;
 });
 
 // Watch for prop changes
@@ -202,7 +190,6 @@ watch(
 			// Reset selection when dialog opens
 			selectedTier.value = null;
 			selectedGateway.value = null;
-			currentStep.value = "tier";
 			tiers.fetch();
 			fetchPaymentGateways();
 		}
@@ -257,38 +244,18 @@ const closeDialog = () => {
 	isOpen.value = false;
 	selectedTier.value = null;
 	selectedGateway.value = null;
-	currentStep.value = "tier";
-};
-
-const goBackToTierSelection = () => {
-	currentStep.value = "tier";
-	selectedGateway.value = null;
 };
 
 const proceedToPayment = () => {
-	if (currentStep.value === "tier") {
-		if (!selectedTier.value) return;
+	if (!selectedTier.value) return;
 
-		// Check if we need to show gateway selection
-		if (paymentGateways.value.length > 1) {
-			currentStep.value = "gateway";
-			return;
-		}
+	// Use selected gateway or first available (for single gateway case)
+	const gateway = selectedGateway.value || paymentGateways.value[0] || null;
 
-		// Single gateway or no gateways - submit directly
-		submitPayment(paymentGateways.value[0] || null);
-	} else {
-		// Gateway step
-		if (!selectedGateway.value) return;
-		submitPayment(selectedGateway.value);
-	}
-};
-
-function submitPayment(gateway) {
 	paymentLink.submit({
 		enquiry_id: props.enquiryId,
 		tier_id: selectedTier.value.name,
 		payment_gateway: gateway,
 	});
-}
+};
 </script>
