@@ -57,24 +57,50 @@ class BuzzEvent(Document):
 
 	def validate(self):
 		self.validate_dates()
+		self.validate_schedule()
 		self.validate_route()
 		self.validate_tax_settings()
+
+	def validate_schedule(self):
+		end_date = self.end_date or self.start_date
+		for item in self.schedule:
+			if item.date < self.start_date or item.date > end_date:
+				frappe.throw(
+					frappe._("<b>Schedule</b> row #{0}: <b>Date</b> must be within event dates").format(
+						item.idx
+					)
+				)
+
+			if time_diff_in_seconds(item.end_time, item.start_time) <= 0:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>End Time</b> must be after <b>Start Time</b>"
+					).format(item.idx)
+				)
+
+			if item.date == self.start_date and self.start_time and item.start_time < self.start_time:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>Start Time</b> cannot be before event start time"
+					).format(item.idx)
+				)
+
+			if item.date == end_date and self.end_time and item.end_time > self.end_time:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>End Time</b> cannot be after event end time"
+					).format(item.idx)
+				)
 
 	def validate_dates(self):
 		self.validate_from_to_dates("start_date", "end_date")
 		if (
-			self.start_date
-			and self.end_date
-			and self.start_date == self.end_date
+			(not self.end_date or self.start_date == self.end_date)
 			and self.start_time
 			and self.end_time
 			and time_diff_in_seconds(self.end_time, self.start_time) <= 0
 		):
-			frappe.throw(
-				frappe._("{0} must be after {1}").format(
-					frappe.bold(frappe._("End Time")), frappe.bold(frappe._("Start Time"))
-				)
-			)
+			frappe.throw(frappe._("<b>End Time</b> must be after <b>Start Time</b>"))
 
 	def validate_tax_settings(self):
 		"""Set default tax values when tax is enabled."""
