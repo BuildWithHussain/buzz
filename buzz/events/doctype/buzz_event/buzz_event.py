@@ -56,8 +56,25 @@ class BuzzEvent(Document):
 	# end: auto-generated types
 
 	def validate(self):
+		self.validate_dates()
 		self.validate_route()
 		self.validate_tax_settings()
+
+	def validate_dates(self):
+		self.validate_from_to_dates("start_date", "end_date")
+		if (
+			self.start_date
+			and self.end_date
+			and self.start_date == self.end_date
+			and self.start_time
+			and self.end_time
+			and time_diff_in_seconds(self.end_time, self.start_time) <= 0
+		):
+			frappe.throw(
+				frappe._("{0} must be after {1}").format(
+					frappe.bold(frappe._("End Time")), frappe.bold(frappe._("Start Time"))
+				)
+			)
 
 	def validate_tax_settings(self):
 		"""Set default tax values when tax is enabled."""
