@@ -268,7 +268,11 @@ def transfer_ticket(ticket_id: str, new_name: str, new_email: str):
 
 	ticket = frappe.get_doc("Event Ticket", ticket_id)
 
-	# Check if ticket transfer is allowed
+	if ticket.attendee_email != frappe.session.user and not frappe.has_permission(
+		"Event Ticket", "write", ticket
+	):
+		frappe.throw(frappe._("Not permitted to transfer this ticket."))
+
 	if not is_ticket_transfer_allowed(ticket.event):
 		frappe.throw(frappe._("Ticket transfer is not allowed at this time. The transfer window has closed."))
 
