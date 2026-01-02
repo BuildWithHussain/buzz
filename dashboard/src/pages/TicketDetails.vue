@@ -135,12 +135,6 @@
 						@click="showQRExpanded = true"
 					/>
 				</div>
-				<p
-					class="text-sm text-ink-gray-5 text-center mt-2 cursor-pointer hover:text-ink-gray-7"
-					@click="showQRExpanded = true"
-				>
-					{{ __("Click to enlarge") }}
-				</p>
 			</div>
 
 			<!-- Add-ons Information -->

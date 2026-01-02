@@ -65,12 +65,6 @@
 					class="w-20 h-20 contrast-100 brightness-100 cursor-pointer hover:opacity-80 transition-opacity"
 					@click.stop="showQRExpanded = true"
 				/>
-				<p
-					class="text-xs text-ink-gray-5 mt-1 cursor-pointer hover:text-ink-gray-7"
-					@click.stop="showQRExpanded = true"
-				>
-					{{ __("Click to enlarge") }}
-				</p>
 			</div>
 		</div>
 
