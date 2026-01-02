@@ -13,8 +13,9 @@ class CouponCode(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from buzz.ticketing.doctype.coupon_free_add_on.coupon_free_add_on import CouponFreeAddon
 		from frappe.types import DF
+
+		from buzz.ticketing.doctype.coupon_free_add_on.coupon_free_add_on import CouponFreeAddon
 
 		code: DF.Data | None
 		coupon_type: DF.Literal["Free Tickets", "Discount"]

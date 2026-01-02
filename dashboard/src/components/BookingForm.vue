@@ -86,23 +86,35 @@
 								class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3"
 							>
 								<div class="flex items-center gap-2">
-									<span class="text-green-700 font-medium">{{ couponCode }}</span>
+									<span class="text-green-700 font-medium">{{
+										couponCode
+									}}</span>
 									<span class="text-green-600 text-sm">
 										<template v-if="couponData.coupon_type === 'Free Tickets'">
 											({{ matchingAttendeesCount }} {{ __("eligible") }},
-											{{ Math.min(matchingAttendeesCount, couponData.remaining_tickets) }} {{ __("free") }})
+											{{
+												Math.min(
+													matchingAttendeesCount,
+													couponData.remaining_tickets
+												)
+											}}
+											{{ __("free") }})
 										</template>
 										<template v-else>
 											({{
 												couponData.discount_type === "Percentage"
 													? couponData.discount_value + "% off"
-													: formatPriceOrFree(couponData.discount_value, totalCurrency) +
-														" off"
+													: formatPriceOrFree(
+															couponData.discount_value,
+															totalCurrency
+													  ) + " off"
 											}})
 										</template>
 									</span>
 								</div>
-								<Button variant="ghost" size="sm" @click="removeCoupon"> ✕ </Button>
+								<Button variant="ghost" size="sm" @click="removeCoupon">
+									✕
+								</Button>
 							</div>
 
 							<!-- Error message -->
@@ -225,9 +237,9 @@ const showGatewayDialog = ref(false);
 const pendingPayload = ref(null);
 
 // Coupon state
-const couponCode = ref('');
+const couponCode = ref("");
 const couponApplied = ref(false);
-const couponError = ref('');
+const couponError = ref("");
 const couponData = ref(null);
 
 // Ensure user data is loaded
@@ -395,7 +407,10 @@ const discountAmount = computed(() => {
 		const matchingAttendees = attendees.value.filter(
 			(a) => a.ticket_type === couponTicketType
 		);
-		const freeTicketCount = Math.min(matchingAttendees.length, couponData.value.remaining_tickets);
+		const freeTicketCount = Math.min(
+			matchingAttendees.length,
+			couponData.value.remaining_tickets
+		);
 		let discount = freeTicketCount * ticketInfo.price;
 
 		// Add free add-ons discount for free ticket holders only
@@ -567,7 +582,11 @@ async function applyCoupon() {
 
 			// Note: Users can choose any ticket type - only matching types get free discount
 			toast.success(
-				__(`Free ticket coupon applied! Select "${ticketTypesMap.value[result.ticket_type]?.title || result.ticket_type}" to get free tickets (${result.remaining_tickets} available)`)
+				__(
+					`Free ticket coupon applied! Select "${
+						ticketTypesMap.value[result.ticket_type]?.title || result.ticket_type
+					}" to get free tickets (${result.remaining_tickets} available)`
+				)
 			);
 		}
 	} else {

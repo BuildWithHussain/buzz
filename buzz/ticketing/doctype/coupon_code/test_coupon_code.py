@@ -656,7 +656,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 		"""Test that validate_coupon returns correct discount info."""
 		from buzz.api import validate_coupon
 
-		coupon = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Coupon Code",
 				"code": "APITEST",
@@ -678,7 +678,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 		"""Test that validate_coupon returns correct free tickets info."""
 		from buzz.api import validate_coupon
 
-		coupon = frappe.get_doc(
+		frappe.get_doc(
 			{
 				"doctype": "Coupon Code",
 				"code": "FREEAPI",

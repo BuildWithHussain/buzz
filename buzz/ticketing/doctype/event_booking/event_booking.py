@@ -16,10 +16,11 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from frappe.types import DF
+
 		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
-		from frappe.types import DF
 
 		additional_fields: DF.Table[AdditionalField]
 		amended_from: DF.Link | None
@@ -196,7 +197,7 @@ class EventBooking(Document):
 		if coupon.coupon_type == "Discount":
 			if coupon.discount_type == "Percentage":
 				self.discount_amount = self.net_amount * (coupon.discount_value / 100)
-			else: 
+			else:
 				self.discount_amount = min(coupon.discount_value, self.net_amount)
 
 			self.total_amount = self.net_amount - self.discount_amount

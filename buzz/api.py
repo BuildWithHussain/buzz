@@ -938,7 +938,6 @@ def has_app_permission():
 
 @frappe.whitelist()
 def validate_coupon(coupon_code: str, event: str) -> dict:
-
 	if not frappe.db.exists("Coupon Code", coupon_code):
 		return {"valid": False, "error": _("Invalid coupon code")}
 
