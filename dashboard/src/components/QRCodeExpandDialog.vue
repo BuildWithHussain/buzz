@@ -9,14 +9,11 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import { Dialog } from "frappe-ui";
 
-const props = defineProps({
-	modelValue: {
-		type: Boolean,
-		default: false,
-	},
+const isOpen = defineModel({ type: Boolean, default: false });
+
+defineProps({
 	qrCodeSrc: {
 		type: String,
 		required: true,
@@ -25,12 +22,5 @@ const props = defineProps({
 		type: String,
 		default: "QR Code",
 	},
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const isOpen = computed({
-	get: () => props.modelValue,
-	set: (value) => emit("update:modelValue", value),
 });
 </script>
