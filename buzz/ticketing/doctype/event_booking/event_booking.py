@@ -101,13 +101,57 @@ class EventBooking(Document):
 			price, currency = frappe.get_cached_value(
 				"Event Ticket Type", attendee.ticket_type, ["price", "currency"]
 			)
-			if attendee.amount is None:
-				attendee.amount = price
+			# Always set price from ticket type - coupon will discount later
+			attendee.amount = price
 			if not attendee.currency:
 				attendee.currency = currency
 
 	def on_submit(self):
+		self.validate_coupon_availability()
 		self.generate_tickets()
+
+	def validate_coupon_availability(self):
+		"""Re-validate coupon with lock to prevent race condition."""
+		if not self.coupon_code:
+			return
+
+		# Lock coupon row to prevent concurrent over-allocation
+		coupon = frappe.get_doc("Buzz Coupon Code", self.coupon_code, for_update=True)
+
+		if coupon.coupon_type == "Free Tickets":
+			# Count claimed tickets excluding current booking (since it's already docstatus=1 during on_submit)
+			claimed = self.get_free_tickets_claimed_excluding_self(coupon)
+			remaining = coupon.number_of_free_tickets - claimed
+
+			# Count only attendees that were actually discounted (amount == 0)
+			# This supports partial allocation where user books more tickets than remaining free
+			coupon_ticket_type = str(coupon.ticket_type) if coupon.ticket_type else ""
+			tickets_discounted = len(
+				[a for a in self.attendees if str(a.ticket_type) == coupon_ticket_type and a.amount == 0]
+			)
+
+			if remaining < tickets_discounted:
+				frappe.throw(_("Only {0} free tickets remaining").format(remaining))
+
+	def get_free_tickets_claimed_excluding_self(self, coupon):
+		"""Get free tickets claimed excluding current booking."""
+		from frappe.query_builder.functions import Count
+
+		EventBooking = frappe.qb.DocType("Event Booking")
+		EventBookingAttendee = frappe.qb.DocType("Event Booking Attendee")
+
+		count = (
+			frappe.qb.from_(EventBookingAttendee)
+			.join(EventBooking)
+			.on(EventBooking.name == EventBookingAttendee.parent)
+			.where(EventBooking.coupon_code == coupon.name)
+			.where(EventBooking.docstatus == 1)
+			.where(EventBooking.name != self.name)
+			.where(EventBookingAttendee.ticket_type == coupon.ticket_type)
+			.select(Count(EventBookingAttendee.name))
+		).run()[0][0]
+
+		return count or 0
 
 	def generate_tickets(self):
 		for attendee in self.attendees:
