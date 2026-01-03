@@ -130,12 +130,11 @@
 					<img
 						:src="ticketDetails.data.doc.qr_code"
 						:alt="__('Ticket QR Code')"
-						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100"
+						:title="__('Click to enlarge')"
+						class="max-w-48 h-auto border border-outline-gray-1 rounded contrast-100 brightness-100 cursor-pointer hover:opacity-80 transition-opacity"
+						@click="showQRExpanded = true"
 					/>
 				</div>
-				<p class="text-sm text-ink-gray-6 text-center mt-2">
-					{{ __("Present this QR code at the event entrance") }}
-				</p>
 			</div>
 
 			<!-- Add-ons Information -->
@@ -293,6 +292,13 @@
 			:ticket="{ ...ticketDetails.data.doc, add_ons: ticketDetails.data.add_ons }"
 			@success="onAddOnPreferenceSuccess"
 		/>
+
+		<!-- QR Code Expand Dialog -->
+		<QRCodeExpandDialog
+			v-model="showQRExpanded"
+			:qrCodeSrc="ticketDetails.data.doc.qr_code"
+			:altText="__('Ticket QR Code')"
+		/>
 	</div>
 </template>
 
@@ -303,6 +309,7 @@ import { formatCurrency } from "../utils/currency";
 import { dayjsLocal } from "frappe-ui";
 import TicketTransferDialog from "../components/TicketTransferDialog.vue";
 import AddOnPreferenceDialog from "../components/AddOnPreferenceDialog.vue";
+import QRCodeExpandDialog from "../components/QRCodeExpandDialog.vue";
 import LucideDownload from "~icons/lucide/download";
 import LucideUserPlus from "~icons/lucide/user-plus";
 import LucideEdit from "~icons/lucide/edit";
@@ -338,6 +345,7 @@ const formatEventDateTime = (date, time) => {
 const downloadingTicket = ref(false);
 const showTransferDialog = ref(false);
 const showAddOnPreferenceDialog = ref(false);
+const showQRExpanded = ref(false);
 
 const ticketDetails = createResource({
 	url: "buzz.api.get_ticket_details",
