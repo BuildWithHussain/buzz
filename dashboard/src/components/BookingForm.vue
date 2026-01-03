@@ -60,14 +60,17 @@
 							v-if="finalTotal > 0 || couponApplied"
 							class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 mb-4"
 						>
-							<h3 class="text-lg font-semibold text-ink-gray-8 mb-3">
-								{{ __("Have a coupon?") }}
+							<h3
+								class="text-xs font-medium text-ink-gray-6 uppercase tracking-wide mb-2"
+							>
+								{{ __("Coupon Code") }}
 							</h3>
 
+							<!-- Input state -->
 							<div v-if="!couponApplied" class="flex gap-2">
 								<FormControl
 									v-model="couponCode"
-									:placeholder="__('Enter coupon code')"
+									:placeholder="__('Enter code')"
 									class="flex-1"
 									@keyup.enter="applyCoupon"
 								/>
@@ -80,45 +83,104 @@
 								</Button>
 							</div>
 
-							<!-- Applied coupon display -->
-							<div
-								v-else
-								class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3"
-							>
-								<div class="flex items-center gap-2">
-									<span class="text-green-700 font-medium">{{
+							<!-- Applied state -->
+							<div v-else>
+								<!-- Badge -->
+								<div
+									class="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-md px-2.5 py-1.5"
+								>
+									<LucideCheck class="w-3.5 h-3.5 text-green-600" />
+									<span class="text-green-700 font-semibold text-sm">{{
 										couponCode
 									}}</span>
-									<span class="text-green-600 text-sm">
-										<template v-if="couponData.coupon_type === 'Free Tickets'">
-											({{ matchingAttendeesCount }} {{ __("eligible") }},
-											{{
-												Math.min(
-													matchingAttendeesCount,
-													couponData.remaining_tickets
-												)
-											}}
-											{{ __("free") }})
-										</template>
-										<template v-else>
-											({{
-												couponData.discount_type === "Percentage"
-													? couponData.discount_value + "% off"
-													: formatPriceOrFree(
-															couponData.discount_value,
-															totalCurrency
-													  ) + " off"
-											}})
-										</template>
+									<span
+										v-if="couponData.coupon_type === 'Discount'"
+										class="text-green-600 text-xs"
+									>
+										{{
+											couponData.discount_type === "Percentage"
+												? couponData.discount_value + "% off"
+												: formatPriceOrFree(
+														couponData.discount_value,
+														totalCurrency
+												  ) + " off"
+										}}
 									</span>
+									<Button
+										variant="ghost"
+										@click="removeCoupon"
+										class="!p-1 !min-w-0 text-green-500 hover:text-red-500 hover:bg-red-50"
+										:title="__('Remove')"
+									>
+										<LucideX class="w-3.5 h-3.5" />
+									</Button>
 								</div>
-								<Button variant="ghost" size="sm" @click="removeCoupon">
-									✕
-								</Button>
+
+								<!-- Free Tickets Details -->
+								<div
+									v-if="couponData?.coupon_type === 'Free Tickets'"
+									class="mt-3 text-sm space-y-2"
+								>
+									<!-- Compact info grid -->
+									<div class="grid grid-cols-2 gap-2 text-xs">
+										<div class="bg-surface-gray-2 rounded px-2 py-1.5">
+											<span class="text-ink-gray-5">{{ __("Ticket") }}</span>
+											<div class="text-ink-gray-8 font-medium truncate">
+												{{
+													ticketTypesMap[couponData.ticket_type]
+														?.title || couponData.ticket_type
+												}}
+											</div>
+										</div>
+										<div class="bg-surface-gray-2 rounded px-2 py-1.5">
+											<span class="text-ink-gray-5">{{
+												__("Available")
+											}}</span>
+											<div class="text-ink-gray-8 font-medium">
+												{{ couponData.remaining_tickets }}
+											</div>
+										</div>
+									</div>
+
+									<!-- Eligibility indicator -->
+									<div
+										class="flex items-center justify-between bg-green-50 rounded px-2 py-1.5"
+									>
+										<span class="text-green-700 text-xs">{{
+											__("Eligible attendees")
+										}}</span>
+										<span class="text-green-700 font-semibold text-sm">
+											{{ matchingAttendeesCount }}/{{ attendees.length }}
+										</span>
+									</div>
+
+									<!-- Free add-ons -->
+									<div
+										v-if="couponData.free_add_ons?.length"
+										class="flex items-center gap-1.5 text-xs text-ink-gray-6"
+									>
+										<LucideGift
+											class="w-3.5 h-3.5 text-green-500 flex-shrink-0"
+										/>
+										<span>{{ __("Free:") }}</span>
+										<span
+											v-for="(addOn, idx) in couponData.free_add_ons"
+											:key="addOn"
+											class="text-ink-gray-7"
+										>
+											{{ addOnsMap[addOn]?.title || addOn
+											}}{{
+												idx < couponData.free_add_ons.length - 1
+													? ", "
+													: ""
+											}}
+										</span>
+									</div>
+								</div>
 							</div>
 
 							<!-- Error message -->
-							<p v-if="couponError" class="text-red-500 text-sm mt-2">
+							<p v-if="couponError" class="text-red-500 text-xs mt-2">
 								{{ couponError }}
 							</p>
 						</div>
@@ -131,6 +193,12 @@
 							:discount-amount="discountAmount"
 							:coupon-applied="couponApplied"
 							:coupon-type="couponData?.coupon_type || ''"
+							:free-add-ons="couponData?.free_add_ons || []"
+							:free-ticket-type="
+								couponData?.coupon_type === 'Free Tickets'
+									? couponData?.ticket_type
+									: ''
+							"
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
 							:tax-label="taxLabel"
@@ -169,6 +237,9 @@ import { formatPriceOrFree } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
+import LucideCheck from "~icons/lucide/check";
+import LucideX from "~icons/lucide/x";
+import LucideGift from "~icons/lucide/gift";
 
 const router = useRouter();
 const route = useRoute();
@@ -579,15 +650,7 @@ async function applyCoupon() {
 				remaining_tickets: result.remaining_tickets,
 				free_add_ons: result.free_add_ons || [],
 			};
-
-			// Note: Users can choose any ticket type - only matching types get free discount
-			toast.success(
-				__(
-					`Free ticket coupon applied! Select "${
-						ticketTypesMap.value[result.ticket_type]?.title || result.ticket_type
-					}" to get free tickets (${result.remaining_tickets} available)`
-				)
-			);
+			// Info panel shows details - no toast needed
 		}
 	} else {
 		couponApplied.value = false;

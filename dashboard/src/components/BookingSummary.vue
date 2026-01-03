@@ -13,12 +13,20 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(ticket.title) }}</span>
-					<span v-if="netAmount > 0" class="text-sm text-ink-gray-5">
+					<span v-if="freeTicketType === name" class="text-sm text-ink-gray-5">
+						{{ ticket.count }} x
+						<span class="line-through">{{
+							formatPriceOrFree(ticket.price, ticket.currency)
+						}}</span>
+						{{ __("Free") }}
+					</span>
+					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ ticket.count }} x {{ formatPriceOrFree(ticket.price, ticket.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ ticket.count }}</span>
 				</div>
-				<span v-if="netAmount > 0" class="font-medium">{{
+				<span v-if="freeTicketType === name" class="font-medium">{{ __("Free") }}</span>
+				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
 			</div>
@@ -34,12 +42,20 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(addOn.title) }}</span>
-					<span v-if="netAmount > 0" class="text-sm text-ink-gray-5">
+					<span v-if="freeAddOns.includes(name)" class="text-sm text-ink-gray-5">
+						{{ addOn.count }} x
+						<span class="line-through">{{
+							formatPriceOrFree(addOn.price, addOn.currency)
+						}}</span>
+						{{ __("Free") }}
+					</span>
+					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ addOn.count }} x {{ formatPriceOrFree(addOn.price, addOn.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ addOn.count }}</span>
 				</div>
-				<span v-if="netAmount > 0" class="font-medium">{{
+				<span v-if="freeAddOns.includes(name)" class="font-medium">{{ __("Free") }}</span>
+				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>
 			</div>
@@ -116,6 +132,14 @@ defineProps({
 		default: false,
 	},
 	couponType: {
+		type: String,
+		default: "",
+	},
+	freeAddOns: {
+		type: Array,
+		default: () => [],
+	},
+	freeTicketType: {
 		type: String,
 		default: "",
 	},
