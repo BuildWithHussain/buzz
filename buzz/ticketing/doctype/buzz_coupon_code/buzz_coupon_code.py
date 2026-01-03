@@ -6,7 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 
 
-class CouponCode(Document):
+class BuzzCouponCode(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 

@@ -8,9 +8,9 @@ EXTRA_TEST_RECORD_DEPENDENCIES = []
 IGNORE_TEST_RECORD_DEPENDENCIES = []
 
 
-class IntegrationTestCouponCode(IntegrationTestCase):
+class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 	"""
-	Integration tests for CouponCode.
+	Integration tests for BuzzCouponCode.
 	Use this class for testing interactions between multiple components.
 	"""
 
@@ -47,7 +47,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that percentage discount is calculated correctly."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 20,
@@ -85,7 +85,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that flat amount discount is calculated correctly."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Flat Amount",
 				"discount_value": 300,
@@ -118,7 +118,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that flat discount is capped at net amount."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Flat Amount",
 				"discount_value": 1000,  # More than ticket price
@@ -151,7 +151,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that discount coupon usage limit is enforced."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
@@ -218,7 +218,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that coupon with max_usage_count=0 has unlimited usage."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 5,
@@ -255,7 +255,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that free tickets coupon makes tickets free."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
@@ -294,7 +294,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that only N tickets are free when booking more than free limit."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
@@ -338,7 +338,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that free tickets are tracked across multiple bookings."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
@@ -434,7 +434,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that free add-ons are discounted for free ticket holders."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
@@ -505,7 +505,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
@@ -536,7 +536,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that inactive coupon is rejected."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
@@ -566,7 +566,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc(
 				{
-					"doctype": "Coupon Code",
+					"doctype": "Buzz Coupon Code",
 					"coupon_type": "Free Tickets",
 					"ticket_type": self.test_ticket_type.name,
 					"number_of_free_tickets": 5,
@@ -580,7 +580,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			frappe.get_doc(
 				{
-					"doctype": "Coupon Code",
+					"doctype": "Buzz Coupon Code",
 					"coupon_type": "Discount",
 					"discount_type": "Percentage",
 					"discount_value": 150,  # More than 100%
@@ -588,11 +588,11 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 				}
 			).insert()
 
-	def test_coupon_code_auto_generated(self):
+	def test_buzz_coupon_code_auto_generated(self):
 		"""Test that coupon code is auto-generated if not provided."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
@@ -608,7 +608,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		"""Test that coupon code is tracked in booking document."""
 		coupon = frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"code": "TESTTRACK",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
@@ -658,7 +658,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 
 		frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"code": "APITEST",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
@@ -680,7 +680,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 
 		frappe.get_doc(
 			{
-				"doctype": "Coupon Code",
+				"doctype": "Buzz Coupon Code",
 				"code": "FREEAPI",
 				"coupon_type": "Free Tickets",
 				"event": self.test_event.name,

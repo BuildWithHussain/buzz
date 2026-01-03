@@ -159,7 +159,7 @@
    "fieldname": "coupon_code",
    "fieldtype": "Link",
    "label": "Coupon Code",
-   "options": "Coupon Code"
+   "options": "Buzz Coupon Code"
   },
   {
    "fieldname": "discount_amount",
@@ -182,7 +182,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2025-12-30 20:44:10.577707",
+ "modified": "2026-01-03 17:29:18.102192",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",
