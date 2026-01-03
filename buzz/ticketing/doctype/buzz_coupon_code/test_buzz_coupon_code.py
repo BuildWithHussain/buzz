@@ -334,6 +334,58 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 		self.assertEqual(booking.discount_amount, 1000)
 		self.assertEqual(booking.total_amount, 500)
 
+	def test_partial_free_tickets_with_paid_addon(self):
+		"""Test 1 free ticket + 2 attendees + paid add-on."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Free Tickets",
+				"event": self.test_event.name,
+				"ticket_type": self.test_ticket_type.name,
+				"number_of_free_tickets": 1,
+				"is_active": True,
+				# No free_add_ons - T-Shirt should be paid
+			}
+		).insert()
+
+		# Create attendee add-on (paid, not in free list)
+		attendee_add_on = frappe.get_doc(
+			{
+				"doctype": "Attendee Ticket Add-on",
+				"add_ons": [{"add_on": self.test_add_on.name, "value": "XL"}],
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Person 1",
+						"email": "person1@test.com",
+						"add_ons": attendee_add_on.name,
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Person 2",
+						"email": "person2@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 2 tickets x 500 = 1000, 1 add-on x 200 = 200
+		# Net = 1200
+		# Only 1 ticket free = 500 discount
+		# Total = 700 (1 paid ticket + 1 paid add-on)
+		self.assertEqual(booking.net_amount, 1200)
+		self.assertEqual(booking.discount_amount, 500)
+		self.assertEqual(booking.total_amount, 700)
+
 	def test_free_tickets_tracking_across_bookings(self):
 		"""Test that free tickets are tracked across multiple bookings."""
 		coupon = frappe.get_doc(
