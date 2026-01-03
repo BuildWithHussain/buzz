@@ -199,6 +199,7 @@
 									? couponData?.ticket_type
 									: ''
 							"
+							:free-ticket-count="couponData?.remaining_tickets || 0"
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
 							:tax-label="taxLabel"

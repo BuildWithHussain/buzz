@@ -13,19 +13,39 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(ticket.title) }}</span>
-					<span v-if="freeTicketType === name" class="text-sm text-ink-gray-5">
-						{{ ticket.count }} x
+					<span
+						v-if="freeTicketType === name && freeTicketCount > 0"
+						class="text-sm text-ink-gray-5"
+					>
+						{{ Math.min(freeTicketCount, ticket.count) }} x
 						<span class="line-through">{{
 							formatPriceOrFree(ticket.price, ticket.currency)
 						}}</span>
-						{{ __("Free") }}
+						{{ __("Free")
+						}}{{
+							ticket.count > freeTicketCount
+								? `, ${ticket.count - freeTicketCount} x ${formatPriceOrFree(
+										ticket.price,
+										ticket.currency
+								  )}`
+								: ""
+						}}
 					</span>
 					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ ticket.count }} x {{ formatPriceOrFree(ticket.price, ticket.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ ticket.count }}</span>
 				</div>
-				<span v-if="freeTicketType === name" class="font-medium">{{ __("Free") }}</span>
+				<span v-if="freeTicketType === name && freeTicketCount > 0" class="font-medium">
+					{{
+						ticket.count <= freeTicketCount
+							? __("Free")
+							: formatPriceOrFree(
+									(ticket.count - freeTicketCount) * ticket.price,
+									ticket.currency
+							  )
+					}}
+				</span>
 				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
@@ -142,6 +162,10 @@ defineProps({
 	freeTicketType: {
 		type: String,
 		default: "",
+	},
+	freeTicketCount: {
+		type: Number,
+		default: 0,
 	},
 	taxAmount: {
 		type: Number,
