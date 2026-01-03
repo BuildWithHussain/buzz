@@ -247,7 +247,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 			booking.submit()
 
 		# Verify all 5 bookings were created
-		self.assertEqual(coupon.get_times_used(), 5)
+		self.assertEqual(coupon.times_used, 5)
 
 	# ==================== FREE TICKETS COUPON TESTS ====================
 
@@ -371,7 +371,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		booking1.submit()
 
 		# Verify 2 claimed
-		self.assertEqual(coupon.get_free_tickets_claimed(), 2)
+		self.assertEqual(coupon.free_tickets_claimed, 2)
 
 		# Second booking: claim 2 more (4 total, 1 remaining)
 		booking2 = frappe.get_doc(
@@ -397,7 +397,7 @@ class IntegrationTestCouponCode(IntegrationTestCase):
 		booking2.submit()
 
 		# Verify 4 claimed
-		self.assertEqual(coupon.get_free_tickets_claimed(), 4)
+		self.assertEqual(coupon.free_tickets_claimed, 4)
 
 		# Third booking: try to claim 3, but only 1 remaining
 		booking3 = frappe.get_doc(

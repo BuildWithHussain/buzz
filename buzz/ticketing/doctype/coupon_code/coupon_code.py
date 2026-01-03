@@ -75,10 +75,18 @@ class CouponCode(Document):
 
 		return True, ""
 
-	def get_times_used(self):
+	def is_usage_available(self):
+		if self.max_usage_count > 0:
+			if self.times_used >= self.max_usage_count:
+				return False, _("Coupon usage limit reached")
+		return True, ""
+
+	@property
+	def times_used(self):
 		return frappe.db.count("Event Booking", {"coupon_code": self.name, "docstatus": 1})
 
-	def get_free_tickets_claimed(self):
+	@property
+	def free_tickets_claimed(self):
 		"""Calculate total attendees from all submitted bookings using this coupon"""
 		from frappe.query_builder.functions import Count
 
@@ -96,17 +104,3 @@ class CouponCode(Document):
 		).run()[0][0]
 
 		return count or 0
-
-	def is_usage_available(self):
-		if self.max_usage_count > 0:
-			if self.get_times_used() >= self.max_usage_count:
-				return False, _("Coupon usage limit reached")
-		return True, ""
-
-	@property
-	def times_used(self):
-		return self.get_times_used()
-
-	@property
-	def free_tickets_claimed(self):
-		return self.get_free_tickets_claimed()

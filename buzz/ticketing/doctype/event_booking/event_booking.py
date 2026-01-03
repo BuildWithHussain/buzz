@@ -204,7 +204,7 @@ class EventBooking(Document):
 
 		# Free Tickets - only discount attendees with matching ticket type
 		elif coupon.coupon_type == "Free Tickets":
-			remaining = coupon.number_of_free_tickets - coupon.get_free_tickets_claimed()
+			remaining = coupon.number_of_free_tickets - coupon.free_tickets_claimed
 			free_add_on_names = [row.add_on for row in coupon.free_add_ons]
 
 			# Only discount attendees with matching ticket type

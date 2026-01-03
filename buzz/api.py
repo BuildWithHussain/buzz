@@ -959,7 +959,7 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 			"discount_value": coupon.discount_value,
 		}
 
-	remaining = coupon.number_of_free_tickets - coupon.get_free_tickets_claimed()
+	remaining = coupon.number_of_free_tickets - coupon.free_tickets_claimed
 	if remaining <= 0:
 		return {"valid": False, "error": _("All free tickets have been claimed")}
 
