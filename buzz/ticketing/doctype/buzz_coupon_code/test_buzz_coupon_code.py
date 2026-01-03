@@ -584,6 +584,159 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				}
 			).insert()
 
+	def test_coupon_category_scope_validation(self):
+		"""Test that coupon scoped to event_category applies to events in that category."""
+		# Create a different category
+		other_category = frappe.get_doc(
+			{
+				"doctype": "Event Category",
+				"name": "Other Test Category",
+				"slug": "other-test-category",
+			}
+		).insert()
+
+		# Create coupon scoped to test_event's category
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"event_category": self.test_event.category,  # Scoped to category
+				"is_active": True,
+			}
+		).insert()
+
+		# Should work for event in same category
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Test User",
+						"email": "test@test.com",
+					},
+				],
+			}
+		).insert()
+		self.assertGreater(booking.discount_amount, 0)
+
+		# Create event in different category
+		other_event = frappe.get_doc(
+			{
+				"doctype": "Buzz Event",
+				"title": "Other Category Event",
+				"route": "other-category-event-test",
+				"start_date": "2025-12-31",
+				"category": other_category.name,
+				"host": self.test_event.host,
+			}
+		).insert()
+
+		other_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": other_event.name,
+				"title": "Other Category Ticket",
+				"price": 100,
+				"is_published": True,
+			}
+		).insert()
+
+		# Should fail for event in different category
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": other_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": other_ticket_type.name,
+							"full_name": "Test User",
+							"email": "test@test.com",
+						},
+					],
+				}
+			).insert()
+
+	def test_coupon_global_scope(self):
+		"""Test that coupon with no event/event_category applies to all events."""
+		# Create coupon with no event or category (global scope)
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 15,
+				"is_active": True,
+				# No event or event_category - should apply globally
+			}
+		).insert()
+
+		# Should work for test_event
+		booking1 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "User 1",
+						"email": "user1@test.com",
+					},
+				],
+			}
+		).insert()
+		self.assertGreater(booking1.discount_amount, 0)
+
+		# Create another event
+		other_event = frappe.get_doc(
+			{
+				"doctype": "Buzz Event",
+				"title": "Another Event",
+				"route": "another-event-global-test",
+				"start_date": "2025-12-31",
+				"category": self.test_event.category,
+				"host": self.test_event.host,
+			}
+		).insert()
+
+		other_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": other_event.name,
+				"title": "Another Event Ticket",
+				"price": 200,
+				"is_published": True,
+			}
+		).insert()
+
+		# Should also work for other event (global scope)
+		booking2 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": other_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": other_ticket_type.name,
+						"full_name": "User 2",
+						"email": "user2@test.com",
+					},
+				],
+			}
+		).insert()
+		self.assertGreater(booking2.discount_amount, 0)
+
 	def test_inactive_coupon_rejected(self):
 		"""Test that inactive coupon is rejected."""
 		coupon = frappe.get_doc(

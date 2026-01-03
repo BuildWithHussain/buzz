@@ -71,6 +71,7 @@
 								<FormControl
 									v-model="couponCode"
 									:placeholder="__('Enter code')"
+									:aria-label="__('Coupon code')"
 									class="flex-1"
 									@keyup.enter="applyCoupon"
 								/>
@@ -193,7 +194,7 @@
 							:discount-amount="discountAmount"
 							:coupon-applied="couponApplied"
 							:coupon-type="couponData?.coupon_type || ''"
-							:free-add-ons="couponData?.free_add_ons || []"
+							:free-add-on-counts="freeAddOnCounts"
 							:free-ticket-type="
 								couponData?.coupon_type === 'Free Tickets'
 									? couponData?.ticket_type
@@ -510,6 +511,26 @@ const discountAmount = computed(() => {
 		return netAmount.value * (couponData.value.discount_value / 100);
 	}
 	return Math.min(couponData.value.discount_value, netAmount.value);
+});
+
+// Calculate free add-on counts for display
+const freeAddOnCounts = computed(() => {
+	if (!couponApplied.value || couponData.value?.coupon_type !== "Free Tickets") return {};
+	if (!couponData.value.free_add_ons?.length) return {};
+
+	const counts = {};
+	const couponTicketType = couponData.value.ticket_type;
+	const matchingAttendees = attendees.value.filter((a) => a.ticket_type === couponTicketType);
+	const freeTicketCount = Math.min(matchingAttendees.length, couponData.value.remaining_tickets);
+
+	for (const addOnName of couponData.value.free_add_ons) {
+		let count = 0;
+		for (let i = 0; i < freeTicketCount; i++) {
+			if (matchingAttendees[i]?.add_ons[addOnName]?.selected) count++;
+		}
+		if (count > 0) counts[addOnName] = count;
+	}
+	return counts;
 });
 
 // Amount after discount

@@ -62,19 +62,36 @@
 			>
 				<div class="flex flex-col">
 					<span>{{ __(addOn.title) }}</span>
-					<span v-if="freeAddOns.includes(name)" class="text-sm text-ink-gray-5">
-						{{ addOn.count }} x
+					<span v-if="freeAddOnCounts[name] > 0" class="text-sm text-ink-gray-5">
+						{{ Math.min(freeAddOnCounts[name], addOn.count) }} x
 						<span class="line-through">{{
 							formatPriceOrFree(addOn.price, addOn.currency)
 						}}</span>
-						{{ __("Free") }}
+						{{ __("Free")
+						}}{{
+							addOn.count > freeAddOnCounts[name]
+								? `, ${addOn.count - freeAddOnCounts[name]} x ${formatPriceOrFree(
+										addOn.price,
+										addOn.currency
+								  )}`
+								: ""
+						}}
 					</span>
 					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
 						{{ addOn.count }} x {{ formatPriceOrFree(addOn.price, addOn.currency) }}
 					</span>
 					<span v-else class="text-sm text-ink-gray-5">x {{ addOn.count }}</span>
 				</div>
-				<span v-if="freeAddOns.includes(name)" class="font-medium">{{ __("Free") }}</span>
+				<span v-if="freeAddOnCounts[name] > 0" class="font-medium">
+					{{
+						addOn.count <= freeAddOnCounts[name]
+							? __("Free")
+							: formatPriceOrFree(
+									(addOn.count - freeAddOnCounts[name]) * addOn.price,
+									addOn.currency
+							  )
+					}}
+				</span>
 				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>
@@ -155,9 +172,9 @@ defineProps({
 		type: String,
 		default: "",
 	},
-	freeAddOns: {
-		type: Array,
-		default: () => [],
+	freeAddOnCounts: {
+		type: Object,
+		default: () => ({}),
 	},
 	freeTicketType: {
 		type: String,
