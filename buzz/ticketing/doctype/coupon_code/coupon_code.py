@@ -51,8 +51,13 @@ class CouponCode(Document):
 			frappe.throw(_("Select either Event or Category, not both"))
 
 	def validate_free_tickets_event(self):
-		if self.coupon_type == "Free Tickets" and not self.event:
-			frappe.throw(_("Event is required for Free Tickets coupon"))
+		if self.coupon_type == "Free Tickets":
+			if not self.event:
+				frappe.throw(_("Event is required for Free Tickets coupon"))
+			if not self.ticket_type:
+				frappe.throw(_("Ticket Type is required for Free Tickets coupon"))
+			if self.number_of_free_tickets <= 0:
+				frappe.throw(_("Number of free tickets must be greater than 0"))
 
 	def is_valid_for_event(self, event_name):
 		if not self.is_active:
