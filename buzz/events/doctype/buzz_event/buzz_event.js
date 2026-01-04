@@ -38,6 +38,17 @@ frappe.ui.form.on("Buzz Event", {
 			};
 		});
 
+		// Save as Template button
+		if (!frm.is_new()) {
+			frm.add_custom_button(
+				__("Save as Template"),
+				function () {
+					buzz.events.show_save_as_template_dialog(frm);
+				},
+				__("Actions")
+			);
+		}
+
 		frm.trigger("add_zoom_custom_actions");
 	},
 
