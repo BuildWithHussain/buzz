@@ -72,35 +72,50 @@
 		<div v-if="availableAddOns.length > 0">
 			<hr class="my-4" />
 
-			<div v-for="addOn in availableAddOns" :key="addOn.name" class="mb-4">
-				<div class="flex flex-col gap-3">
-					<FormControl
-						type="checkbox"
-						:model-value="getAddOnSelected(addOn.name)"
-						@update:model-value="updateAddOnSelection(addOn.name, $event)"
-						:id="`add_on_${addOn.name}_${index}`"
-						:label="__(addOn.title)"
-					/>
-					<div class="text-ink-gray-5 text-sm/4" v-if="addOn.description">
-						<p>
-							{{ __(addOn.description) }}
-						</p>
-					</div>
-				</div>
-
+			<div class="space-y-1">
 				<div
-					v-if="addOn.user_selects_option && getAddOnSelected(addOn.name)"
-					class="mt-2 ml-6"
+					v-for="addOn in availableAddOns"
+					:key="addOn.name"
+					class="flex items-center justify-between gap-2 h-9"
 				>
-					<FormControl
-						:model-value="getAddOnOption(addOn.name)"
-						@update:model-value="updateAddOnOption(addOn.name, $event)"
-						type="select"
-						:options="
-							addOn.options.map((option) => ({ label: __(option), value: option }))
-						"
-						size="sm"
-					/>
+					<!-- Left: checkbox + title + info -->
+					<div class="flex items-center gap-2 min-w-0">
+						<FormControl
+							type="checkbox"
+							:model-value="getAddOnSelected(addOn.name)"
+							@update:model-value="updateAddOnSelection(addOn.name, $event)"
+							:id="`add_on_${addOn.name}_${index}`"
+						/>
+						<label
+							:for="`add_on_${addOn.name}_${index}`"
+							class="text-sm cursor-pointer truncate"
+						>
+							{{ __(addOn.title) }}
+						</label>
+						<Tooltip v-if="addOn.description" :text="__(addOn.description)">
+							<LucideInfo class="w-3.5 h-3.5 text-ink-gray-4 cursor-help shrink-0" />
+						</Tooltip>
+					</div>
+					<!-- Right: select + price -->
+					<div class="flex items-center gap-2 shrink-0">
+						<FormControl
+							v-if="addOn.user_selects_option && getAddOnSelected(addOn.name)"
+							:model-value="getAddOnOption(addOn.name)"
+							@update:model-value="updateAddOnOption(addOn.name, $event)"
+							type="select"
+							:options="
+								addOn.options.map((option) => ({
+									label: __(option),
+									value: option,
+								}))
+							"
+							size="sm"
+							class="w-24"
+						/>
+						<span class="w-16 text-right text-sm text-ink-gray-5">
+							{{ formatPriceOrFree(addOn.price, addOn.currency) }}
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -112,6 +127,7 @@ import { Tooltip } from "frappe-ui";
 import { formatPriceOrFree } from "../utils/currency.js";
 import CustomFieldInput from "./CustomFieldInput.vue";
 import { getFieldDefaultValue } from "@/composables/useCustomFields.js";
+import LucideInfo from "~icons/lucide/info";
 
 const props = defineProps({
 	attendee: { type: Object, required: true },
