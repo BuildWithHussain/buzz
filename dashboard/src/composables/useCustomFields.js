@@ -52,7 +52,8 @@ export function isDateTimeField(fieldtype) {
  * @returns {Array} - Array of { label, value } objects
  */
 export function getFieldOptions(field) {
-	if (field.fieldtype === "Select" && field.options) {
+	const isSelectType = field.fieldtype === "Select" || field.fieldtype === "Multi Select";
+	if (isSelectType && field.options) {
 		let options = [];
 
 		if (typeof field.options === "string") {

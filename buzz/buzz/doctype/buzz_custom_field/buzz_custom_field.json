@@ -57,7 +57,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Data\nPhone\nEmail\nSelect\nDate\nNumber",
+   "options": "Data\nPhone\nEmail\nSelect\nDate\nNumber\nMulti Select",
    "reqd": 1
   },
   {
@@ -98,7 +98,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-29 12:54:06.927547",
+ "modified": "2026-01-05 05:49:52.998996",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz Custom Field",
