@@ -86,35 +86,52 @@
 
 							<!-- Applied state -->
 							<div v-else>
-								<!-- Badge -->
 								<div
-									class="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-md px-2.5 py-1.5"
+									class="inline-flex flex-col bg-green-50 border border-green-200 rounded-lg px-3 py-2"
 								>
-									<LucideCheck class="w-3.5 h-3.5 text-green-600" />
-									<span class="text-green-700 font-semibold text-sm">{{
-										couponCode
-									}}</span>
+									<div class="flex items-center gap-2">
+										<LucideCheck class="w-4 h-4 text-green-600" />
+										<span class="text-green-700 font-semibold text-sm">{{
+											couponCode
+										}}</span>
+										<span
+											v-if="couponData.coupon_type === 'Discount'"
+											class="text-green-600 font-medium text-sm"
+										>
+											{{
+												couponData.discount_type === "Percentage"
+													? couponData.discount_value + "% off"
+													: formatPriceOrFree(
+															couponData.discount_value,
+															totalCurrency
+													  ) + " off"
+											}}
+										</span>
+										<Button
+											variant="ghost"
+											@click="removeCoupon"
+											class="!p-1 !min-w-0 text-green-500 hover:text-red-500 hover:bg-red-50 ml-auto"
+											:title="__('Remove')"
+										>
+											<LucideX class="w-3.5 h-3.5" />
+										</Button>
+									</div>
 									<span
-										v-if="couponData.coupon_type === 'Discount'"
-										class="text-green-600 text-xs"
+										v-if="
+											couponData.coupon_type === 'Discount' &&
+											couponData.discount_type === 'Percentage' &&
+											couponData.max_discount_amount > 0
+										"
+										class="text-xs text-green-600/70 ml-6"
 									>
+										save up to
 										{{
-											couponData.discount_type === "Percentage"
-												? couponData.discount_value + "% off"
-												: formatPriceOrFree(
-														couponData.discount_value,
-														totalCurrency
-												  ) + " off"
+											formatCurrency(
+												couponData.max_discount_amount,
+												totalCurrency
+											)
 										}}
 									</span>
-									<Button
-										variant="ghost"
-										@click="removeCoupon"
-										class="!p-1 !min-w-0 text-green-500 hover:text-red-500 hover:bg-red-50"
-										:title="__('Remove')"
-									>
-										<LucideX class="w-3.5 h-3.5" />
-									</Button>
 								</div>
 
 								<!-- Free Tickets Details -->
@@ -180,10 +197,15 @@
 								</div>
 							</div>
 
-							<!-- Error message -->
-							<p v-if="couponError" class="text-red-500 text-xs mt-2">
-								{{ couponError }}
-							</p>
+							<div
+								v-if="couponError"
+								class="mt-2 flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg"
+							>
+								<LucideAlertCircle
+									class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"
+								/>
+								<span class="text-sm text-amber-800">{{ couponError }}</span>
+							</div>
 						</div>
 
 						<BookingSummary
@@ -235,13 +257,14 @@ import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
-import { formatPriceOrFree } from "../utils/currency.js";
+import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
 import LucideCheck from "~icons/lucide/check";
 import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
+import LucideAlertCircle from "~icons/lucide/alert-circle";
 
 const router = useRouter();
 const route = useRoute();
@@ -508,7 +531,11 @@ const discountAmount = computed(() => {
 
 	// Discount coupon
 	if (couponData.value.discount_type === "Percentage") {
-		return netAmount.value * (couponData.value.discount_value / 100);
+		let discount = netAmount.value * (couponData.value.discount_value / 100);
+		if (couponData.value.max_discount_amount > 0) {
+			discount = Math.min(discount, couponData.value.max_discount_amount);
+		}
+		return discount;
 	}
 	return Math.min(couponData.value.discount_value, netAmount.value);
 });
@@ -656,6 +683,19 @@ async function applyCoupon() {
 	}
 
 	if (result.valid) {
+		if (
+			result.coupon_type === "Discount" &&
+			result.min_order_value > 0 &&
+			netAmount.value < result.min_order_value
+		) {
+			const gap = result.min_order_value - netAmount.value;
+			couponError.value = __("Add {0} more to use this coupon (min order {1})", [
+				formatCurrency(gap, totalCurrency.value),
+				formatCurrency(result.min_order_value, totalCurrency.value),
+			]);
+			return;
+		}
+
 		couponApplied.value = true;
 
 		if (result.coupon_type === "Discount") {
@@ -663,6 +703,8 @@ async function applyCoupon() {
 				coupon_type: "Discount",
 				discount_type: result.discount_type,
 				discount_value: result.discount_value,
+				max_discount_amount: result.max_discount_amount || 0,
+				min_order_value: result.min_order_value || 0,
 			};
 			toast.success(__("Coupon applied successfully!"));
 		} else if (result.coupon_type === "Free Tickets") {

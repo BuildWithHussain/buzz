@@ -239,8 +239,15 @@ class EventBooking(Document):
 			frappe.throw(error_msg)
 
 		if coupon.coupon_type == "Discount":
+			is_met, error_msg = coupon.is_min_order_met(self.net_amount)
+			if not is_met:
+				frappe.throw(error_msg)
 			if coupon.discount_type == "Percentage":
-				self.discount_amount = self.net_amount * (coupon.discount_value / 100)
+				calculated_discount = self.net_amount * (coupon.discount_value / 100)
+				if coupon.maximum_discount_amount > 0:
+					self.discount_amount = min(calculated_discount, coupon.maximum_discount_amount)
+				else:
+					self.discount_amount = calculated_discount
 			else:
 				self.discount_amount = min(coupon.discount_value, self.net_amount)
 

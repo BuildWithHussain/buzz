@@ -26,6 +26,8 @@ class BuzzCouponCode(Document):
 		free_add_ons: DF.Table[CouponFreeAddon]
 		is_active: DF.Check
 		max_usage_count: DF.Int
+		maximum_discount_amount: DF.Float
+		minimum_order_value: DF.Float
 		number_of_free_tickets: DF.Int
 		ticket_type: DF.Link | None
 	# end: auto-generated types
@@ -79,6 +81,15 @@ class BuzzCouponCode(Document):
 		if self.max_usage_count > 0:
 			if self.times_used >= self.max_usage_count:
 				return False, _("Coupon usage limit reached")
+		return True, ""
+
+	def is_min_order_met(self, order_amount):
+		if self.minimum_order_value > 0:
+			if order_amount < self.minimum_order_value:
+				gap = self.minimum_order_value - order_amount
+				return False, _("Add {0} more to use this coupon (min order {1})").format(
+					gap, self.minimum_order_value
+				)
 		return True, ""
 
 	@property

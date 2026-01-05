@@ -957,6 +957,8 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 			"coupon_type": "Discount",
 			"discount_type": coupon.discount_type,
 			"discount_value": coupon.discount_value,
+			"max_discount_amount": coupon.maximum_discount_amount or 0,
+			"min_order_value": coupon.minimum_order_value or 0,
 		}
 
 	remaining = coupon.number_of_free_tickets - coupon.free_tickets_claimed

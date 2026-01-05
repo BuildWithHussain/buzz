@@ -15,12 +15,16 @@
   "section_break_nvvh",
   "ticket_type",
   "number_of_free_tickets",
-  "free_add_ons",
   "discount_type",
   "discount_value",
   "max_usage_count",
   "times_used",
-  "free_tickets_claimed"
+  "free_tickets_claimed",
+  "column_break_pbrj",
+  "maximum_discount_amount",
+  "minimum_order_value",
+  "section_break_ygde",
+  "free_add_ons"
  ],
  "fields": [
   {
@@ -127,12 +131,34 @@
   {
    "fieldname": "section_break_nvvh",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_pbrj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.coupon_type == 'Discount' && doc.discount_type == 'Percentage'",
+   "fieldname": "maximum_discount_amount",
+   "fieldtype": "Float",
+   "label": "Maximum Discount Amount",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "section_break_ygde",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.coupon_type == 'Discount'",
+   "fieldname": "minimum_order_value",
+   "fieldtype": "Float",
+   "label": "Minimum Order Value",
+   "non_negative": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-30 23:42:05.960902",
+ "modified": "2026-01-05 11:44:46.164213",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",
