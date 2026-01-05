@@ -52,8 +52,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { DatePicker, DateTimePicker } from "frappe-ui";
-import { MultiSelect } from "frappe-ui/src/components/MultiSelect";
+import { DatePicker, DateTimePicker, MultiSelect } from "frappe-ui";
 import {
 	getFormControlType,
 	getFieldOptions,
