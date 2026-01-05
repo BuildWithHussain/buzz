@@ -36,7 +36,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Ticket Add-on",
 				"event": self.test_event.name,
-				"title": "Test T-Shirt",
+				"title": f"Test T-Shirt {frappe.generate_hash(length=6)}",
 				"price": 200,
 			}
 		).insert()
@@ -248,6 +248,151 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 
 		# Verify all 5 bookings were created
 		self.assertEqual(coupon.times_used, 5)
+
+	# ==================== MAX DISCOUNT CAP TESTS ====================
+
+	def test_percentage_discount_capped_at_max(self):
+		"""Test that percentage discount is capped at maximum_discount_amount."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 50,
+				"maximum_discount_amount": 500,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "John Doe",
+						"email": "john@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Jane Doe",
+						"email": "jane@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Bob Smith",
+						"email": "bob@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Alice Brown",
+						"email": "alice@test.com",
+					},
+				],
+			}
+		).insert()
+
+		# 4 tickets x 500 = 2000, 50% = 1000, but capped at 500
+		self.assertEqual(booking.net_amount, 2000)
+		self.assertEqual(booking.discount_amount, 500)
+		self.assertEqual(booking.total_amount, 1500)
+
+	# ==================== MINIMUM ORDER VALUE TESTS ====================
+
+	def test_min_order_value_enforced(self):
+		"""Test that coupon is rejected when order is below minimum_order_value."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 20,
+				"minimum_order_value": 1000,
+				"is_active": True,
+			}
+		).insert()
+
+		# Order of 500 (1 ticket) is below minimum of 1000
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Event Booking",
+					"event": self.test_event.name,
+					"user": "Administrator",
+					"coupon_code": coupon.name,
+					"attendees": [
+						{
+							"ticket_type": self.test_ticket_type.name,
+							"full_name": "John Doe",
+							"email": "john@test.com",
+						},
+					],
+				}
+			).insert()
+
+	def test_percentage_with_cap_and_min_order(self):
+		"""Test coupon with both maximum_discount_amount and minimum_order_value."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 50,
+				"maximum_discount_amount": 300,
+				"minimum_order_value": 500,
+				"is_active": True,
+			}
+		).insert()
+
+		# Order of 500 (1 ticket) meets minimum, 50% = 250, below cap
+		booking1 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "John Doe",
+						"email": "john@test.com",
+					},
+				],
+			}
+		).insert()
+
+		self.assertEqual(booking1.net_amount, 500)
+		self.assertEqual(booking1.discount_amount, 250)
+		self.assertEqual(booking1.total_amount, 250)
+
+		# Order of 1000 (2 tickets), 50% = 500, capped at 300
+		booking2 = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Jane Doe",
+						"email": "jane@test.com",
+					},
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Bob Smith",
+						"email": "bob@test.com",
+					},
+				],
+			}
+		).insert()
+
+		self.assertEqual(booking2.net_amount, 1000)
+		self.assertEqual(booking2.discount_amount, 300)
+		self.assertEqual(booking2.total_amount, 700)
 
 	# ==================== FREE TICKETS COUPON TESTS ====================
 
@@ -878,6 +1023,29 @@ class TestValidateCouponAPI(IntegrationTestCase):
 		self.assertEqual(result["coupon_type"], "Discount")
 		self.assertEqual(result["discount_type"], "Percentage")
 		self.assertEqual(result["discount_value"], 25)
+
+	def test_validate_coupon_returns_max_and_min_values(self):
+		"""Test that validate_coupon returns max_discount_amount and min_order_value."""
+		from buzz.api import validate_coupon
+
+		frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "MAXMIN",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 30,
+				"maximum_discount_amount": 500,
+				"minimum_order_value": 200,
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("MAXMIN", str(self.test_event.name))
+
+		self.assertTrue(result["valid"])
+		self.assertEqual(result["max_discount_amount"], 500)
+		self.assertEqual(result["min_order_value"], 200)
 
 	def test_validate_coupon_returns_free_tickets_info(self):
 		"""Test that validate_coupon returns correct free tickets info."""
