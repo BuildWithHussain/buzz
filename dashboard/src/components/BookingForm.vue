@@ -655,6 +655,15 @@ watch(
 	{ immediate: true }
 );
 
+watch(netAmount, (newVal) => {
+	if (couponApplied.value && couponData.value?.min_order_value > 0) {
+		if (newVal < couponData.value.min_order_value) {
+			removeCoupon();
+			toast.warning(__("Coupon removed - minimum order not met"));
+		}
+	}
+});
+
 const processBooking = createResource({
 	url: "buzz.api.process_booking",
 });
