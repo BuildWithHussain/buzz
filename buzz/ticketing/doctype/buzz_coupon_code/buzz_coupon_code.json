@@ -84,7 +84,8 @@
    "fieldname": "number_of_free_tickets",
    "fieldtype": "Int",
    "label": "Number of Free Tickets",
-   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets'"
+   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets'",
+   "non_negative": 1
   },
   {
    "depends_on": "eval:doc.coupon_type == 'Free Tickets'",
@@ -106,14 +107,16 @@
    "fieldname": "discount_value",
    "fieldtype": "Float",
    "label": "Discount Value",
-   "mandatory_depends_on": "eval:doc.coupon_type == 'Discount'"
+   "mandatory_depends_on": "eval:doc.coupon_type == 'Discount'",
+   "non_negative": 1
   },
   {
    "depends_on": "eval:doc.coupon_type == 'Discount'",
    "description": "0 is unlimited",
    "fieldname": "max_usage_count",
    "fieldtype": "Int",
-   "label": "Max Usage Count"
+   "label": "Max Usage Count",
+   "non_negative": 1
   },
   {
    "depends_on": "eval:doc.coupon_type == 'Discount'",
@@ -203,7 +206,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 20:57:33.650947",
+ "modified": "2026-01-05 21:21:46.234199",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",

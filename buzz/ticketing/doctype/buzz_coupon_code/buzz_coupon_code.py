@@ -43,6 +43,12 @@ class BuzzCouponCode(Document):
 		self.validate_discount_value()
 		self.validate_scope()
 		self.validate_free_tickets_event()
+		self.validate_validity_dates()
+
+	def validate_validity_dates(self):
+		if self.valid_from and self.valid_till:
+			if self.valid_from > self.valid_till:
+				frappe.throw(_("Valid From cannot be after Valid Till"))
 
 	def validate_discount_value(self):
 		if self.coupon_type == "Discount":
