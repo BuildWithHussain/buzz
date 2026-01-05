@@ -32,7 +32,7 @@
 		</label>
 		<MultiSelect
 			:options="multiSelectOptions"
-			v-model="multiSelectValue"
+			v-model="multiSelectProxy"
 			:placeholder="getFieldPlaceholder(field)"
 		/>
 	</div>
@@ -67,24 +67,23 @@ const props = defineProps({
 		type: Object,
 		required: true,
 	},
-	modelValue: {
-		type: [String, Number, Boolean, Date],
-		default: "",
-	},
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const model = defineModel();
 const multiSelectOptions = computed(() => getFieldOptions(props.field));
 
-const multiSelectValue = computed({
-	get: () => {
-		if (!props.modelValue) return [];
-		return Array.isArray(props.modelValue) ? props.modelValue : props.modelValue.split(",");
+const multiSelectProxy = computed({
+	get() {
+		if (!model.value) return [];
+		return Array.isArray(model.value) ? model.value : String(model.value).split(",");
 	},
-	set: (val) => {
-		if (!val) return emit("update:modelValue", "");
-		const values = val.map((item) => item.value || item);
-		emit("update:modelValue", values.join(","));
+	set(val) {
+		if (!val || val.length === 0) {
+			model.value = "";
+		} else {
+			const values = val.map((item) => item.value || item);
+			model.value = values.join(",");
+		}
 	},
 });
 </script>
