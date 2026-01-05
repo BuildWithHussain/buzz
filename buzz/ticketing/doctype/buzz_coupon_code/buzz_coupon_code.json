@@ -17,9 +17,6 @@
   "number_of_free_tickets",
   "discount_type",
   "discount_value",
-  "max_usage_count",
-  "times_used",
-  "free_tickets_claimed",
   "column_break_pbrj",
   "maximum_discount_amount",
   "minimum_order_value",
@@ -27,9 +24,14 @@
   "valid_from",
   "valid_till",
   "column_break_elot",
+  "max_usage_count",
   "max_usage_per_user",
   "section_break_ygde",
-  "free_add_ons"
+  "free_add_ons",
+  "usage_statistics_section",
+  "times_used",
+  "column_break_zogd",
+  "free_tickets_claimed"
  ],
  "fields": [
   {
@@ -187,12 +189,21 @@
    "fieldtype": "Int",
    "label": "Max Usage Per User",
    "non_negative": 1
+  },
+  {
+   "fieldname": "usage_statistics_section",
+   "fieldtype": "Section Break",
+   "label": "Usage Statistics"
+  },
+  {
+   "fieldname": "column_break_zogd",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 19:43:08.153777",
+ "modified": "2026-01-05 20:57:33.650947",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",
