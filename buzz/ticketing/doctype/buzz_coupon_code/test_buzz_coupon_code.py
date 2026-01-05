@@ -1077,3 +1077,166 @@ class TestValidateCouponAPI(IntegrationTestCase):
 
 		self.assertFalse(result["valid"])
 		self.assertIn("error", result)
+
+	# ==================== VALIDITY PERIOD TESTS ====================
+
+	def test_coupon_not_yet_active(self):
+		"""Test that coupon with future valid_from is rejected."""
+		from buzz.api import validate_coupon
+
+		frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "FUTURESTART",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"valid_from": frappe.utils.add_days(frappe.utils.today(), 1),
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("FUTURESTART", str(self.test_event.name))
+
+		self.assertFalse(result["valid"])
+		self.assertIn("not yet active", result["error"].lower())
+
+	def test_expired_coupon_rejected(self):
+		"""Test that expired coupon is rejected."""
+		from buzz.api import validate_coupon
+
+		frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "EXPIRED",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"valid_till": frappe.utils.add_days(frappe.utils.today(), -1),
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("EXPIRED", str(self.test_event.name))
+
+		self.assertFalse(result["valid"])
+		self.assertIn("expired", result["error"].lower())
+
+	def test_coupon_within_validity_period(self):
+		"""Test that coupon within valid date range works."""
+		from buzz.api import validate_coupon
+
+		frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "VALIDPERIOD",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"valid_from": frappe.utils.add_days(frappe.utils.today(), -1),
+				"valid_till": frappe.utils.add_days(frappe.utils.today(), 7),
+				"is_active": True,
+			}
+		).insert()
+
+		result = validate_coupon("VALIDPERIOD", str(self.test_event.name))
+
+		self.assertTrue(result["valid"])
+
+	# ==================== PER-USER LIMIT TESTS ====================
+
+	def test_max_usage_per_user_enforced(self):
+		"""Test that user cannot exceed per-user usage limit."""
+		from buzz.api import validate_coupon
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "PERUSER",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"max_usage_per_user": 1,
+				"is_active": True,
+			}
+		).insert()
+
+		# Create and submit a booking with this coupon
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": frappe.session.user,
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Test User",
+						"email": "test@test.com",
+					},
+				],
+			}
+		).insert()
+		booking.submit()
+
+		# Second attempt should fail
+		result = validate_coupon("PERUSER", str(self.test_event.name))
+
+		self.assertFalse(result["valid"])
+		self.assertIn("maximum usage limit", result["error"].lower())
+
+	def test_per_user_limit_does_not_affect_other_users(self):
+		"""Test that per-user limit doesn't block other users."""
+		from buzz.api import validate_coupon
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "PERUSEROTHER",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"max_usage_per_user": 1,
+				"is_active": True,
+			}
+		).insert()
+
+		# Create a test user if not exists
+		if not frappe.db.exists("User", "testuser_b@example.com"):
+			frappe.get_doc(
+				{
+					"doctype": "User",
+					"email": "testuser_b@example.com",
+					"first_name": "Test User B",
+					"send_welcome_email": 0,
+				}
+			).insert(ignore_permissions=True)
+
+		# User A (Administrator) uses the coupon
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": self.test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{
+						"ticket_type": self.test_ticket_type.name,
+						"full_name": "Admin User",
+						"email": "admin@test.com",
+					},
+				],
+			}
+		).insert()
+		booking.submit()
+
+		# Switch to User B
+		frappe.set_user("testuser_b@example.com")
+
+		# User B should still be able to use the coupon
+		result = validate_coupon("PERUSEROTHER", str(self.test_event.name))
+
+		# Switch back to Administrator
+		frappe.set_user("Administrator")
+
+		self.assertTrue(result["valid"])

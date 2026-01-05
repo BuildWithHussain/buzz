@@ -23,6 +23,11 @@
   "column_break_pbrj",
   "maximum_discount_amount",
   "minimum_order_value",
+  "validity_limits_section",
+  "valid_from",
+  "valid_till",
+  "column_break_elot",
+  "max_usage_per_user",
   "section_break_ygde",
   "free_add_ons"
  ],
@@ -153,12 +158,41 @@
    "fieldtype": "Float",
    "label": "Minimum Order Value",
    "non_negative": 1
+  },
+  {
+   "fieldname": "validity_limits_section",
+   "fieldtype": "Section Break",
+   "label": "Validity & Limits"
+  },
+  {
+   "description": "Coupon active from this date (leave empty for immediate)",
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "label": "Valid From"
+  },
+  {
+   "description": "Coupon expires after this date (leave empty for no expiry)",
+   "fieldname": "valid_till",
+   "fieldtype": "Date",
+   "label": "Valid Till"
+  },
+  {
+   "fieldname": "column_break_elot",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "0 = unlimited",
+   "fieldname": "max_usage_per_user",
+   "fieldtype": "Int",
+   "label": "Max Usage Per User",
+   "non_negative": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 11:44:46.164213",
+ "modified": "2026-01-05 19:43:08.153777",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",

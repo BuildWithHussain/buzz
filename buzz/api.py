@@ -943,6 +943,10 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 
 	coupon = frappe.get_doc("Buzz Coupon Code", coupon_code)
 
+	is_limited, error = coupon.is_user_limit_reached()
+	if is_limited:
+		return {"valid": False, "error": error}
+
 	is_valid, error = coupon.is_valid_for_event(event)
 	if not is_valid:
 		return {"valid": False, "error": error}

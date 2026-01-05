@@ -26,10 +26,13 @@ class BuzzCouponCode(Document):
 		free_add_ons: DF.Table[CouponFreeAddon]
 		is_active: DF.Check
 		max_usage_count: DF.Int
+		max_usage_per_user: DF.Int
 		maximum_discount_amount: DF.Float
 		minimum_order_value: DF.Float
 		number_of_free_tickets: DF.Int
 		ticket_type: DF.Link | None
+		valid_from: DF.Date | None
+		valid_till: DF.Date | None
 	# end: auto-generated types
 
 	def autoname(self):
@@ -65,6 +68,10 @@ class BuzzCouponCode(Document):
 		if not self.is_active:
 			return False, _("Coupon is not active")
 
+		is_valid, msg = self.is_within_validity_period()
+		if not is_valid:
+			return False, msg
+
 		if not self.event and not self.event_category:
 			return True, ""
 
@@ -91,6 +98,31 @@ class BuzzCouponCode(Document):
 					gap, self.minimum_order_value
 				)
 		return True, ""
+
+	def is_within_validity_period(self):
+		today = frappe.utils.getdate()
+
+		if self.valid_from and today < frappe.utils.getdate(self.valid_from):
+			return False, _("Coupon is not yet active (starts {0})").format(self.valid_from)
+
+		if self.valid_till and today > frappe.utils.getdate(self.valid_till):
+			return False, _("Coupon expired on {0}").format(self.valid_till)
+
+		return True, ""
+
+	def is_user_limit_reached(self, user=None):
+		if not self.max_usage_per_user:
+			return False, ""
+
+		user = user or frappe.session.user
+		user_usage = frappe.db.count(
+			"Event Booking", {"coupon_code": self.name, "user": user, "docstatus": 1}
+		)
+
+		if user_usage >= self.max_usage_per_user:
+			return True, _("You have reached the maximum usage limit for this coupon")
+
+		return False, ""
 
 	@property
 	def times_used(self):
