@@ -228,7 +228,7 @@ class EventBooking(Document):
 		if not self.coupon_code:
 			return
 
-		coupon = frappe.get_doc("Buzz Coupon Code", self.coupon_code)
+		coupon = frappe.get_cached_doc("Buzz Coupon Code", self.coupon_code)
 
 		is_valid, error_msg = coupon.is_valid_for_event(self.event)
 		if not is_valid:
