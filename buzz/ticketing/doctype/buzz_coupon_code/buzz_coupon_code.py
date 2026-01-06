@@ -85,7 +85,7 @@ class BuzzCouponCode(Document):
 			return False, _("Coupon is not valid for this event")
 		if self.event_category:
 			event_category = frappe.db.get_value("Buzz Event", event_name, "category")
-			if event_category and str(event_category) != str(self.event_category):
+			if not event_category or str(event_category) != str(self.event_category):
 				return False, _("Coupon is not valid for this event category")
 
 		return True, ""

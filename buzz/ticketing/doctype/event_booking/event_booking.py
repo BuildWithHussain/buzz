@@ -238,6 +238,10 @@ class EventBooking(Document):
 		if not is_available:
 			frappe.throw(error_msg)
 
+		is_limited, error_msg = coupon.is_user_limit_reached()
+		if is_limited:
+			frappe.throw(error_msg)
+
 		if coupon.coupon_type == "Discount":
 			is_met, error_msg = coupon.is_min_order_met(self.net_amount)
 			if not is_met:
