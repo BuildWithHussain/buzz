@@ -111,7 +111,7 @@
 			<!-- Discount Section -->
 			<div
 				v-if="couponApplied && discountAmount > 0"
-				class="flex justify-between items-center text-green-600 mb-2"
+				class="flex justify-between items-center text-ink-green-2"
 			>
 				<span>{{
 					couponType === "Free Tickets" ? __("Free Tickets") : __("Discount")
@@ -120,6 +120,17 @@
 					>-{{ formatPriceOrFree(discountAmount, totalCurrency) }}</span
 				>
 			</div>
+
+			<!-- Net Amount (after discount) -->
+			<template v-if="couponApplied && discountAmount > 0 && shouldApplyTax">
+				<hr class="my-2 border-t border-outline-gray-1" />
+				<div class="flex justify-between items-center text-ink-gray-7">
+					<span>{{ __("Net Amount") }}</span>
+					<span class="font-medium">{{
+						formatPriceOrFree(netAmount - discountAmount, totalCurrency)
+					}}</span>
+				</div>
+			</template>
 
 			<!-- Tax Section -->
 			<div

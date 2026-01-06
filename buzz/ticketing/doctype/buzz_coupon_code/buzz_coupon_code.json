@@ -206,7 +206,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 21:21:46.234199",
+ "modified": "2026-01-06 21:56:03.679367",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",
@@ -222,6 +222,7 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -234,6 +235,7 @@
    "read": 1,
    "report": 1,
    "role": "Event Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   }

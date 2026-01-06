@@ -87,42 +87,42 @@
 							<!-- Applied state -->
 							<div v-else>
 								<div
-									class="inline-flex flex-col bg-green-50 border border-green-200 rounded-lg px-3 py-2"
+									class="flex flex-col bg-surface-green-1 border border-outline-green-1 rounded-lg px-3 py-2"
 								>
 									<div class="flex items-center gap-2">
-										<LucideCheck class="w-4 h-4 text-green-600" />
-										<span class="text-green-700 font-semibold text-sm">{{
-											couponCode
-										}}</span>
 										<span
-											v-if="couponData.coupon_type === 'Discount'"
-											class="text-green-600 font-medium text-sm"
+											class="text-ink-green-3 font-semibold text-sm uppercase"
+											>{{ couponCode }}</span
 										>
-											{{
-												couponData.discount_type === "Percentage"
-													? couponData.discount_value + "% off"
-													: formatPriceOrFree(
-															couponData.discount_value,
-															totalCurrency
-													  ) + " off"
-											}}
-										</span>
 										<Button
 											variant="ghost"
 											@click="removeCoupon"
-											class="!p-1 !min-w-0 text-green-500 hover:text-red-500 hover:bg-red-50 ml-auto"
+											class="!p-1 !min-w-0 text-ink-gray-5 hover:text-ink-gray-7 hover:bg-surface-gray-3 ml-auto"
 											:title="__('Remove')"
 										>
 											<LucideX class="w-3.5 h-3.5" />
 										</Button>
 									</div>
 									<span
+										v-if="couponData.coupon_type === 'Discount'"
+										class="text-xs text-ink-green-2"
+									>
+										{{
+											couponData.discount_type === "Percentage"
+												? couponData.discount_value + "% off"
+												: formatPriceOrFree(
+														couponData.discount_value,
+														totalCurrency
+												  ) + " off"
+										}}
+									</span>
+									<span
 										v-if="
 											couponData.coupon_type === 'Discount' &&
 											couponData.discount_type === 'Percentage' &&
 											couponData.max_discount_amount > 0
 										"
-										class="text-xs text-green-600/70 ml-6"
+										class="text-xs text-ink-green-2"
 									>
 										save up to
 										{{
@@ -162,12 +162,12 @@
 
 									<!-- Eligibility indicator -->
 									<div
-										class="flex items-center justify-between bg-green-50 rounded px-2 py-1.5"
+										class="flex items-center justify-between bg-surface-gray-2 rounded px-2 py-1.5"
 									>
-										<span class="text-green-700 text-xs">{{
+										<span class="text-ink-gray-5 text-xs">{{
 											__("Eligible attendees")
 										}}</span>
-										<span class="text-green-700 font-semibold text-sm">
+										<span class="text-ink-gray-8 font-semibold text-sm">
 											{{ matchingAttendeesCount }}/{{ attendees.length }}
 										</span>
 									</div>
@@ -199,12 +199,12 @@
 
 							<div
 								v-if="couponError"
-								class="mt-2 flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg"
+								class="mt-2 flex items-center gap-2 p-2.5 bg-surface-amber-1 border border-outline-amber-1 rounded-lg"
 							>
 								<LucideAlertCircle
-									class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"
+									class="w-4 h-4 text-ink-amber-2 flex-shrink-0"
 								/>
-								<span class="text-sm text-amber-800">{{ couponError }}</span>
+								<span class="text-sm text-ink-amber-3">{{ couponError }}</span>
 							</div>
 						</div>
 
@@ -261,7 +261,6 @@ import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
-import LucideCheck from "~icons/lucide/check";
 import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
 import LucideAlertCircle from "~icons/lucide/alert-circle";

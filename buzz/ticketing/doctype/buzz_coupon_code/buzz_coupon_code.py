@@ -109,10 +109,10 @@ class BuzzCouponCode(Document):
 		today = frappe.utils.getdate()
 
 		if self.valid_from and today < frappe.utils.getdate(self.valid_from):
-			return False, _("Coupon is not yet active (starts {0})").format(self.valid_from)
+			return False, _("Coupon is not yet active")
 
 		if self.valid_till and today > frappe.utils.getdate(self.valid_till):
-			return False, _("Coupon expired on {0}").format(self.valid_till)
+			return False, _("Coupon expired")
 
 		return True, ""
 
