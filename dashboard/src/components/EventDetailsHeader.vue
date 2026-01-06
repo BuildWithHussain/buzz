@@ -92,7 +92,7 @@
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideClock from "~icons/lucide/clock";
 import LucideMapPin from "~icons/lucide/map-pin";
-import { dayjsLocal, dayjs } from "frappe-ui/src/utils/dayjs";
+import { dayjsLocal, dayjs } from "frappe-ui";
 
 const props = defineProps({
 	eventDetails: {

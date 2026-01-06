@@ -25,6 +25,18 @@
 		/>
 	</div>
 
+	<div v-else-if="field.fieldtype === 'Multi Select'" class="space-y-1.5">
+		<label class="text-xs text-ink-gray-5 block">
+			{{ __(field.label) }}
+			<span v-if="field.mandatory" class="text-ink-red-4">*</span>
+		</label>
+		<MultiSelect
+			:options="multiSelectOptions"
+			v-model="multiSelectProxy"
+			:placeholder="getFieldPlaceholder(field)"
+		/>
+	</div>
+
 	<!-- All other field types -->
 	<FormControl
 		v-else
@@ -39,7 +51,8 @@
 </template>
 
 <script setup>
-import { DatePicker, DateTimePicker } from "frappe-ui";
+import { computed } from "vue";
+import { DatePicker, DateTimePicker, MultiSelect } from "frappe-ui";
 import {
 	getFormControlType,
 	getFieldOptions,
@@ -48,16 +61,28 @@ import {
 	isDateTimeField,
 } from "@/composables/useCustomFields.js";
 
-defineProps({
+const props = defineProps({
 	field: {
 		type: Object,
 		required: true,
 	},
-	modelValue: {
-		type: [String, Number, Boolean, Date],
-		default: "",
-	},
 });
 
-defineEmits(["update:modelValue"]);
+const model = defineModel();
+const multiSelectOptions = computed(() => getFieldOptions(props.field));
+
+const multiSelectProxy = computed({
+	get() {
+		if (!model.value) return [];
+		return Array.isArray(model.value) ? model.value : String(model.value).split(",");
+	},
+	set(val) {
+		if (!val || val.length === 0) {
+			model.value = "";
+		} else {
+			const values = val.map((item) => item.value || item);
+			model.value = values.join(",");
+		}
+	},
+});
 </script>
