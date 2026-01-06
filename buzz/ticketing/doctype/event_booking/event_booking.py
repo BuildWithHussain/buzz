@@ -3,10 +3,9 @@
 import json
 
 import frappe
-import pytz
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import get_datetime, get_system_timezone, now_datetime
+from frappe.utils import get_datetime, get_datetime_in_timezone, now_datetime
 
 from buzz.payments import mark_payment_as_received
 
@@ -39,7 +38,7 @@ class EventBooking(Document):
 	# end: auto-generated types
 
 	def validate(self):
-		self.validate_event_dates()
+		self.validate_event_has_ended()
 		self.validate_ticket_availability()
 		self.fetch_amounts_from_ticket_types()
 		self.set_currency()
@@ -177,7 +176,7 @@ class EventBooking(Document):
 		for ticket in tickets:
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
 
-	def validate_event_dates(self):
+	def validate_event_has_ended(self):
 		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 
 		if not event_doc.end_date:
@@ -185,23 +184,14 @@ class EventBooking(Document):
 
 		time_part = str(event_doc.end_time) if event_doc.end_time else "23:59:59"
 		event_end_naive = get_datetime(f"{event_doc.end_date} {time_part}")
-		current_naive = now_datetime()
 
 		if event_doc.time_zone:
-			# Localize Event End Time to the Event's Timezone
-			event_tz = pytz.timezone(event_doc.time_zone)
-			event_end_aware = event_tz.localize(event_end_naive)
+			current_time_aware = get_datetime_in_timezone(event_doc.time_zone)
+			current_time_at_venue = current_time_aware.replace(tzinfo=None)
 
-			# Localize Current System Time to the Server's Timezone
-			system_tz = pytz.timezone(get_system_timezone())
-			current_aware = system_tz.localize(current_naive)
-
-			if current_aware > event_end_aware:
-				self.throw_event_ended_error()
+			if current_time_at_venue > event_end_naive:
+				frappe.throw(_("Cannot book tickets. This event has already ended."), title=_("Event Ended"))
 
 		else:
-			if current_naive > event_end_naive:
-				self.throw_event_ended_error()
-
-	def throw_event_ended_error(self):
-		frappe.throw(_("Cannot book tickets. This event has already ended."), title=_("Event Ended"))
+			if now_datetime() > event_end_naive:
+				frappe.throw(_("Cannot book tickets. This event has already ended."), title=_("Event Ended"))
