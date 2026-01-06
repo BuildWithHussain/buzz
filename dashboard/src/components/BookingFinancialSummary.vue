@@ -10,14 +10,36 @@
 			</Badge>
 		</div>
 
-		<div class="space-y-3">
-			<!-- Net Amount -->
+		<div class="space-y-2">
+			<!-- Subtotal -->
 			<div class="flex justify-between items-center text-ink-gray-7">
 				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{
 					formatPrice(booking.net_amount || 0, booking.currency || "INR")
 				}}</span>
 			</div>
+
+			<!-- Discount -->
+			<div v-if="hasDiscount" class="flex justify-between items-center text-ink-green-2">
+				<span>{{ __("Coupon Discount") }}</span>
+				<span class="font-medium"
+					>-{{ formatPrice(booking.discount_amount, booking.currency || "INR") }}</span
+				>
+			</div>
+
+			<!-- Net Amount (after discount, before tax) -->
+			<template v-if="hasDiscount && hasTax">
+				<hr class="border-outline-gray-1" />
+				<div class="flex justify-between items-center text-ink-gray-7">
+					<span>{{ __("Net Amount") }}</span>
+					<span class="font-medium">{{
+						formatPrice(
+							(booking.net_amount || 0) - (booking.discount_amount || 0),
+							booking.currency || "INR"
+						)
+					}}</span>
+				</div>
+			</template>
 
 			<!-- Tax Information -->
 			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
@@ -43,9 +65,9 @@
 			</div>
 		</div>
 
-		<!-- Zero amount case -->
+		<!-- Free event case (only show if no discount was applied - truly free event) -->
 		<div
-			v-if="(booking.total_amount || 0) === 0"
+			v-if="(booking.total_amount || 0) === 0 && !hasDiscount"
 			class="mt-4 p-3 bg-surface-green-1 rounded-lg"
 		>
 			<div class="flex items-start">
@@ -78,5 +100,9 @@ const props = defineProps({
 
 const hasTax = computed(() => {
 	return Boolean(props.booking.tax_amount && props.booking.tax_amount > 0);
+});
+
+const hasDiscount = computed(() => {
+	return Boolean(props.booking.discount_amount && props.booking.discount_amount > 0);
 });
 </script>
