@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-31 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "title",
+  "price",
+  "description",
+  "column_break_abcd",
+  "currency",
+  "user_selects_option",
+  "options"
+ ],
+ "fields": [
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled?"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Price",
+   "non_negative": 1,
+   "options": "currency"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_abcd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "INR",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "0",
+   "fieldname": "user_selects_option",
+   "fieldtype": "Check",
+   "label": "User Selects Option?"
+  },
+  {
+   "fieldname": "options",
+   "fieldtype": "Small Text",
+   "label": "Options",
+   "mandatory_depends_on": "eval:doc.user_selects_option==true"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-12-31 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Events",
+ "name": "Event Template Add-on",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
