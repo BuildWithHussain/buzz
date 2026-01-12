@@ -8,6 +8,7 @@
  "field_order": [
   "code",
   "coupon_type",
+  "applies_to",
   "column_break_hhol",
   "is_active",
   "event",
@@ -57,18 +58,19 @@
    "label": "Is Active"
   },
   {
-   "description": "leave empty for all events",
+   "depends_on": "eval:doc.coupon_type == 'Free Tickets' || doc.applies_to == 'Event'",
    "fieldname": "event",
    "fieldtype": "Link",
    "label": "Event",
-   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets'",
+   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets' || doc.applies_to == 'Event'",
    "options": "Buzz Event"
   },
   {
-   "description": "leave empty for all categories",
+   "depends_on": "eval:doc.applies_to == 'Event Category'",
    "fieldname": "event_category",
    "fieldtype": "Link",
    "label": "Event Category",
+   "mandatory_depends_on": "eval:doc.applies_to == 'Event Category'",
    "options": "Event Category"
   },
   {
@@ -201,12 +203,19 @@
   {
    "fieldname": "column_break_zogd",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "applies_to",
+   "fieldtype": "Select",
+   "label": "Applies To",
+   "options": "\nEvent\nEvent Category",
+   "read_only_depends_on": "eval:doc.coupon_type == 'Free Tickets'"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 21:21:46.234199",
+ "modified": "2026-01-12 10:38:02.737227",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",

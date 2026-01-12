@@ -17,6 +17,7 @@ class BuzzCouponCode(Document):
 
 		from buzz.ticketing.doctype.coupon_free_add_on.coupon_free_add_on import CouponFreeAddon
 
+		applies_to: DF.Literal["", "Event", "Event Category"]
 		code: DF.Data | None
 		coupon_type: DF.Literal["Free Tickets", "Discount"]
 		discount_type: DF.Literal["Percentage", "Flat Amount"]
@@ -58,11 +59,18 @@ class BuzzCouponCode(Document):
 				frappe.throw(_("Percentage discount cannot exceed 100%"))
 
 	def validate_scope(self):
-		if self.event and self.event_category:
-			frappe.throw(_("Select either Event or Category, not both"))
+		if self.applies_to == "Event":
+			self.event_category = None
+		elif self.applies_to == "Event Category":
+			self.event = None
+		else:
+			self.event = None
+			self.event_category = None
 
 	def validate_free_tickets_event(self):
 		if self.coupon_type == "Free Tickets":
+			if self.applies_to != "Event":
+				frappe.throw(_("Free Tickets coupon must be restricted to an Event"))
 			if not self.event:
 				frappe.throw(_("Event is required for Free Tickets coupon"))
 			if not self.ticket_type:
@@ -78,17 +86,19 @@ class BuzzCouponCode(Document):
 		if not is_valid:
 			return False, msg
 
-		if not self.event and not self.event_category:
+		if not self.applies_to:
 			return True, ""
 
-		if self.event and str(self.event) != str(event_name):
-			return False, _("Coupon is not valid for this event")
-		if self.event_category:
-			event_category = frappe.db.get_value("Buzz Event", event_name, "category")
+		if self.applies_to == "Event":
+			if str(self.event) != str(event_name):
+				return False, _("Coupon is not valid for this event")
+			return True, ""
+
+		if self.applies_to == "Event Category":
+			event_category = frappe.get_cached_value("Buzz Event", event_name, "category")
 			if not event_category or str(event_category) != str(self.event_category):
 				return False, _("Coupon is not valid for this event category")
-
-		return True, ""
+			return True, ""
 
 	def is_usage_available(self):
 		if self.max_usage_count > 0:

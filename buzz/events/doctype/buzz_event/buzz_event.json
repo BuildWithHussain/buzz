@@ -416,7 +416,7 @@
   },
   {
    "group": "Ticketing",
-   "link_doctype": "Bulk Ticket Coupon",
+   "link_doctype": "Buzz Coupon Code",
    "link_fieldname": "event"
   },
   {
@@ -430,7 +430,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2025-12-22 14:29:30.898160",
+ "modified": "2026-01-07 14:40:49.331248",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
