@@ -402,6 +402,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 2,
@@ -441,6 +442,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 2,
@@ -485,6 +487,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 1,
@@ -537,6 +540,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 5,
@@ -633,6 +637,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 			{
 				"doctype": "Buzz Coupon Code",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 1,
@@ -706,6 +711,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
+				"applies_to": "Event",
 				"event": self.test_event.name,  # Scoped to test_event
 				"is_active": True,
 			}
@@ -747,6 +753,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
+				"applies_to": "Event Category",
 				"event_category": self.test_event.category,  # Scoped to category
 				"is_active": True,
 			}
@@ -918,12 +925,94 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				{
 					"doctype": "Buzz Coupon Code",
 					"coupon_type": "Free Tickets",
+					"applies_to": "Event",
 					"ticket_type": self.test_ticket_type.name,
 					"number_of_free_tickets": 5,
 					"is_active": True,
 					# No event - should fail
 				}
 			).insert()
+
+	def test_free_tickets_requires_specific_event_restriction(self):
+		"""Test that Free Tickets coupon requires applies_to='Event'."""
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Buzz Coupon Code",
+					"coupon_type": "Free Tickets",
+					"applies_to": "Event Category",
+					"event_category": self.test_event.category,
+					"ticket_type": self.test_ticket_type.name,
+					"number_of_free_tickets": 2,
+					"is_active": True,
+				}
+			).insert()
+
+	def test_free_tickets_rejects_all_events(self):
+		"""Test that Free Tickets coupon cannot use applies_to=''."""
+		with self.assertRaises(frappe.ValidationError):
+			frappe.get_doc(
+				{
+					"doctype": "Buzz Coupon Code",
+					"coupon_type": "Free Tickets",
+					"applies_to": "",
+					"ticket_type": self.test_ticket_type.name,
+					"number_of_free_tickets": 2,
+					"is_active": True,
+				}
+			).insert()
+
+	def test_specific_event_clears_event_category(self):
+		"""Test that applies_to='Event' clears event_category field."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"applies_to": "Event",
+				"event": self.test_event.name,
+				"event_category": self.test_event.category,  # Should be cleared
+				"is_active": True,
+			}
+		).insert()
+
+		self.assertIsNone(coupon.event_category)
+
+	def test_event_category_clears_event(self):
+		"""Test that applies_to='Event Category' clears event field."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"applies_to": "Event Category",
+				"event": self.test_event.name,  # Should be cleared
+				"event_category": self.test_event.category,
+				"is_active": True,
+			}
+		).insert()
+
+		self.assertIsNone(coupon.event)
+
+	def test_all_events_clears_both_scope_fields(self):
+		"""Test that applies_to='' clears both event and event_category."""
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"applies_to": "",
+				"event": self.test_event.name,  # Should be cleared
+				"event_category": self.test_event.category,  # Should be cleared
+				"is_active": True,
+			}
+		).insert()
+
+		self.assertIsNone(coupon.event)
+		self.assertIsNone(coupon.event_category)
 
 	def test_percentage_discount_cannot_exceed_100(self):
 		"""Test that percentage discount cannot exceed 100%."""
@@ -1056,6 +1145,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 				"doctype": "Buzz Coupon Code",
 				"code": "FREEAPI",
 				"coupon_type": "Free Tickets",
+				"applies_to": "Event",
 				"event": self.test_event.name,
 				"ticket_type": self.test_ticket_type.name,
 				"number_of_free_tickets": 3,
