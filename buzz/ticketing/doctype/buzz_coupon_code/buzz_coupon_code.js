@@ -25,31 +25,16 @@ frappe.ui.form.on("Buzz Coupon Code", {
 
 	coupon_type(frm) {
 		if (frm.doc.coupon_type === "Free Tickets") {
-			frm.set_value("applies_to", "Specific Event");
-			frm.set_df_property("applies_to", "read_only", 1);
-		} else {
-			frm.set_df_property("applies_to", "read_only", 0);
+			frm.set_value("applies_to", "Event");
 		}
 	},
 
 	applies_to(frm) {
-		if (frm.doc.applies_to === "Specific Event") {
-			frm.set_df_property("event", "hidden", 0);
-			frm.set_df_property("event", "reqd", 1);
-			frm.set_df_property("event_category", "hidden", 1);
-			frm.set_df_property("event_category", "reqd", 0);
+		if (frm.doc.applies_to === "Event") {
 			frm.set_value("event_category", null);
 		} else if (frm.doc.applies_to === "Event Category") {
-			frm.set_df_property("event", "hidden", 1);
-			frm.set_df_property("event", "reqd", 0);
-			frm.set_df_property("event_category", "hidden", 0);
-			frm.set_df_property("event_category", "reqd", 1);
 			frm.set_value("event", null);
 		} else {
-			frm.set_df_property("event", "hidden", 1);
-			frm.set_df_property("event", "reqd", 0);
-			frm.set_df_property("event_category", "hidden", 1);
-			frm.set_df_property("event_category", "reqd", 0);
 			frm.set_value("event", null);
 			frm.set_value("event_category", null);
 		}

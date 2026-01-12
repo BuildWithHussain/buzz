@@ -17,7 +17,7 @@ class BuzzCouponCode(Document):
 
 		from buzz.ticketing.doctype.coupon_free_add_on.coupon_free_add_on import CouponFreeAddon
 
-		applies_to: DF.Literal["All Events", "Specific Event", "Event Category"]
+		applies_to: DF.Literal["", "Event", "Event Category"]
 		code: DF.Data | None
 		coupon_type: DF.Literal["Free Tickets", "Discount"]
 		discount_type: DF.Literal["Percentage", "Flat Amount"]
@@ -59,7 +59,7 @@ class BuzzCouponCode(Document):
 				frappe.throw(_("Percentage discount cannot exceed 100%"))
 
 	def validate_scope(self):
-		if self.applies_to == "Specific Event":
+		if self.applies_to == "Event":
 			self.event_category = None
 		elif self.applies_to == "Event Category":
 			self.event = None
@@ -69,8 +69,8 @@ class BuzzCouponCode(Document):
 
 	def validate_free_tickets_event(self):
 		if self.coupon_type == "Free Tickets":
-			if self.applies_to != "Specific Event":
-				frappe.throw(_("Free Tickets coupon must be restricted to a Specific Event"))
+			if self.applies_to != "Event":
+				frappe.throw(_("Free Tickets coupon must be restricted to an Event"))
 			if not self.event:
 				frappe.throw(_("Event is required for Free Tickets coupon"))
 			if not self.ticket_type:
@@ -86,10 +86,10 @@ class BuzzCouponCode(Document):
 		if not is_valid:
 			return False, msg
 
-		if self.applies_to == "All Events":
+		if not self.applies_to:
 			return True, ""
 
-		if self.applies_to == "Specific Event":
+		if self.applies_to == "Event":
 			if str(self.event) != str(event_name):
 				return False, _("Coupon is not valid for this event")
 			return True, ""

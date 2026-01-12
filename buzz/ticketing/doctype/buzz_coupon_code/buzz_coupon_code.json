@@ -58,13 +58,15 @@
    "label": "Is Active"
   },
   {
+   "depends_on": "eval:doc.coupon_type == 'Free Tickets' || doc.applies_to == 'Event'",
    "fieldname": "event",
    "fieldtype": "Link",
    "label": "Event",
-   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets' || doc.applies_to == 'Specific Event'",
+   "mandatory_depends_on": "eval:doc.coupon_type == 'Free Tickets' || doc.applies_to == 'Event'",
    "options": "Buzz Event"
   },
   {
+   "depends_on": "eval:doc.applies_to == 'Event Category'",
    "fieldname": "event_category",
    "fieldtype": "Link",
    "label": "Event Category",
@@ -203,17 +205,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "All Events",
    "fieldname": "applies_to",
    "fieldtype": "Select",
    "label": "Applies To",
-   "options": "All Events\nSpecific Event\nEvent Category"
+   "options": "\nEvent\nEvent Category",
+   "read_only_depends_on": "eval:doc.coupon_type == 'Free Tickets'"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-07 15:19:30.023758",
+ "modified": "2026-01-12 10:38:02.737227",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Buzz Coupon Code",
