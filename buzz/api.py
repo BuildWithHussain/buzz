@@ -723,6 +723,19 @@ def get_ticket_details(ticket_id: str) -> dict:
 		can_request_cancellation(details.event.name) if details.event else {"can_request_cancellation": False}
 	)
 
+	# Get Zoom webinar join URL if applicable
+	details.zoom_join_url = None
+	if hasattr(ticket_doc, "zoom_webinar_registration") and ticket_doc.zoom_webinar_registration:
+		zoom_registration = frappe.db.get_value(
+			"Zoom Webinar Registration",
+			ticket_doc.zoom_webinar_registration,
+			["join_url", "webinar"],
+			as_dict=True,
+		)
+		if zoom_registration:
+			details.zoom_join_url = zoom_registration.join_url
+			details.zoom_webinar = zoom_registration.webinar
+
 	return details
 
 
