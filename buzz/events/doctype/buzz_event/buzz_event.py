@@ -23,6 +23,7 @@ class BuzzEvent(Document):
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
 
 		about: DF.TextEditor | None
+		apply_tax: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
 		category: DF.Link
@@ -35,6 +36,7 @@ class BuzzEvent(Document):
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]
+		meta_image: DF.AttachImage | None
 		name: DF.Int | None
 		payment_gateways: DF.Table[EventPaymentGateway]
 		proposal: DF.Link | None
@@ -48,6 +50,8 @@ class BuzzEvent(Document):
 		sponsor_deck_reply_to: DF.Data | None
 		start_date: DF.Date
 		start_time: DF.Time | None
+		tax_label: DF.Data | None
+		tax_percentage: DF.Percent
 		ticket_email_template: DF.Link | None
 		ticket_print_format: DF.Link | None
 		time_zone: DF.Autocomplete | None
