@@ -269,8 +269,15 @@ def transfer_ticket(ticket_id: str, new_name: str, new_email: str):
 		frappe.throw(frappe._("Ticket not found."))
 
 	ticket = frappe.get_doc("Event Ticket", ticket_id)
+	booking_user = frappe.db.get_value("Event Booking", ticket.booking, "user")
 
-	# Check if ticket transfer is allowed
+	if (
+		ticket.attendee_email != frappe.session.user
+		and booking_user != frappe.session.user
+		and not frappe.has_permission("Event Ticket", "write", ticket)
+	):
+		frappe.throw(frappe._("Not permitted to transfer this ticket."))
+
 	if not is_ticket_transfer_allowed(ticket.event):
 		frappe.throw(frappe._("Ticket transfer is not allowed at this time. The transfer window has closed."))
 
@@ -731,6 +738,12 @@ def create_cancellation_request(booking_id: str, ticket_ids: list | None = None)
 	"""Create a cancellation request for a booking and optionally specific tickets."""
 	# Get booking details
 	booking_doc = frappe.get_cached_doc("Event Booking", booking_id)
+
+	# Check permission - allow booking user or users with write permission
+	if booking_doc.user != frappe.session.user and not frappe.has_permission(
+		"Event Booking", "write", booking_doc
+	):
+		frappe.throw(frappe._("Not permitted to request cancellation for this booking."))
 
 	# Check if cancellation request is allowed for this event
 	if not is_cancellation_request_allowed(booking_doc.event):
