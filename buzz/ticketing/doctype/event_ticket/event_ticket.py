@@ -80,6 +80,11 @@ class EventTicket(Document):
 		event_title, ticket_template, ticket_print_format, venue = frappe.get_cached_value(
 			"Buzz Event", self.event, ["title", "ticket_email_template", "ticket_print_format", "venue"]
 		)
+
+		# Fallback to global setting if event-level not set
+		if not ticket_template:
+			ticket_template = frappe.db.get_single_value("Buzz Settings", "default_ticket_email_template")
+
 		subject = frappe._("Your ticket to {0} 🎟️").format(event_title)
 		args = {
 			"doc": self,
