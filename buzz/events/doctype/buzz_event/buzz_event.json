@@ -29,6 +29,7 @@
   "website_tab",
   "is_published",
   "route",
+  "meta_image",
   "default_ticket_type",
   "column_break_ndtl",
   "external_registration_page",
@@ -183,6 +184,11 @@
    "fieldtype": "Data",
    "label": "Route",
    "unique": 1
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
   },
   {
    "default": "0",
