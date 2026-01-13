@@ -30,6 +30,7 @@
   "is_published",
   "route",
   "meta_image",
+  "card_image",
   "default_ticket_type",
   "column_break_ndtl",
   "external_registration_page",
@@ -364,6 +365,11 @@
    "fieldtype": "Percent",
    "label": "Tax Percentage",
    "mandatory_depends_on": "eval:doc.apply_tax==1"
+  },
+  {
+   "fieldname": "card_image",
+   "fieldtype": "Attach Image",
+   "label": "Card Image"
   }
  ],
  "grid_page_length": 50,
