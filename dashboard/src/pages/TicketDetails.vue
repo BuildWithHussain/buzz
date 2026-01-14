@@ -216,6 +216,31 @@
 				</div>
 			</div>
 
+			<!-- Zoom Webinar Access (only shown if webinar is linked) -->
+			<div
+				v-if="ticketDetails.data.zoom_join_url"
+				class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6"
+			>
+				<h3 class="text-ink-gray-8 font-semibold text-lg mb-4">
+					{{ __("Webinar Access") }}
+				</h3>
+
+				<div class="space-y-3">
+					<p class="text-sm text-ink-gray-6">
+						{{ __("Click the button below to join the webinar on Zoom.") }}
+					</p>
+					<a
+						:href="ticketDetails.data.zoom_join_url"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-2 px-4 py-2 bg-ink-blue-3 text-surface-white rounded-lg hover:bg-ink-blue-4 transition-colors"
+					>
+						<span>{{ __("Join Zoom Webinar") }}</span>
+						<LucideExternalLink class="w-4 h-4" />
+					</a>
+				</div>
+			</div>
+
 			<!-- Booking Information (only shown if user owns the booking) -->
 			<div
 				v-if="ticketDetails.data.booking"
@@ -314,6 +339,7 @@ import LucideDownload from "~icons/lucide/download";
 import LucideUserPlus from "~icons/lucide/user-plus";
 import LucideEdit from "~icons/lucide/edit";
 import LucideTriangleAlert from "~icons/lucide/triangle-alert";
+import LucideExternalLink from "~icons/lucide/external-link";
 import BackButton from "../components/common/BackButton.vue";
 
 const props = defineProps({

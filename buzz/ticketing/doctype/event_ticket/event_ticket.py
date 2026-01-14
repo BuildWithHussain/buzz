@@ -65,6 +65,8 @@ class EventTicket(Document):
 
 			try:
 				registration.submit()
+				# Store the registration reference on the ticket
+				self.db_set("zoom_webinar_registration", registration.name)
 			except Exception:
 				frappe.log_error("Failed to create registration on Zoom")
 
