@@ -29,11 +29,12 @@
   "website_tab",
   "is_published",
   "route",
-  "meta_image",
   "default_ticket_type",
   "column_break_ndtl",
   "external_registration_page",
   "registration_url",
+  "meta_image",
+  "card_image",
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
@@ -364,6 +365,11 @@
    "fieldtype": "Percent",
    "label": "Tax Percentage",
    "mandatory_depends_on": "eval:doc.apply_tax==1"
+  },
+  {
+   "fieldname": "card_image",
+   "fieldtype": "Attach Image",
+   "label": "Card Image"
   }
  ],
  "grid_page_length": 50,
@@ -436,7 +442,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-07 14:40:49.331248",
+ "modified": "2026-01-14 11:13:04.386770",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
