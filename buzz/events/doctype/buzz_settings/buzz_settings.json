@@ -122,8 +122,7 @@
    "in_list_view": 1,
    "label": "Default Reply To",
    "mandatory_depends_on": "eval:doc.auto_send_pitch_deck",
-   "options": "Email",
-   "reqd": 1
+   "options": "Email"
   },
   {
    "fieldname": "column_break_sponsor",
