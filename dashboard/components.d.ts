@@ -28,6 +28,7 @@ declare module 'vue' {
     Navbar: typeof import('./src/components/Navbar.vue')['default']
     PaymentGatewayDialog: typeof import('./src/components/PaymentGatewayDialog.vue')['default']
     ProfileView: typeof import('./src/components/ProfileView.vue')['default']
+    ProposalEditDialog: typeof import('./src/components/ProposalEditDialog.vue')['default']
     QRCodeExpandDialog: typeof import('./src/components/QRCodeExpandDialog.vue')['default']
     QRScanner: typeof import('./src/components/QRScanner.vue')['default']
     RestrictionNotices: typeof import('./src/components/RestrictionNotices.vue')['default']

@@ -57,6 +57,8 @@
   "ticket_email_template",
   "column_break_ukql",
   "ticket_print_format",
+  "talks_section",
+  "allow_editing_talks_after_acceptance",
   "connections_tab",
   "proposal"
  ],
@@ -218,6 +220,18 @@
    "label": "Ticket Print Format",
    "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Event Ticket\"]]",
    "options": "Print Format"
+  },
+  {
+   "fieldname": "talks_section",
+   "fieldtype": "Section Break",
+   "label": "Talks"
+  },
+  {
+   "default": "0",
+   "description": "When enabled, speakers can edit their talk title and description after acceptance",
+   "fieldname": "allow_editing_talks_after_acceptance",
+   "fieldtype": "Check",
+   "label": "Allow Editing Talks After Acceptance"
   },
   {
    "fieldname": "ticket_email_template",
