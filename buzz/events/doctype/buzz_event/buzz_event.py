@@ -26,6 +26,7 @@ class BuzzEvent(Document):
 		apply_tax: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
+		card_image: DF.AttachImage | None
 		category: DF.Link
 		default_ticket_type: DF.Link | None
 		end_date: DF.Date | None
