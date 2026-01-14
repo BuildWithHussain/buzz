@@ -25,6 +25,7 @@
 	},
 	"root": true,
 	"globals": {
+		"buzz": true,
 		"frappe": true,
 		"Vue": true,
 		"SetVueGlobals": true,
