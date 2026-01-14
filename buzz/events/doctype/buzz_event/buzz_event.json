@@ -48,8 +48,8 @@
   "automations_section",
   "auto_send_pitch_deck",
   "section_break_edar",
-  "sponsor_deck_reply_to",
   "sponsor_deck_email_template",
+  "sponsor_deck_reply_to",
   "column_break_awpd",
   "sponsor_deck_cc",
   "section_break_mieu",
@@ -58,6 +58,8 @@
   "ticket_email_template",
   "column_break_ukql",
   "ticket_print_format",
+  "talks_section",
+  "allow_editing_talks_after_acceptance",
   "connections_tab",
   "proposal"
  ],
@@ -221,6 +223,18 @@
    "options": "Print Format"
   },
   {
+   "fieldname": "talks_section",
+   "fieldtype": "Section Break",
+   "label": "Talks"
+  },
+  {
+   "default": "0",
+   "description": "When enabled, speakers can edit their talk title and description after acceptance",
+   "fieldname": "allow_editing_talks_after_acceptance",
+   "fieldtype": "Check",
+   "label": "Allow Editing Talks After Acceptance"
+  },
+  {
    "fieldname": "ticket_email_template",
    "fieldtype": "Link",
    "label": "Ticket Email Template",
@@ -256,7 +270,7 @@
    "label": "Automations"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "auto_send_pitch_deck",
    "fieldtype": "Check",
    "label": "Auto Send Pitch Deck?"
@@ -275,10 +289,10 @@
   },
   {
    "depends_on": "eval:doc.auto_send_pitch_deck==true",
+   "description": "Default template will be used if not set",
    "fieldname": "sponsor_deck_email_template",
    "fieldtype": "Link",
    "label": "Email Template",
-   "mandatory_depends_on": "eval:doc.auto_send_pitch_deck==true",
    "options": "Email Template"
   },
   {
@@ -291,8 +305,7 @@
    "depends_on": "eval:doc.auto_send_pitch_deck==true",
    "fieldname": "sponsor_deck_reply_to",
    "fieldtype": "Data",
-   "label": "Reply To",
-   "mandatory_depends_on": "eval:doc.auto_send_pitch_deck==true"
+   "label": "Reply To"
   },
   {
    "depends_on": "eval:doc.auto_send_pitch_deck==true",

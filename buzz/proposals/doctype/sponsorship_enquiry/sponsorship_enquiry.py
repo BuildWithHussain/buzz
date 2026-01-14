@@ -79,19 +79,32 @@ class SponsorshipEnquiry(Document):
 
 	def send_pitch_deck(self, now=False):
 		event = frappe.get_cached_doc("Buzz Event", self.event)
-		if not event.auto_send_pitch_deck:
+		settings = frappe.get_cached_doc("Buzz Settings")
+
+		# Check event-level toggle first, then fall back to global
+		if not event.auto_send_pitch_deck and not settings.auto_send_pitch_deck:
 			return
 
-		email_template = get_email_template(event.sponsor_deck_email_template, {"doc": self, "event": event})
+		# Get template: event-level takes precedence, fall back to global
+		template_name = event.sponsor_deck_email_template or settings.default_sponsor_deck_email_template
+		if not template_name:
+			frappe.log_error("No sponsor deck email template configured", "Sponsorship Enquiry")
+			return
+
+		email_template = get_email_template(template_name, {"doc": self, "event": event})
 
 		subject = email_template.get("subject")
 		content = email_template.get("message")
 
+		# Get CC and Reply-To: event-level takes precedence
+		cc = event.sponsor_deck_cc or settings.default_sponsor_deck_cc
+		reply_to = event.sponsor_deck_reply_to or settings.default_sponsor_deck_reply_to
+
 		frappe.sendmail(
 			recipients=[self.owner],
 			subject=subject,
-			cc=event.sponsor_deck_cc,
-			reply_to=event.sponsor_deck_reply_to,
+			cc=cc,
+			reply_to=reply_to,
 			content=content,
 			reference_doctype=self.doctype,
 			reference_name=self.name,

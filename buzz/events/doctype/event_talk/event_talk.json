@@ -77,7 +77,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-02 15:48:57.329842",
+ "modified": "2026-01-14 12:38:51.583900",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Talk",
@@ -105,6 +105,19 @@
    "read": 1,
    "report": 1,
    "role": "Event Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Buzz User",
    "select": 1,
    "share": 1,
    "write": 1

@@ -21,7 +21,7 @@ class TalkProposal(Document):
 		event: DF.Link
 		phone: DF.Phone | None
 		speakers: DF.Table[ProposalSpeaker]
-		status: DF.Literal["Review Pending", "Shortlisted", "Approved", "Rejected"]
+		status: DF.Literal["Review Pending", "Shortlisted", "Accepted", "Rejected"]
 		submitted_by: DF.Link | None
 		title: DF.Data
 	# end: auto-generated types

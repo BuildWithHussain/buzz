@@ -13,6 +13,16 @@
   "allow_add_ons_change_before_event_start_days",
   "column_break_hagy",
   "allow_ticket_cancellation_request_before_event_start_days",
+  "communications_tab",
+  "ticketing_emails_section",
+  "default_ticket_email_template",
+  "sponsorship_emails_section",
+  "auto_send_pitch_deck",
+  "sponsor_email_settings_section",
+  "default_sponsor_deck_email_template",
+  "default_sponsor_deck_reply_to",
+  "column_break_sponsor",
+  "default_sponsor_deck_cc",
   "section_break_vtep",
   "custom_fields_go_after_this"
  ],
@@ -64,6 +74,68 @@
    "options": "Email"
   },
   {
+   "fieldname": "communications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Communications"
+  },
+  {
+   "fieldname": "ticketing_emails_section",
+   "fieldtype": "Section Break",
+   "label": "Ticketing"
+  },
+  {
+   "description": "Default template for ticket confirmation emails. Can be overridden per event.",
+   "fieldname": "default_ticket_email_template",
+   "fieldtype": "Link",
+   "label": "Default Ticket Email Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "sponsorship_emails_section",
+   "fieldtype": "Section Break",
+   "label": "Sponsorships"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_send_pitch_deck",
+   "fieldtype": "Check",
+   "label": "Auto Send Pitch Deck"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck",
+   "fieldname": "sponsor_email_settings_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck",
+   "description": "Default template for sponsorship pitch deck emails. Can be overridden per event.",
+   "fieldname": "default_sponsor_deck_email_template",
+   "fieldtype": "Link",
+   "label": "Default Email Template",
+   "mandatory_depends_on": "eval:doc.auto_send_pitch_deck",
+   "options": "Email Template"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck",
+   "fieldname": "default_sponsor_deck_reply_to",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Default Reply To",
+   "mandatory_depends_on": "eval:doc.auto_send_pitch_deck",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_sponsor",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.auto_send_pitch_deck",
+   "fieldname": "default_sponsor_deck_cc",
+   "fieldtype": "Small Text",
+   "label": "Default CC"
+  },
+  {
    "fieldname": "section_break_vtep",
    "fieldtype": "Section Break"
   },
@@ -77,7 +149,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-06 11:52:38.161009",
+ "modified": "2026-01-13 22:34:24.493305",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Settings",

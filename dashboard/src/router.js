@@ -73,6 +73,17 @@ const routes = [
 				component: () => import("@/pages/TicketDetails.vue"),
 			},
 			{
+				path: "proposals",
+				name: "proposals-list",
+				component: () => import("@/pages/ProposalsList.vue"),
+			},
+			{
+				path: "proposals/:proposalId",
+				props: true,
+				name: "proposal-details",
+				component: () => import("@/pages/ProposalDetails.vue"),
+			},
+			{
 				path: "sponsorships",
 				name: "sponsorships-list",
 				component: () => import("@/pages/SponsorshipsList.vue"),
