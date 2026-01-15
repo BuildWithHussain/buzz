@@ -38,7 +38,9 @@ Use bench --help to see how to work with frappe bench, e.g. bench execute, bench
 
 There are unit tests, run using bench run-tests. Site name is buzz.localhost, but if not found, ask user for it. The credentials are Administrator/admin.
 
-To test in UI, use agent-browser. For frontend changes use :8080 since yarn dev server is running.
+* To test in UI, use agent-browser. 
+* For frontend changes use :8080 since yarn dev server is running.
+* Use in headed mode unless specified
 
 ## Architecture
 
