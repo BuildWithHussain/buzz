@@ -297,7 +297,7 @@ const createCancellationRequest = createResource({
 	onError: (error) => {
 		submitting.value = false;
 		toast.error(
-			data.message || __("Failed to submit cancellation request. Please try again.")
+			error?.messages?.[0] || __("Failed to submit cancellation request. Please try again.")
 		);
 	},
 });
