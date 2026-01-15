@@ -17,6 +17,9 @@ cd dashboard && yarn lint
 ```
 
 ### Backend (Python)
+
+Always run bench migrate after doctype schema changes.
+
 ```bash
 # linting/formatting (via pre-commit)
 pre-commit run --all-files
@@ -33,7 +36,7 @@ Use bench --help to see how to work with frappe bench, e.g. bench execute, bench
 
 ### Testing
 
-There are unit tests, run using bench run-tests. Site name is buzz.localhost, but if not found, ask user for it
+There are unit tests, run using bench run-tests. Site name is buzz.localhost, but if not found, ask user for it. The credentials are Administrator/admin.
 
 To test in UI, use agent-browser. For frontend changes use :8080 since yarn dev server is running.
 
