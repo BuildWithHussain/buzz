@@ -989,3 +989,62 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 		"remaining_tickets": remaining,
 		"free_add_ons": [a.add_on for a in coupon.free_add_ons],
 	}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_feedback(ticket):
+	if not ticket:
+		return {"status": "error", "message": "Please Provide Ticket"}
+
+	# Fetch ticket details
+	data = frappe.db.get_value(
+		"Event Ticket", {"name": ticket, "docstatus": 1}, ["attendee_name", "event.title"], as_dict=True
+	)
+
+	if not data:
+		return {"status": "error", "message": "Invalid or Cancelled Ticket"}
+
+	response = {"attendee_name": data.attendee_name, "event_title": data.title}
+
+	# Check for existing feedback
+	existing = frappe.db.get_value("Event Feedback", {"ticket": ticket}, ["comment", "rating"], as_dict=True)
+
+	if existing:
+		response.update(
+			{
+				"status": "submitted",
+				"comment": existing.comment,
+				"rating": existing.rating * 5,  # Convert back to 0-5 scale
+			}
+		)
+	else:
+		response["status"] = "pending"
+
+	return response
+
+
+@frappe.whitelist(allow_guest=True)
+def submit_feedback(ticket, comment=None, rating=0):
+	try:
+		if not frappe.db.exists("Event Ticket", ticket):
+			return {"status": "error", "message": "Invalid Ticket ID"}
+
+		if frappe.db.exists("Event Feedback", {"ticket": ticket}):
+			return {"status": "submitted", "message": "Feedback already recorded."}
+
+		ticket_doc = frappe.get_doc("Event Ticket", ticket)
+
+		doc = frappe.get_doc(
+			{
+				"doctype": "Event Feedback",
+				"event": ticket_doc.event,
+				"ticket": ticket_doc.name,
+				"comment": comment,
+				"rating": rating / 5,  # Normalize to 0-1 scale
+			}
+		)
+		doc.insert(ignore_permissions=True)
+		return {"status": "success"}
+
+	except Exception as e:
+		frappe.log_error(f"Error submitting feedback for ticket {ticket}: {e!s}")

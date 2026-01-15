@@ -14,6 +14,12 @@ const routes = [
 		component: () => import("@/pages/CheckInScanner.vue"),
 	},
 	{
+		path: "/feedback",
+		name: "feedback",
+		component: () => import("@/pages/Feedback.vue"),
+		meta: { isPublic: true },
+	},
+	{
 		path: "/book-tickets/:eventRoute",
 		props: true,
 		name: "event-booking",
@@ -113,7 +119,7 @@ router.beforeEach(async (to, from, next) => {
 
 	if (to.name === "Login" && isLoggedIn) {
 		next({ name: "dashboard" });
-	} else if (to.name !== "Login" && !isLoggedIn) {
+	} else if (to.name !== "Login" && !to.meta.isPublic && !isLoggedIn) {
 		window.location.href = `/login?redirect-to=/dashboard${encodeURIComponent(to.fullPath)}`;
 	} else {
 		next();
