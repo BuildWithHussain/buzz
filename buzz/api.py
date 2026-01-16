@@ -1046,11 +1046,16 @@ def submit_feedback(ticket: str | None = None, comment: str | None = None, ratin
 			rating = int(rating)
 		except (ValueError, TypeError):
 			frappe.throw(_("Invalid rating value"))
+		if rating < 0 or rating > 5:
+			frappe.throw(_("Rating must be between 0 and 5"))
 
 		if frappe.db.exists("Event Feedback", {"ticket": ticket}):
 			frappe.throw(_("Feedback has already been submitted for this ticket"))
 
 		ticket_doc = frappe.get_doc("Event Ticket", ticket)
+
+		if ticket_doc.docstatus == 2:
+			frappe.throw(_("Ticket has been cancelled"))
 
 		doc = frappe.get_doc(
 			{
