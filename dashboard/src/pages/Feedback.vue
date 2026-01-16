@@ -13,8 +13,10 @@
 				>
 					<FeatherIcon name="alert-circle" class="h-6 w-6 text-ink-red-3" />
 				</div>
-				<h2 class="mt-4 text-lg font-semibold text-ink-gray-9">Unable to Load</h2>
-				<p class="mt-2 text-base text-ink-gray-5">{{ errorMessage }}</p>
+				<h2 class="mt-4 text-lg font-semibold text-ink-gray-9">
+					{{ __("Unable to Load") }}
+				</h2>
+				<p class="mt-2 text-base text-ink-gray-5">{{ __(errorMessage) }}</p>
 			</div>
 
 			<div
@@ -27,17 +29,24 @@
 					<FeatherIcon name="check" class="h-6 w-6 text-ink-blue-3" />
 				</div>
 
-				<h2 class="mt-4 text-lg font-semibold text-ink-gray-9">Feedback Received</h2>
+				<h2 class="mt-4 text-lg font-semibold text-ink-gray-9">
+					{{ __("Feedback Received") }}
+				</h2>
 				<p class="mt-2 text-base text-ink-gray-5">
-					Thanks <b>{{ attendeeName }}</b> for reviewing <b>{{ eventName }}</b
-					>!
+					{{ __("Thanks {0} for reviewing {1}!", [attendeeName, eventName]) }}
 				</p>
 
 				<div class="mt-6 rounded-lg bg-surface-gray-2 p-4 border border-outline-gray-2">
-					<div class="mb-2 flex justify-center">
-						<Rating :modelValue="form.rating" size="lg" disabled />
+					<div class="mb-2 flex flex-col items-center justify-center">
+						<Rating :modelValue="form.rating" readonly size="lg" />
+						<div class="mt-2 flex items-center space-x-1.5" v-if="form.rating > 0">
+							<span class="text-lg">{{ ratingLevels[form.rating - 1].icon }}</span>
+							<span class="text-sm font-medium text-ink-gray-7">
+								{{ ratingLevels[form.rating - 1].label }}
+							</span>
+						</div>
 					</div>
-					<p v-if="existingComment" class="text-base italic text-ink-gray-7">
+					<p v-if="existingComment" class="text-base italic text-ink-gray-7 text-center">
 						"{{ existingComment }}"
 					</p>
 				</div>
@@ -45,16 +54,18 @@
 
 			<div v-else>
 				<div class="text-center mb-4">
-					<p class="text-lg font-medium text-ink-gray-5">Hi {{ attendeeName }}!</p>
+					<p class="text-lg font-medium text-ink-gray-5">
+						{{ __("Hi {0}!", [attendeeName]) }}
+					</p>
 					<h2 class="mt-1 text-2xl font-bold text-ink-gray-9">
-						How was {{ eventName }}?
+						{{ __("How was {0}?", [eventName]) }}
 					</h2>
 				</div>
 
 				<div class="space-y-6">
 					<div class="flex flex-col items-center justify-center py-2">
 						<p class="text-sm font-medium text-ink-gray-5 mb-1">
-							Rate your experience <span class="text-red-500">*</span>
+							{{ __("Rate your experience") }} <span class="text-red-500">*</span>
 						</p>
 
 						<Rating v-model="form.rating" size="xl" :rating_from="5" />
@@ -74,13 +85,16 @@
 					<FormControl
 						type="textarea"
 						v-model="form.comment"
-						placeholder="Share your experience..."
+						:placeholder="__('Share your experience...')"
 						:rows="4"
 					/>
 
-					<div v-if="submitFeedback.error" class="text-center">
+					<div
+						v-if="submitFeedback.error"
+						class="text-center bg-surface-red-1 p-2 rounded border border-outline-red-2"
+					>
 						<p class="text-sm font-medium text-ink-red-3">
-							{{ submitFeedback.error }}
+							{{ __(submitFeedback.error) }}
 						</p>
 					</div>
 
@@ -91,7 +105,7 @@
 						:loading="submitFeedback.loading"
 						@click="submitFeedback.submit()"
 					>
-						Submit Feedback
+						{{ __("Submit Feedback") }}
 					</Button>
 				</div>
 			</div>
@@ -100,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import {
 	createResource,
@@ -113,6 +127,7 @@ import {
 
 const route = useRoute();
 
+// Reactive States
 const pageState = ref("loading");
 const errorMessage = ref("");
 const attendeeName = ref("");
@@ -125,13 +140,13 @@ const form = reactive({
 	rating: 0,
 });
 
-const ratingLevels = [
-	{ icon: "😡", label: "Terrible" },
-	{ icon: "☹️", label: "Bad" },
-	{ icon: "😐", label: "Average" },
-	{ icon: "🙂", label: "Good" },
-	{ icon: "😍", label: "Excellent" },
-];
+const ratingLevels = computed(() => [
+	{ icon: "😡", label: __("Terrible") },
+	{ icon: "☹️", label: __("Bad") },
+	{ icon: "😐", label: __("Average") },
+	{ icon: "🙂", label: __("Good") },
+	{ icon: "😍", label: __("Excellent") },
+]);
 
 const getFeedback = createResource({
 	url: "buzz.api.get_feedback",
@@ -154,9 +169,9 @@ const getFeedback = createResource({
 		}
 		pageState.value = data.status;
 	},
-	onError() {
+	onError(err) {
 		pageState.value = "error";
-		errorMessage.value = "Unable to connect to server.";
+		errorMessage.value = __("Unable to connect to server.");
 	},
 });
 
@@ -171,7 +186,7 @@ const submitFeedback = createResource({
 	},
 	validate() {
 		if (form.rating === 0) {
-			return "Please provide a rating.";
+			return __("Please provide a rating.");
 		}
 	},
 	onSuccess(data) {
@@ -180,7 +195,7 @@ const submitFeedback = createResource({
 			existingComment.value = form.comment;
 		} else if (data.status === "error") {
 			pageState.value = "error";
-			errorMessage.value = data.message || "Submission failed.";
+			errorMessage.value = data.message || __("Submission failed.");
 		}
 	},
 });
@@ -188,7 +203,7 @@ const submitFeedback = createResource({
 onMounted(() => {
 	if (!form.ticket) {
 		pageState.value = "error";
-		errorMessage.value = "Link is missing the Ticket ID.";
+		errorMessage.value = __("Link is missing the Ticket ID.");
 	} else {
 		getFeedback.submit();
 	}
