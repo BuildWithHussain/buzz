@@ -995,10 +995,10 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 def get_feedback(ticket: str | None = None) -> dict:
 	try:
 		if not ticket:
-			frappe.throw("Please provide a Ticket ID")
+			frappe.throw(_("Please provide a Ticket ID"))
 
 		if not frappe.db.exists("Event Ticket", ticket):
-			frappe.throw("Ticket not found")
+			frappe.throw(_("Ticket not found"))
 
 		# Fetch ticket details
 		data = frappe.db.get_value(
@@ -1006,7 +1006,7 @@ def get_feedback(ticket: str | None = None) -> dict:
 		)
 
 		if not data:
-			frappe.throw("Ticket has been cancelled")
+			frappe.throw(_("Ticket has been cancelled"))
 
 		response = {"attendee_name": data.attendee_name, "event_title": data.title}
 
@@ -1030,25 +1030,25 @@ def get_feedback(ticket: str | None = None) -> dict:
 
 	except Exception as e:
 		frappe.log_error(f"Error fetching feedback for ticket {ticket}: {e!s}")
-		frappe.throw("An unexpected error occurred while fetching feedback")
+		frappe.throw(_("An unexpected error occurred while fetching feedback"))
 
 
 @frappe.whitelist(allow_guest=True)
 def submit_feedback(ticket: str | None = None, comment: str | None = None, rating: int = 0) -> dict:
 	try:
 		if not ticket:
-			frappe.throw("Please provide a Ticket ID")
+			frappe.throw(_("Please provide a Ticket ID"))
 
 		if not frappe.db.exists("Event Ticket", ticket):
-			frappe.throw("Ticket not found")
+			frappe.throw(_("Ticket not found"))
 
 		try:
 			rating = int(rating)
 		except (ValueError, TypeError):
-			frappe.throw("Invalid rating value")
+			frappe.throw(_("Invalid rating value"))
 
 		if frappe.db.exists("Event Feedback", {"ticket": ticket}):
-			frappe.throw("Feedback has already been submitted for this ticket")
+			frappe.throw(_("Feedback has already been submitted for this ticket"))
 
 		ticket_doc = frappe.get_doc("Event Ticket", ticket)
 
@@ -1066,4 +1066,4 @@ def submit_feedback(ticket: str | None = None, comment: str | None = None, ratin
 
 	except Exception as e:
 		frappe.log_error(f"Error submitting feedback for ticket {ticket}: {e!s}")
-		frappe.throw("An unexpected error occurred while submitting feedback")
+		frappe.throw(_("An unexpected error occurred while submitting feedback"))
