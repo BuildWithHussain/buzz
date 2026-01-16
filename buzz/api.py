@@ -993,13 +993,13 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 
 @frappe.whitelist(allow_guest=True)
 def get_feedback(ticket: str | None = None) -> dict:
+	if not ticket:
+		frappe.throw(_("Please provide a Ticket ID"))
+
+	if not frappe.db.exists("Event Ticket", ticket):
+		frappe.throw(_("Ticket not found"))
+
 	try:
-		if not ticket:
-			frappe.throw(_("Please provide a Ticket ID"))
-
-		if not frappe.db.exists("Event Ticket", ticket):
-			frappe.throw(_("Ticket not found"))
-
 		# Fetch ticket details
 		data = frappe.db.get_value(
 			"Event Ticket", {"name": ticket, "docstatus": 1}, ["attendee_name", "event.title"], as_dict=True
@@ -1035,23 +1035,23 @@ def get_feedback(ticket: str | None = None) -> dict:
 
 @frappe.whitelist(allow_guest=True)
 def submit_feedback(ticket: str | None = None, comment: str | None = None, rating: int = 0) -> dict:
+	if not ticket:
+		frappe.throw(_("Please provide a Ticket ID"))
+
+	if not frappe.db.exists("Event Ticket", ticket):
+		frappe.throw(_("Ticket not found"))
+
 	try:
-		if not ticket:
-			frappe.throw(_("Please provide a Ticket ID"))
+		rating = int(rating)
+	except (ValueError, TypeError):
+		frappe.throw(_("Invalid rating value"))
+	if rating < 0 or rating > 5:
+		frappe.throw(_("Rating must be between 0 and 5"))
 
-		if not frappe.db.exists("Event Ticket", ticket):
-			frappe.throw(_("Ticket not found"))
+	if frappe.db.exists("Event Feedback", {"ticket": ticket}):
+		frappe.throw(_("Feedback has already been submitted for this ticket"))
 
-		try:
-			rating = int(rating)
-		except (ValueError, TypeError):
-			frappe.throw(_("Invalid rating value"))
-		if rating < 0 or rating > 5:
-			frappe.throw(_("Rating must be between 0 and 5"))
-
-		if frappe.db.exists("Event Feedback", {"ticket": ticket}):
-			frappe.throw(_("Feedback has already been submitted for this ticket"))
-
+	try:
 		ticket_doc = frappe.get_doc("Event Ticket", ticket)
 
 		if ticket_doc.docstatus == 2:
@@ -1067,7 +1067,7 @@ def submit_feedback(ticket: str | None = None, comment: str | None = None, ratin
 			}
 		)
 		doc.insert(ignore_permissions=True)
-		return {"status": "success", "message": "Thank you for your feedback!"}
+		return {"status": "success", "message": _("Thank you for your feedback!")}
 
 	except Exception as e:
 		frappe.log_error(f"Error submitting feedback for ticket {ticket}: {e!s}")
