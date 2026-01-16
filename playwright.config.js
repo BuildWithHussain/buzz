@@ -1,6 +1,9 @@
 // @ts-check
 import { defineConfig, devices } from "@playwright/test";
 
+// Auth state file path
+const authFile = "e2e/.auth/user.json";
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -43,8 +46,16 @@ export default defineConfig({
 	/* Configure projects for major browsers */
 	projects: [
 		{
+			name: "setup",
+			testMatch: /auth\.setup\.js/,
+		},
+		{
 			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
+			use: {
+				...devices["Desktop Chrome"],
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
 		},
 
 		// {

@@ -64,3 +64,4 @@ buzz/www/dashboard.html
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/e2e/.auth/
