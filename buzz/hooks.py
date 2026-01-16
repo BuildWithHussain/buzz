@@ -24,7 +24,9 @@ website_route_rules = [
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {"daily": ["buzz.tasks.unpublish_ticket_types_after_last_date"]}
+scheduler_events = {
+	"daily": ["buzz.tasks.unpublish_ticket_types_after_last_date", "buzz.tasks.send_feedback_requests"]
+}
 
 # Testing
 # -------
