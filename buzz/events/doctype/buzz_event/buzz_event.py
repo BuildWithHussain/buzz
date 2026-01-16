@@ -23,6 +23,7 @@ class BuzzEvent(Document):
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
 
 		about: DF.TextEditor | None
+		allow_editing_talks_after_acceptance: DF.Check
 		apply_tax: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
@@ -33,6 +34,7 @@ class BuzzEvent(Document):
 		end_time: DF.Time | None
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
+		feedback_email_template: DF.Link | None
 		free_webinar: DF.Check
 		host: DF.Link
 		is_published: DF.Check
