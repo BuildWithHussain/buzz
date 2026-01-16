@@ -992,45 +992,63 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 
 
 @frappe.whitelist(allow_guest=True)
-def get_feedback(ticket):
-	if not ticket:
-		return {"status": "error", "message": "Please Provide Ticket"}
+def get_feedback(ticket: str | None = None) -> dict:
+	try:
+		if not ticket:
+			frappe.throw("Please provide a Ticket ID")
 
-	# Fetch ticket details
-	data = frappe.db.get_value(
-		"Event Ticket", {"name": ticket, "docstatus": 1}, ["attendee_name", "event.title"], as_dict=True
-	)
+		if not frappe.db.exists("Event Ticket", ticket):
+			frappe.throw("Ticket not found")
 
-	if not data:
-		return {"status": "error", "message": "Invalid or Cancelled Ticket"}
-
-	response = {"attendee_name": data.attendee_name, "event_title": data.title}
-
-	# Check for existing feedback
-	existing = frappe.db.get_value("Event Feedback", {"ticket": ticket}, ["comment", "rating"], as_dict=True)
-
-	if existing:
-		response.update(
-			{
-				"status": "submitted",
-				"comment": existing.comment,
-				"rating": existing.rating * 5,  # Convert back to 0-5 scale
-			}
+		# Fetch ticket details
+		data = frappe.db.get_value(
+			"Event Ticket", {"name": ticket, "docstatus": 1}, ["attendee_name", "event.title"], as_dict=True
 		)
-	else:
-		response["status"] = "pending"
 
-	return response
+		if not data:
+			frappe.throw("Ticket has been cancelled")
+
+		response = {"attendee_name": data.attendee_name, "event_title": data.title}
+
+		# Check for existing feedback
+		existing = frappe.db.get_value(
+			"Event Feedback", {"ticket": ticket}, ["comment", "rating"], as_dict=True
+		)
+
+		if existing:
+			response.update(
+				{
+					"status": "submitted",
+					"comment": existing.comment,
+					"rating": existing.rating * 5,  # Convert back to 0-5 scale
+				}
+			)
+		else:
+			response["status"] = "pending"
+
+		return response
+
+	except Exception as e:
+		frappe.log_error(f"Error fetching feedback for ticket {ticket}: {e!s}")
+		frappe.throw("An unexpected error occurred while fetching feedback")
 
 
 @frappe.whitelist(allow_guest=True)
-def submit_feedback(ticket, comment=None, rating=0):
+def submit_feedback(ticket: str | None = None, comment: str | None = None, rating: int = 0) -> dict:
 	try:
+		if not ticket:
+			frappe.throw("Please provide a Ticket ID")
+
 		if not frappe.db.exists("Event Ticket", ticket):
-			return {"status": "error", "message": "Invalid Ticket ID"}
+			frappe.throw("Ticket not found")
+
+		try:
+			rating = int(rating)
+		except (ValueError, TypeError):
+			frappe.throw("Invalid rating value")
 
 		if frappe.db.exists("Event Feedback", {"ticket": ticket}):
-			return {"status": "submitted", "message": "Feedback already recorded."}
+			frappe.throw("Feedback has already been submitted for this ticket")
 
 		ticket_doc = frappe.get_doc("Event Ticket", ticket)
 
@@ -1044,7 +1062,8 @@ def submit_feedback(ticket, comment=None, rating=0):
 			}
 		)
 		doc.insert(ignore_permissions=True)
-		return {"status": "success"}
+		return {"status": "success", "message": "Thank you for your feedback!"}
 
 	except Exception as e:
 		frappe.log_error(f"Error submitting feedback for ticket {ticket}: {e!s}")
+		frappe.throw("An unexpected error occurred while submitting feedback")

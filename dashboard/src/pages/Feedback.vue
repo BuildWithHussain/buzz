@@ -90,11 +90,11 @@
 					/>
 
 					<div
-						v-if="submitFeedback.error"
+						v-if="submitError"
 						class="text-center bg-surface-red-1 p-2 rounded border border-outline-red-2"
 					>
 						<p class="text-sm font-medium text-ink-red-3">
-							{{ __(submitFeedback.error) }}
+							{{ submitError }}
 						</p>
 					</div>
 
@@ -133,6 +133,7 @@ const errorMessage = ref("");
 const attendeeName = ref("");
 const eventName = ref("");
 const existingComment = ref("");
+const submitError = ref("");
 
 const form = reactive({
 	ticket: route.query.ticket,
@@ -150,28 +151,24 @@ const ratingLevels = computed(() => [
 
 const getFeedback = createResource({
 	url: "buzz.api.get_feedback",
-	makeParams() {
-		return { ticket: form.ticket };
+	params: {
+		ticket: route.query.ticket,
 	},
+	auto: false,
 	onSuccess(data) {
-		if (data.status === "error") {
-			errorMessage.value = data.message;
-			pageState.value = "error";
-			return;
-		}
-
 		if (data.attendee_name) attendeeName.value = data.attendee_name;
 		if (data.event_title) eventName.value = data.event_title;
 
 		if (data.status === "submitted") {
 			existingComment.value = data.comment;
-			form.rating = data.rating ? parseInt(data.rating) : 0;
+			form.rating = data.rating;
 		}
 		pageState.value = data.status;
 	},
-	onError(err) {
+	onError(error) {
 		pageState.value = "error";
-		errorMessage.value = __("Unable to connect to server.");
+		const msg = (errorMessage.value = error?.messages?.[0] || "Something went wrong");
+		errorMessage.value = msg;
 	},
 });
 
@@ -185,25 +182,28 @@ const submitFeedback = createResource({
 		};
 	},
 	validate() {
+		submitError.value = "";
 		if (form.rating === 0) {
-			return __("Please provide a rating.");
+			const msg = __("Please provide a rating.");
+			submitError.value = msg;
+			return msg;
 		}
 	},
-	onSuccess(data) {
-		if (data.status === "success") {
-			pageState.value = "success";
-			existingComment.value = form.comment;
-		} else if (data.status === "error") {
-			pageState.value = "error";
-			errorMessage.value = data.message || __("Submission failed.");
-		}
+	onSuccess() {
+		pageState.value = "success";
+		existingComment.value = form.comment;
+	},
+	onError(error) {
+		const msg = (errorMessage.value =
+			error?.messages?.[0] || error?.message || "Something went wrong");
+		submitError.value = msg;
 	},
 });
 
 onMounted(() => {
 	if (!form.ticket) {
 		pageState.value = "error";
-		errorMessage.value = __("Link is missing the Ticket ID.");
+		errorMessage.value = __("Invalid Link.");
 	} else {
 		getFeedback.submit();
 	}
