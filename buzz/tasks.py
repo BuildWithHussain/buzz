@@ -25,5 +25,11 @@ def send_feedback_requests():
 		)
 
 		for ticket in tickets:
-			ticket_doc = frappe.get_doc("Event Ticket", ticket.name)
-			ticket_doc.send_feedback_email()
+			try:
+				ticket_doc = frappe.get_doc("Event Ticket", ticket.name)
+				ticket_doc.send_feedback_email()
+			except Exception:
+				frappe.log_error(
+					title="Feedback email send failed",
+					message=f"Ticket: {ticket.name}, Event: {event.name}",
+				)
