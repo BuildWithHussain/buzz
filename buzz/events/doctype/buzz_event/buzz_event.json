@@ -57,6 +57,7 @@
   "sponsor_deck_attachments",
   "customisations_tab",
   "ticket_email_template",
+  "feedback_email_template",
   "column_break_ukql",
   "ticket_print_format",
   "talks_section",
@@ -391,6 +392,13 @@
    "fieldname": "card_image",
    "fieldtype": "Attach Image",
    "label": "Card Image"
+  },
+  {
+   "description": "Template uses: <code>{{ feedback_link }}</code>, <code>{{ attendee_name }}</code>, and <code>{{ event_title }}</code>.",
+   "fieldname": "feedback_email_template",
+   "fieldtype": "Link",
+   "label": "Feedback Email Template",
+   "options": "Email Template"
   }
  ],
  "grid_page_length": 50,
@@ -463,7 +471,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-14 11:13:04.386770",
+ "modified": "2026-01-16 05:20:44.332748",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

@@ -16,6 +16,7 @@
   "communications_tab",
   "ticketing_emails_section",
   "default_ticket_email_template",
+  "default_feedback_email_template",
   "sponsorship_emails_section",
   "auto_send_pitch_deck",
   "sponsor_email_settings_section",
@@ -142,13 +143,20 @@
    "fieldname": "custom_fields_go_after_this",
    "fieldtype": "HTML",
    "label": "Custom Fields Go After This"
+  },
+  {
+   "description": "Default template for feedback emails. Can be overridden per event.\n<br>\nTemplate uses: <code>{{ feedback_link }}</code>, <code>{{ attendee_name }}</code>, and <code>{{ event_title }}</code>.",
+   "fieldname": "default_feedback_email_template",
+   "fieldtype": "Link",
+   "label": "Default Feedback Email Template",
+   "options": "Email Template"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-13 22:34:24.493305",
+ "modified": "2026-01-16 05:42:00.125507",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Settings",

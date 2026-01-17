@@ -4,6 +4,7 @@
 import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
+from frappe.utils import get_url
 
 from buzz.utils import only_if_app_installed
 
@@ -156,6 +157,41 @@ class EventTicket(Document):
 			header=[("Ticket Cancelled"), "red"],
 			delayed=False,
 			retry=2,
+		)
+
+	def send_feedback_email(self, now=False):
+		event_title, feedback_template = frappe.get_cached_value(
+			"Buzz Event", self.event, ["title", "feedback_email_template"]
+		)
+
+		if not feedback_template:
+			feedback_template = frappe.db.get_single_value("Buzz Settings", "default_feedback_email_template")
+
+		if not feedback_template:
+			frappe.throw(f"No Feedback Email Template found for event: {event_title}")
+
+		feedback_link = get_url(f"/dashboard/feedback?ticket={self.name}")
+
+		args = {
+			"doc": self,
+			"attendee_name": self.attendee_name,
+			"event_title": event_title,
+			"feedback_link": feedback_link,
+		}
+
+		from frappe.email.doctype.email_template.email_template import get_email_template
+
+		email_template = get_email_template(feedback_template, args)
+		subject = email_template.get("subject")
+		content = email_template.get("message")
+
+		frappe.sendmail(
+			recipients=[self.attendee_email],
+			subject=subject,
+			content=content,
+			reference_doctype=self.doctype,
+			reference_name=self.name,
+			now=now,
 		)
 
 

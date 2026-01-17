@@ -16,6 +16,7 @@
 				</Button>
 				<LanguageSwitcher />
 				<Button
+					v-if="!$route.meta.isPublic"
 					:loading="session.logout.loading"
 					@click="session.logout.submit"
 					icon-right="log-out"

@@ -14,8 +14,10 @@ class EventFeedback(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
+		comment: DF.SmallText | None
 		event: DF.Link
-		how_can_we_improve: DF.SmallText | None
+		rating: DF.Rating
+		ticket: DF.Link
 	# end: auto-generated types
 
 	pass

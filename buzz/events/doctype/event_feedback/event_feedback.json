@@ -6,7 +6,10 @@
  "engine": "InnoDB",
  "field_order": [
   "event",
-  "how_can_we_improve"
+  "comment",
+  "column_break_abtt",
+  "ticket",
+  "rating"
  ],
  "fields": [
   {
@@ -18,15 +21,33 @@
    "reqd": 1
   },
   {
-   "fieldname": "how_can_we_improve",
+   "fieldname": "comment",
    "fieldtype": "Small Text",
-   "label": "How can we improve?"
+   "label": "Comment"
+  },
+  {
+   "fieldname": "ticket",
+   "fieldtype": "Link",
+   "label": "Ticket",
+   "options": "Event Ticket",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rating",
+   "fieldtype": "Rating",
+   "label": "Rating",
+   "options": "5",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_abtt",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-08-14 14:11:07.484890",
+ "modified": "2026-01-16 04:04:29.608366",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Feedback",
