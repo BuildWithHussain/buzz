@@ -45,6 +45,7 @@
   "tax_label",
   "tax_percentage",
   "sponsorships_tab",
+  "show_sponsorship_section",
   "automations_section",
   "auto_send_pitch_deck",
   "section_break_edar",
@@ -263,6 +264,13 @@
    "fieldname": "sponsorships_tab",
    "fieldtype": "Tab Break",
    "label": "Sponsorships"
+  },
+  {
+   "default": "1",
+   "description": "Show or hide the sponsorship section on the event website",
+   "fieldname": "show_sponsorship_section",
+   "fieldtype": "Check",
+   "label": "Show Sponsorship Section on Website"
   },
   {
    "fieldname": "automations_section",
