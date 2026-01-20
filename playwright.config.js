@@ -50,12 +50,20 @@ export default defineConfig({
 			testMatch: /auth\.setup\.js/,
 		},
 		{
+			name: "event-setup",
+			testMatch: /event\.setup\.js/,
+			use: {
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
+		},
+		{
 			name: "chromium",
 			use: {
 				...devices["Desktop Chrome"],
 				storageState: authFile,
 			},
-			dependencies: ["setup"],
+			dependencies: ["setup", "event-setup"],
 		},
 
 		// {
