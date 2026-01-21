@@ -21,6 +21,7 @@
   "column_break_cjby",
   "end_date",
   "end_time",
+  "booking_closes_on",
   "section_break_zukm",
   "short_description",
   "about",
@@ -391,6 +392,11 @@
    "fieldname": "card_image",
    "fieldtype": "Attach Image",
    "label": "Card Image"
+  },
+  {
+   "fieldname": "booking_closes_on",
+   "fieldtype": "Date",
+   "label": "Booking Closes On"
   }
  ],
  "grid_page_length": 50,
@@ -463,7 +469,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-14 11:13:04.386770",
+ "modified": "2026-01-21 20:36:44.002422",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

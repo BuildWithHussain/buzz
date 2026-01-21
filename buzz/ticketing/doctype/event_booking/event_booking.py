@@ -40,6 +40,7 @@ class EventBooking(Document):
 	# end: auto-generated types
 
 	def validate(self):
+		self.validate_booking_open()
 		self.validate_ticket_availability()
 		self.fetch_amounts_from_ticket_types()
 		self.set_currency()
@@ -288,3 +289,9 @@ class EventBooking(Document):
 				frappe.throw(_("No attendees with eligible ticket type for this coupon"))
 
 			self.total_amount = self.net_amount - self.discount_amount
+
+	def validate_booking_open(self):
+		"""Check if booking is open for this event."""
+		event = frappe.get_cached_doc("Buzz Event", self.event)
+		if not event.is_booking_open:
+			frappe.throw(frappe._("Bookings are closed for {0}").format(event.title))

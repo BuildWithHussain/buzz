@@ -13,6 +13,8 @@
   "allow_add_ons_change_before_event_start_days",
   "column_break_hagy",
   "allow_ticket_cancellation_request_before_event_start_days",
+  "column_break_hyfc",
+  "allow_booking_before_event_start_days",
   "communications_tab",
   "ticketing_emails_section",
   "default_ticket_email_template",
@@ -142,13 +144,25 @@
    "fieldname": "custom_fields_go_after_this",
    "fieldtype": "HTML",
    "label": "Custom Fields Go After This"
+  },
+  {
+   "fieldname": "column_break_hyfc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Stop accepting bookings X days before event starts. Set to 0 to allow booking until event start date. Can be overridden per event.",
+   "fieldname": "allow_booking_before_event_start_days",
+   "fieldtype": "Int",
+   "label": "Allow Booking Before Event Start (Days)",
+   "non_negative": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-13 22:34:24.493305",
+ "modified": "2026-01-21 21:02:08.339821",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Settings",

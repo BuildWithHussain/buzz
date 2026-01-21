@@ -16,12 +16,13 @@ class BuzzSettings(Document):
 		from frappe.types import DF
 
 		allow_add_ons_change_before_event_start_days: DF.Int
+		allow_booking_before_event_start_days: DF.Int
 		allow_ticket_cancellation_request_before_event_start_days: DF.Int
 		allow_transfer_ticket_before_event_start_days: DF.Int
 		auto_send_pitch_deck: DF.Check
 		default_sponsor_deck_cc: DF.SmallText | None
 		default_sponsor_deck_email_template: DF.Link | None
-		default_sponsor_deck_reply_to: DF.Data
+		default_sponsor_deck_reply_to: DF.Data | None
 		default_ticket_email_template: DF.Link | None
 		support_email: DF.Data | None
 	# end: auto-generated types

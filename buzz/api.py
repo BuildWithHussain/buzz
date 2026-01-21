@@ -120,7 +120,7 @@ def can_request_cancellation(event_id: str | int) -> dict:
 def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
-
+	data.booking_allowed = event_doc.is_booking_open
 	# Ticket Types
 	available_ticket_types = []
 	published_ticket_types = frappe.db.get_all(

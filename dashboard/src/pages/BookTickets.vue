@@ -3,7 +3,21 @@
 		<div class="w-8">
 			<Spinner v-if="eventBookingResource.loading" />
 		</div>
-		<div>
+		<!-- Booking closed message -->
+		<div
+			v-if="!eventBookingResource.loading && !eventBookingData.bookingAllowed"
+			class="flex flex-col items-center justify-center py-16"
+		>
+			<LucideCalendarX2 class="w-16 h-16 text-gray-400 mb-4" />
+			<h2 class="text-xl font-semibold text-gray-700 mb-2">
+				{{ __("Bookings Closed") }}
+			</h2>
+			<p class="text-gray-500 text-center">
+				{{ __("Bookings are no longer available for this event.") }}
+			</p>
+		</div>
+		<!-- Booking form -->
+		<div v-else>
 			<BookingForm
 				v-if="eventBookingData.availableAddOns && eventBookingData.availableTicketTypes"
 				:availableAddOns="eventBookingData.availableAddOns"
@@ -22,6 +36,7 @@
 import { reactive } from "vue";
 import BookingForm from "../components/BookingForm.vue";
 import { Spinner, createResource } from "frappe-ui";
+import LucideCalendarX2 from "~icons/lucide/calendar-x-2";
 
 const eventBookingData = reactive({
 	availableAddOns: null,
@@ -30,6 +45,7 @@ const eventBookingData = reactive({
 	eventDetails: null,
 	customFields: null,
 	paymentGateways: [],
+	bookingAllowed: true,
 });
 
 const props = defineProps({
@@ -56,6 +72,7 @@ const eventBookingResource = createResource({
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];
 		eventBookingData.paymentGateways = data.payment_gateways || [];
+		eventBookingData.bookingAllowed = data.booking_allowed;
 	},
 	onError: (error) => {
 		if (error.message.includes("DoesNotExistError")) {

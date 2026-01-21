@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import add_days, date_diff, getdate, today
 from frappe.utils.data import time_diff_in_seconds
 
 from buzz.utils import only_if_app_installed
@@ -23,9 +24,11 @@ class BuzzEvent(Document):
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
 
 		about: DF.TextEditor | None
+		allow_editing_talks_after_acceptance: DF.Check
 		apply_tax: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
+		booking_closes_on: DF.Date | None
 		card_image: DF.AttachImage | None
 		category: DF.Link
 		default_ticket_type: DF.Link | None
@@ -45,6 +48,7 @@ class BuzzEvent(Document):
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
 		short_description: DF.SmallText | None
+		show_sponsorship_section: DF.Check
 		sponsor_deck_attachments: DF.Table[SponsorshipDeckItem]
 		sponsor_deck_cc: DF.SmallText | None
 		sponsor_deck_email_template: DF.Link | None
@@ -65,6 +69,7 @@ class BuzzEvent(Document):
 		self.validate_schedule()
 		self.validate_route()
 		self.validate_tax_settings()
+		self.validate_booking_closes_on()
 
 	def validate_schedule(self):
 		end_date = self.end_date or self.start_date
@@ -118,6 +123,13 @@ class BuzzEvent(Document):
 	def validate_route(self):
 		if self.is_published and not self.route:
 			self.route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
+
+	def validate_booking_closes_on(self):
+		if not self.booking_closes_on:
+			return
+		end_date = self.end_date or self.start_date
+		if date_diff(self.booking_closes_on, end_date) > 0:
+			frappe.throw(frappe._("Booking Closes On cannot be after the event end date"))
 
 	@frappe.whitelist()
 	def after_insert(self):
@@ -175,3 +187,18 @@ class BuzzEvent(Document):
 				}
 			)
 			webinar.save()
+
+	@property
+	def is_booking_open(self):
+		"""Returns True if booking is currently open for this event."""
+		current_date = getdate(today())
+
+		# Check custom booking close date first (per-event override)
+		if self.booking_closes_on:
+			return current_date <= getdate(self.booking_closes_on)
+
+		# Fall back to global setting
+		settings = frappe.get_cached_doc("Buzz Settings")
+		cutoff_days = settings.allow_booking_before_event_start_days or 0
+		cutoff_date = add_days(self.start_date, -cutoff_days)
+		return current_date <= getdate(cutoff_date)
