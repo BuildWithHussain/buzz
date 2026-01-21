@@ -25,7 +25,7 @@ setup("authenticate", async ({ page }) => {
 	const userResponse = await page.request.get("/api/method/frappe.auth.get_logged_user");
 	expect(userResponse.ok()).toBeTruthy();
 
-	const userData = await userResponse.json();
+	const userData = (await userResponse.json()) as { message?: string };
 	expect(userData.message).not.toBe("Guest");
 
 	console.log(`✅ Authenticated as: ${userData.message}`);
@@ -36,8 +36,8 @@ setup("authenticate", async ({ page }) => {
 
 	// Wait for frappe to initialize and extract CSRF token
 	const csrfToken = await page.evaluate(() => {
-		// Wait for frappe to be defined
-		return window.frappe?.csrf_token;
+		return (window as Window & { frappe?: { csrf_token?: string } }).frappe
+			?.csrf_token;
 	});
 
 	if (csrfToken) {

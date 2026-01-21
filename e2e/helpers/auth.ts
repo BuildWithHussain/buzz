@@ -1,10 +1,16 @@
+import { APIRequestContext, BrowserContext, Page } from "@playwright/test";
+
 const STORAGE_STATE_PATH = "e2e/.auth/user.json";
 
 /**
  * Login via Frappe API (faster than UI login).
  * Sets cookies on the request context for subsequent API calls.
  */
-export async function loginViaAPI(request, email = "Administrator", password = "admin") {
+export async function loginViaAPI(
+	request: APIRequestContext,
+	email = "Administrator",
+	password = "admin",
+): Promise<void> {
 	const response = await request.post("/api/method/login", {
 		form: {
 			usr: email,
@@ -20,7 +26,11 @@ export async function loginViaAPI(request, email = "Administrator", password = "
 /**
  * Login via UI (for testing the login flow itself).
  */
-export async function loginViaUI(page, email = "Administrator", password = "admin") {
+export async function loginViaUI(
+	page: Page,
+	email = "Administrator",
+	password = "admin",
+): Promise<void> {
 	await page.goto("/login");
 	await page.waitForLoadState("networkidle");
 
@@ -35,7 +45,7 @@ export async function loginViaUI(page, email = "Administrator", password = "admi
 /**
  * Logout the current user.
  */
-export async function logout(page) {
+export async function logout(page: Page): Promise<void> {
 	await page.goto("/api/method/logout");
 	await page.waitForLoadState("networkidle");
 }
@@ -43,7 +53,7 @@ export async function logout(page) {
 /**
  * Save authentication state for reuse across tests.
  */
-export async function saveAuthState(context) {
+export async function saveAuthState(context: BrowserContext): Promise<void> {
 	await context.storageState({ path: STORAGE_STATE_PATH });
 }
 
@@ -57,13 +67,13 @@ export function getStorageStatePath() {
 /**
  * Check if user is logged in by verifying session.
  */
-export async function isLoggedIn(request) {
+export async function isLoggedIn(request: APIRequestContext): Promise<boolean> {
 	try {
 		const response = await request.get("/api/method/frappe.auth.get_logged_user");
 		if (!response.ok()) return false;
 
-		const data = await response.json();
-		return data.message && data.message !== "Guest";
+		const data = (await response.json()) as { message?: string };
+		return Boolean(data.message && data.message !== "Guest");
 	} catch {
 		return false;
 	}

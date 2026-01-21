@@ -1,7 +1,17 @@
-import { expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class BookingPage {
-	constructor(page) {
+	private page: Page;
+	attendeeNameInput: Locator;
+	attendeeEmailInput: Locator;
+	ticketTypeSelect: Locator;
+	addOnCheckboxes: Locator;
+	private bookButton: Locator;
+	private addAttendeeButton: Locator;
+	private bookingForm: Locator;
+	private summarySection: Locator;
+
+	constructor(page: Page) {
 		this.page = page;
 
 		// Form elements
@@ -26,24 +36,24 @@ export class BookingPage {
 	}
 
 	// Navigate to the booking page for a specific event.
-	async goto(eventRoute) {
+	async goto(eventRoute: string): Promise<void> {
 		await this.page.goto(`/dashboard/book-tickets/${eventRoute}`);
 		await this.page.waitForLoadState("networkidle");
 	}
 
 	// Wait for the booking form to fully load.
-	async waitForFormLoad() {
+	async waitForFormLoad(): Promise<void> {
 		await expect(this.bookingForm).toBeVisible({ timeout: 15000 });
 	}
 
 	// Fill in attendee details.
-	async fillAttendeeDetails(name, email) {
+	async fillAttendeeDetails(name: string, email: string): Promise<void> {
 		await this.attendeeNameInput.fill(name);
 		await this.attendeeEmailInput.fill(email);
 	}
 
 	// Select a ticket type by its visible text.
-	async selectTicketType(ticketTitle) {
+	async selectTicketType(ticketTitle: string): Promise<void> {
 		const ticketOption = this.page.locator(`text=${ticketTitle}`).first();
 		if (await ticketOption.isVisible()) {
 			await ticketOption.click();
@@ -53,7 +63,7 @@ export class BookingPage {
 	/**
 	 * Toggle an add-on by its title.
 	 */
-	async toggleAddOn(addOnTitle) {
+	async toggleAddOn(addOnTitle: string): Promise<void> {
 		const addOnLabel = this.page.locator(`label:has-text("${addOnTitle}")`).first();
 		if (await addOnLabel.isVisible()) {
 			await addOnLabel.click();
@@ -61,27 +71,27 @@ export class BookingPage {
 	}
 
 	// Add another attendee to the booking.
-	async addAnotherAttendee() {
+	async addAnotherAttendee(): Promise<void> {
 		await this.addAttendeeButton.click();
 	}
 
 	// Submit the booking form.
-	async submit() {
+	async submit(): Promise<void> {
 		await this.bookButton.click();
 	}
 
 	// Get the booking button text.
-	async getBookButtonText() {
-		return await this.bookButton.textContent();
+	async getBookButtonText(): Promise<string | null> {
+		return this.bookButton.textContent();
 	}
 
 	//  Assert that the booking form is visible.
-	async expectFormVisible() {
+	async expectFormVisible(): Promise<void> {
 		await expect(this.bookingForm).toBeVisible();
 	}
 
 	// Assert that ticket types are displayed.
-	async expectTicketTypesVisible() {
+	async expectTicketTypesVisible(): Promise<void> {
 		// Check for any ticket-related content
 		const ticketContent = this.page
 			.locator('[class*="ticket"], select, input[type="radio"]')
@@ -90,20 +100,20 @@ export class BookingPage {
 	}
 
 	// Assert that add-ons are displayed.
-	async expectAddOnsVisible() {
+	async expectAddOnsVisible(): Promise<void> {
 		const addOnCount = await this.addOnCheckboxes.count();
 		expect(addOnCount).toBeGreaterThan(0);
 	}
 
 	// Assert that the book button is visible with expected text.
-	async expectBookButtonVisible() {
+	async expectBookButtonVisible(): Promise<void> {
 		await expect(this.bookButton).toBeVisible();
 		const text = await this.bookButton.textContent();
 		expect(text?.match(/Book|Pay|Register/i)).toBeTruthy();
 	}
 
 	// Get the count of attendee forms on the page.
-	async getAttendeeCount() {
+	async getAttendeeCount(): Promise<number> {
 		const attendeeForms = this.page.locator('[class*="attendee"], [class*="Attendee"]');
 		return await attendeeForms.count();
 	}

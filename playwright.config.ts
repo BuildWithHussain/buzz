@@ -1,31 +1,24 @@
-// @ts-check
 import { defineConfig, devices } from "@playwright/test";
 
-// Auth state file path
+// Auth state file path (added to .gitignore)
 const authFile = "e2e/.auth/user.json";
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
+ * Playwright configuration for Buzz E2E tests.
+ *
+ * Uses the recommended "setup project" pattern for authentication:
+ * 1. Setup project runs first and saves auth state to file
+ * 2. Other projects depend on setup and reuse the stored auth state
+ *
+ * @see https://playwright.dev/docs/auth
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
 	testDir: "./e2e/tests",
-	/* Run tests in files in parallel */
-	fullyParallel: true,
-	/* Fail the build on CI if you accidentally left test.only in the source code. */
+	fullyParallel: false, // Sequential for Frappe state consistency
 	forbidOnly: !!process.env.CI,
-	/* Retry on CI only */
 	retries: process.env.CI ? 2 : 0,
-	/* Opt out of parallel tests on CI. */
-	workers: process.env.CI ? 1 : undefined,
-	/* Reporter to use. See https://playwright.dev/docs/test-reporters */
+	workers: 1, // Single worker for Frappe session management
 	reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "html",
 
 	timeout: 60000,
@@ -47,11 +40,11 @@ export default defineConfig({
 	projects: [
 		{
 			name: "setup",
-			testMatch: /auth\.setup\.js/,
+			testMatch: /auth\.setup\.ts/,
 		},
 		{
 			name: "event-setup",
-			testMatch: /event\.setup\.js/,
+			testMatch: /event\.setup\.ts/,
 			use: {
 				storageState: authFile,
 			},

@@ -1,10 +1,16 @@
-import { expect } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 /**
  * Page Object for the Frappe login page.
  */
 export class LoginPage {
-	constructor(page) {
+	private page: Page;
+	private emailInput: Locator;
+	private passwordInput: Locator;
+	private submitButton: Locator;
+	private errorMessage: Locator;
+
+	constructor(page: Page) {
 		this.page = page;
 
 		// Frappe login page selectors
@@ -17,7 +23,7 @@ export class LoginPage {
 	/**
 	 * Navigate to the login page.
 	 */
-	async goto() {
+	async goto(): Promise<void> {
 		await this.page.goto("/login");
 		await this.page.waitForLoadState("networkidle");
 	}
@@ -25,7 +31,7 @@ export class LoginPage {
 	/**
 	 * Fill in the login form with credentials.
 	 */
-	async fillCredentials(email, password) {
+	async fillCredentials(email: string, password: string): Promise<void> {
 		await this.emailInput.fill(email);
 		await this.passwordInput.fill(password);
 	}
@@ -33,14 +39,14 @@ export class LoginPage {
 	/**
 	 * Submit the login form.
 	 */
-	async submit() {
+	async submit(): Promise<void> {
 		await this.submitButton.click();
 	}
 
 	/**
 	 * Perform a complete login.
 	 */
-	async login(email = "Administrator", password = "admin") {
+	async login(email = "Administrator", password = "admin"): Promise<void> {
 		await this.goto();
 		await this.fillCredentials(email, password);
 		await this.submit();
@@ -50,14 +56,14 @@ export class LoginPage {
 	/**
 	 * Assert that login failed with an error.
 	 */
-	async expectLoginError() {
+	async expectLoginError(): Promise<void> {
 		await expect(this.errorMessage).toBeVisible();
 	}
 
 	/**
 	 * Assert that we're on the login page.
 	 */
-	async expectToBeOnLoginPage() {
+	async expectToBeOnLoginPage(): Promise<void> {
 		await expect(this.page).toHaveURL(/.*login.*/);
 	}
 }
