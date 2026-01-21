@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd dashboard && yarn install",
     "dev": "cd dashboard && yarn dev",
-    "build": "cd dashboard && yarn build"
+    "build": "cd dashboard && yarn build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug"
   },
   "repository": {
     "type": "git",
@@ -19,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/BuildWithHussain/buzz/issues"
   },
-  "homepage": "https://github.com/BuildWithHussain/buzz#readme"
+  "homepage": "https://github.com/BuildWithHussain/buzz#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^25.0.8"
+  }
 }
