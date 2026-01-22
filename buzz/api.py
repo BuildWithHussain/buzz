@@ -839,7 +839,7 @@ def create_cancellation_request(booking_id: str, ticket_ids: list | None = None)
 	cancellation_request.insert(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_user_info() -> dict:
 	"""Get basic information about the logged-in user."""
 	if frappe.session.user == "Guest":
@@ -976,7 +976,7 @@ def checkin_ticket(ticket_id: str) -> dict:
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_enabled_languages():
 	"""Get all enabled languages from the Language doctype."""
 	languages = frappe.get_all(
