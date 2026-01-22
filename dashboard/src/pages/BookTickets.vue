@@ -52,6 +52,7 @@ const eventBookingResource = createResource({
 			apply_tax: false,
 			tax_label: "Tax",
 			tax_percentage: 0,
+			total_includes_taxes: false,
 		};
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];

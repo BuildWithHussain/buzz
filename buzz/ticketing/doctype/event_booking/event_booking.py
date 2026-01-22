@@ -60,6 +60,14 @@ class EventBooking(Document):
 				self.net_amount += attendee.add_on_total
 		self.total_amount = self.net_amount
 
+		event = frappe.get_cached_doc("Buzz Event", self.event)
+		tax_percentage = event.tax_percentage or 0
+		total_includes_taxes = getattr(event, "total_includes_taxes", 0)
+		if event.apply_tax and total_includes_taxes and tax_percentage > 0:
+			tax_multiplier = 1 + (tax_percentage / 100)
+			self.net_amount = self.net_amount / tax_multiplier
+			self.total_amount = self.net_amount
+
 	def apply_taxes_if_applicable(self):
 		"""Apply tax based on event-level tax configuration."""
 		self.tax_percentage = 0
@@ -259,6 +267,12 @@ class EventBooking(Document):
 
 		# Free Tickets - only discount attendees with matching ticket type
 		elif coupon.coupon_type == "Free Tickets":
+			event = frappe.get_cached_doc("Buzz Event", self.event)
+			tax_percentage = event.tax_percentage or 0
+			total_includes_taxes = getattr(event, "total_includes_taxes", 0)
+			is_tax_inclusive = event.apply_tax and total_includes_taxes and tax_percentage > 0
+			tax_multiplier = 1 + (tax_percentage / 100) if is_tax_inclusive else 1
+
 			remaining = coupon.number_of_free_tickets - coupon.free_tickets_claimed
 			free_add_on_names = [row.add_on for row in coupon.free_add_ons]
 
@@ -273,7 +287,8 @@ class EventBooking(Document):
 				if attendee_ticket_type != coupon_ticket_type:
 					continue
 
-				self.discount_amount += attendee.amount
+				attendee_amount = attendee.amount / tax_multiplier
+				self.discount_amount += attendee_amount
 				attendee.amount = 0
 				discounted += 1
 
@@ -282,7 +297,7 @@ class EventBooking(Document):
 					add_on_doc = frappe.get_cached_doc("Attendee Ticket Add-on", attendee.add_ons)
 					for add_on_row in add_on_doc.add_ons:
 						if add_on_row.add_on in free_add_on_names:
-							self.discount_amount += add_on_row.price
+							self.discount_amount += add_on_row.price / tax_multiplier
 
 			if discounted == 0:
 				frappe.throw(_("No attendees with eligible ticket type for this coupon"))

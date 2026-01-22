@@ -23,6 +23,7 @@ class BuzzEvent(Document):
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
 
 		about: DF.TextEditor | None
+		allow_editing_talks_after_acceptance: DF.Check
 		apply_tax: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
@@ -45,6 +46,7 @@ class BuzzEvent(Document):
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
 		short_description: DF.SmallText | None
+		show_sponsorship_section: DF.Check
 		sponsor_deck_attachments: DF.Table[SponsorshipDeckItem]
 		sponsor_deck_cc: DF.SmallText | None
 		sponsor_deck_email_template: DF.Link | None
@@ -57,6 +59,7 @@ class BuzzEvent(Document):
 		ticket_print_format: DF.Link | None
 		time_zone: DF.Autocomplete | None
 		title: DF.Data
+		total_includes_taxes: DF.Check
 		venue: DF.Link | None
 	# end: auto-generated types
 

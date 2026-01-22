@@ -297,6 +297,7 @@ const props = defineProps({
 			apply_tax: false,
 			tax_label: "Tax",
 			tax_percentage: 0,
+			total_includes_taxes: false,
 		}),
 	},
 	eventDetails: {
@@ -468,7 +469,17 @@ const total = computed(() => {
 });
 
 // Net amount (before tax)
-const netAmount = computed(() => total.value);
+const netAmount = computed(() => {
+	if (
+		shouldApplyTax.value &&
+		totalIncludesTaxes.value &&
+		taxPercentage.value > 0 &&
+		taxMultiplier.value > 1
+	) {
+		return total.value / taxMultiplier.value;
+	}
+	return total.value;
+});
 
 // Tax calculations
 const shouldApplyTax = computed(() => {
@@ -481,6 +492,14 @@ const taxLabel = computed(() => {
 
 const taxPercentage = computed(() => {
 	return shouldApplyTax.value ? props.taxSettings?.tax_percentage || 0 : 0;
+});
+
+const totalIncludesTaxes = computed(() => {
+	return Boolean(props.taxSettings?.total_includes_taxes);
+});
+
+const taxMultiplier = computed(() => {
+	return 1 + taxPercentage.value / 100;
 });
 
 // Count of attendees matching the coupon's ticket type (for Free Tickets)
@@ -507,7 +526,10 @@ const discountAmount = computed(() => {
 			matchingAttendees.length,
 			couponData.value.remaining_tickets
 		);
-		let discount = freeTicketCount * ticketInfo.price;
+		const ticketPrice = totalIncludesTaxes.value
+			? ticketInfo.price / taxMultiplier.value
+			: ticketInfo.price;
+		let discount = freeTicketCount * ticketPrice;
 
 		// Add free add-ons discount for free ticket holders only
 		if (couponData.value.free_add_ons && couponData.value.free_add_ons.length > 0) {
@@ -518,7 +540,10 @@ const discountAmount = computed(() => {
 						if (attendee.add_ons[freeAddOnName]?.selected) {
 							const addOnInfo = addOnsMap.value[freeAddOnName];
 							if (addOnInfo) {
-								discount += addOnInfo.price;
+								const addOnPrice = totalIncludesTaxes.value
+									? addOnInfo.price / taxMultiplier.value
+									: addOnInfo.price;
+								discount += addOnPrice;
 							}
 						}
 					}
