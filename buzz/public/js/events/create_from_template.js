@@ -326,7 +326,7 @@ buzz.events.render_field_group = function (group_key, template) {
 			<div class="col-md-6 mb-2">
 				<label class="d-flex align-items-center">
 					<input type="checkbox" class="template-option mr-2" data-option="${field}" ${
-			has_value ? "checked" : ""
+			has_value ? "checked" : "disabled"
 		}>
 					${label}
 					${!has_value ? '<span class="text-muted ml-1">(' + __("Not set") + ")</span>" : ""}
@@ -483,7 +483,7 @@ buzz.events.render_save_template_options = function (dialog, frm) {
 			<div class="col-md-6 mb-2">
 				<label class="d-flex align-items-center">
 					<input type="checkbox" class="template-option mr-2" data-option="${field}" ${
-			has_value ? "checked" : ""
+			has_value ? "checked" : "disabled"
 		}>
 					${label}
 					${!has_value ? '<span class="text-muted ml-1">(' + __("Not set") + ")</span>" : ""}
@@ -514,7 +514,7 @@ buzz.events.render_save_template_options = function (dialog, frm) {
 			<div class="col-md-6 mb-2">
 				<label class="d-flex align-items-center">
 					<input type="checkbox" class="template-option mr-2" data-option="${field}" ${
-			has_value ? "checked" : ""
+			has_value ? "checked" : "disabled"
 		}>
 					${label}
 					${!has_value ? '<span class="text-muted ml-1">(' + __("Not set") + ")</span>" : ""}
@@ -548,7 +548,7 @@ buzz.events.render_save_template_options = function (dialog, frm) {
 			<div class="col-md-6 mb-2">
 				<label class="d-flex align-items-center">
 					<input type="checkbox" class="template-option mr-2" data-option="${field}" ${
-			has_value ? "checked" : ""
+			has_value ? "checked" : "disabled"
 		}>
 					${label}
 					${!has_value ? '<span class="text-muted ml-1">(' + __("Not set") + ")</span>" : ""}
