@@ -24,3 +24,11 @@ export function clearBookingCache() {
 	}
 	keysToRemove.forEach((key) => localStorage.removeItem(key));
 }
+
+/**
+ * Redirect to login page with current path as redirect-to parameter
+ */
+export function redirectToLogin() {
+	const currentPath = window.location.pathname + window.location.search;
+	window.location.href = `/login?redirect-to=${encodeURIComponent(currentPath)}`;
+}

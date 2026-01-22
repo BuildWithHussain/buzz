@@ -1,10 +1,38 @@
 import frappe
 from frappe import _
 from frappe.translate import get_all_translations
-from frappe.utils import days_diff, format_date, format_time, today
+from frappe.utils import days_diff, format_date, format_time, today, validate_email_address
 
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
 from buzz.utils import is_app_installed
+
+
+def get_or_create_guest_user(email: str, full_name: str) -> str:
+	"""Get existing user or create a new user silently without sending welcome email."""
+
+	validate_email_address(email, throw=True)
+	if frappe.db.exists("User", email):
+		return email
+
+	name_parts = full_name.strip().split(" ", 1)
+	first_name = name_parts[0] if name_parts else "Guest"
+	last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+	user = frappe.get_doc(
+		{
+			"doctype": "User",
+			"email": email,
+			"first_name": first_name,
+			"last_name": last_name,
+			"enabled": 1,
+			"user_type": "Website User",
+			"send_welcome_email": 0,
+		}
+	)
+	user.insert(ignore_permissions=True)
+	user.add_roles("Buzz User")
+
+	return email
 
 
 @frappe.whitelist()
@@ -117,7 +145,7 @@ def can_request_cancellation(event_id: str | int) -> dict:
 	return {"can_request_cancellation": is_cancellation_request_allowed(event_id), "event_id": event_id}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
@@ -168,7 +196,7 @@ def get_event_booking_data(event_route: str) -> dict:
 	return data
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def process_booking(
 	attendees: list[dict],
 	event: str,
@@ -176,11 +204,30 @@ def process_booking(
 	booking_custom_fields: dict | None = None,
 	payment_gateway: str | None = None,
 	utm_parameters: list[dict] | None = None,
+	guest_email: str | None = None,
+	guest_full_name: str | None = None,
 ) -> dict:
+	# Guest booking handling
+	event_doc = frappe.get_cached_doc("Buzz Event", event)
+	is_guest = frappe.session.user == "Guest"
+
+	if is_guest:
+		if not event_doc.allow_guest_booking:
+			frappe.throw(_("Please log in to book tickets for this event"), frappe.AuthenticationError)
+
+		if not guest_email:
+			frappe.throw(_("Email is required for guest booking"))
+
+		# Use provided guest_full_name or fallback to first attendee's name
+		full_name = guest_full_name or attendees[0].get("full_name", "Guest")
+		booking_user = get_or_create_guest_user(guest_email, full_name)
+	else:
+		booking_user = frappe.session.user
+
 	booking = frappe.new_doc("Event Booking")
 	booking.event = event
 	booking.coupon_code = coupon_code
-	booking.user = frappe.session.user
+	booking.user = booking_user
 
 	# Add UTM parameters (captured from URL query params starting with utm_)
 	if utm_parameters:
@@ -964,8 +1011,12 @@ def has_app_permission():
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def validate_coupon(coupon_code: str, event: str) -> dict:
+	event_doc = frappe.get_cached_doc("Buzz Event", event)
+	if frappe.session.user == "Guest" and not event_doc.allow_guest_booking:
+		frappe.throw(_("Please log in to validate coupons"), frappe.AuthenticationError)
+
 	if not frappe.db.exists("Buzz Coupon Code", coupon_code):
 		return {"valid": False, "error": _("Invalid coupon code")}
 

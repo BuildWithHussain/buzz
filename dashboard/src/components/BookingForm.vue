@@ -10,10 +10,76 @@
 			@gateway-selected="onGatewaySelected"
 		/>
 
-		<form @submit.prevent="submit">
+		<!-- Success State for Guest Booking -->
+		<div v-if="bookingSuccess" class="text-center py-12 px-4">
+			<div class="bg-green-50 border border-green-200 rounded-xl p-8 max-w-md mx-auto">
+				<LucideCheckCircle class="w-16 h-16 text-green-500 mx-auto mb-4" />
+				<h2 class="text-2xl font-semibold text-green-800 mb-2">
+					{{ __("Booking Confirmed!") }}
+				</h2>
+				<p class="text-green-700 mb-4">
+					{{ __("Your tickets have been sent to") }}
+					<strong>{{ guestEmail }}</strong>
+				</p>
+				<p class="text-sm text-green-600 mb-6">
+					{{ __("Check your email for ticket details and QR codes.") }}
+				</p>
+				<div class="space-y-3">
+					<p class="text-xs text-ink-gray-5">
+						{{ __("Want to manage your bookings?") }}
+					</p>
+					<Button variant="outline" @click="redirectToLogin">
+						{{ __("Log in to your account") }}
+					</Button>
+				</div>
+			</div>
+		</div>
+
+		<form v-else @submit.prevent="submit">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
 				<div class="lg:col-span-2">
+					<!-- Guest Contact Section -->
+					<div
+						v-if="props.isGuestMode"
+						class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 md:p-6 mb-6 shadow-sm"
+					>
+						<div class="flex items-center justify-between mb-4">
+							<h3 class="text-sm font-semibold text-ink-gray-8">
+								{{ __("Your Details") }}
+							</h3>
+							<button
+								type="button"
+								@click="redirectToLogin"
+								class="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
+							>
+								{{ __("Have an account? Log in") }}
+							</button>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormControl
+								v-model="guestFullName"
+								type="text"
+								:label="__('Full Name')"
+								:placeholder="__('Enter your name')"
+							/>
+							<FormControl
+								v-model="guestEmail"
+								type="email"
+								:label="__('Email Address')"
+								:placeholder="__('Enter your email')"
+								required
+							/>
+						</div>
+						<p class="text-xs text-ink-gray-5 mt-3">
+							{{
+								__(
+									"We'll create an account for you to manage your tickets and bookings."
+								)
+							}}
+						</p>
+					</div>
+
 					<!-- Booking-level Custom Fields -->
 					<div
 						v-if="bookingCustomFields.length > 0"
@@ -261,7 +327,9 @@ import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
+import { redirectToLogin } from "../utils/index.js";
 import LucideCheck from "~icons/lucide/check";
+import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
 import LucideAlertCircle from "~icons/lucide/alert-circle";
@@ -315,6 +383,10 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
+	isGuestMode: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 // --- STATE ---
@@ -338,8 +410,16 @@ const couponApplied = ref(false);
 const couponError = ref("");
 const couponData = ref(null);
 
-// Ensure user data is loaded
-if (!userResource.data) {
+// Guest booking state
+const guestEmail = ref("");
+const guestFullName = ref("");
+
+// Success state for guest bookings
+const bookingSuccess = ref(false);
+const successBookingName = ref("");
+
+// Ensure user data is loaded (only if not in guest mode)
+if (!props.isGuestMode && !userResource.data) {
 	userResource.fetch();
 }
 
@@ -859,6 +939,8 @@ async function submit() {
 		booking_custom_fields:
 			Object.keys(cleanedBookingCustomFields).length > 0 ? cleanedBookingCustomFields : null,
 		utm_parameters: utmParameters.length > 0 ? utmParameters : null,
+		guest_email: props.isGuestMode ? guestEmail.value.trim() : null,
+		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
 	};
 
 	// Check if we need to show gateway selection dialog
@@ -883,6 +965,9 @@ function submitBooking(payload, paymentGateway) {
 			onSuccess: (data) => {
 				if (data.payment_link) {
 					window.location.href = data.payment_link;
+				} else if (props.isGuestMode) {
+					bookingSuccess.value = true;
+					successBookingName.value = data.booking_name;
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);

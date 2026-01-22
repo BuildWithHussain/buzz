@@ -117,6 +117,12 @@ router.beforeEach(async (to, from, next) => {
 		isLoggedIn = false;
 	}
 
+	// Allow guest access to event-booking route (permission checked by API)
+	if (to.name === "event-booking") {
+		next();
+		return;
+	}
+
 	if (to.name === "Login" && isLoggedIn) {
 		next({ name: "dashboard" });
 	} else if (to.name !== "Login" && !isLoggedIn) {

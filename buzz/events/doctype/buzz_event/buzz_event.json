@@ -14,6 +14,7 @@
   "banner_image",
   "host",
   "venue",
+  "allow_guest_booking",
   "section_break_naqe",
   "start_date",
   "start_time",
@@ -400,6 +401,12 @@
    "fieldname": "attach_calendar_invite",
    "fieldtype": "Check",
    "label": "Attach Calendar Invite"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_guest_booking",
+   "fieldtype": "Check",
+   "label": "Allow Guest Booking"
   }
  ],
  "grid_page_length": 50,

@@ -24,6 +24,7 @@ class BuzzEvent(Document):
 
 		about: DF.TextEditor | None
 		allow_editing_talks_after_acceptance: DF.Check
+		allow_guest_booking: DF.Check
 		apply_tax: DF.Check
 		attach_calendar_invite: DF.Check
 		auto_send_pitch_deck: DF.Check
