@@ -10,6 +10,52 @@
 			@gateway-selected="onGatewaySelected"
 		/>
 
+		<!-- OTP Verification Dialog for Guest Booking -->
+		<Dialog
+			v-model="showOtpModal"
+			:options="{
+				title: __('Verify Your Email'),
+				size: 'sm',
+			}"
+		>
+			<template #body-content>
+				<p class="text-sm text-ink-gray-6 mb-4">
+					{{ __("Enter the 6-digit code sent to") }}
+					<strong>{{ guestEmail }}</strong>
+				</p>
+				<FormControl
+					v-model="otpCode"
+					type="text"
+					maxlength="6"
+					:label="__('Verification Code')"
+					placeholder="123456"
+					class="mb-3"
+					@keyup.enter="submitWithOtp"
+				/>
+				<Button
+					variant="ghost"
+					size="sm"
+					:loading="sendOtpResource.loading"
+					@click="resendOtp"
+				>
+					{{ __("Resend code") }}
+				</Button>
+			</template>
+
+			<template #actions>
+				<div class="flex justify-end space-x-3">
+					<Button variant="ghost" @click="clearOtpState">{{ __("Cancel") }}</Button>
+					<Button
+						variant="solid"
+						:loading="processBooking.loading"
+						@click="submitWithOtp"
+					>
+						{{ __("Verify & Book") }}
+					</Button>
+				</div>
+			</template>
+		</Dialog>
+
 		<!-- Success State for Guest Booking -->
 		<div v-if="bookingSuccess" class="text-center py-12 px-4">
 			<div class="bg-green-50 border border-green-200 rounded-xl p-8 max-w-md mx-auto">
@@ -303,7 +349,7 @@
 								size="lg"
 								class="w-full"
 								type="submit"
-								:loading="processBooking.loading"
+								:loading="processBooking.loading || sendOtpResource.loading"
 							>
 								{{ submitButtonText }}
 							</Button>
@@ -327,7 +373,7 @@ import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
-import { redirectToLogin } from "../utils/index.js";
+import { redirectToLogin, clearBookingCache } from "../utils/index.js";
 import LucideCheck from "~icons/lucide/check";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideX from "~icons/lucide/x";
@@ -417,6 +463,11 @@ const guestFullName = ref("");
 // Success state for guest bookings
 const bookingSuccess = ref(false);
 const successBookingName = ref("");
+
+// OTP verification state for guest bookings
+const showOtpModal = ref(false);
+const otpCode = ref("");
+const pendingBookingPayload = ref(null);
 
 // Ensure user data is loaded (only if not in guest mode)
 if (!props.isGuestMode && !userResource.data) {
@@ -767,6 +818,17 @@ const validateCoupon = createResource({
 	url: "buzz.api.validate_coupon",
 });
 
+const sendOtpResource = createResource({
+	url: "buzz.api.send_guest_booking_otp",
+	onSuccess: () => {
+		showOtpModal.value = true;
+		toast.success(__("Verification code sent to your email"));
+	},
+	onError: (error) => {
+		toast.error(error.messages?.[0] || __("Failed to send verification code"));
+	},
+});
+
 // --- COUPON FUNCTIONS ---
 async function applyCoupon() {
 	if (!couponCode.value.trim()) {
@@ -943,6 +1005,18 @@ async function submit() {
 		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
 	};
 
+	// Guest booking: validate email and send OTP before proceeding
+	if (props.isGuestMode) {
+		if (!guestEmail.value.trim()) {
+			toast.error(__("Please enter your email address"));
+			return;
+		}
+		// Store payload and send OTP
+		pendingBookingPayload.value = final_payload;
+		sendOtpResource.submit({ email: guestEmail.value.trim() });
+		return;
+	}
+
 	// Check if we need to show gateway selection dialog
 	// Only show dialog if there's a payment (finalTotal > 0) and multiple gateways
 	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
@@ -955,7 +1029,7 @@ async function submit() {
 	submitBooking(final_payload, props.paymentGateways[0] || null);
 }
 
-function submitBooking(payload, paymentGateway) {
+function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	processBooking.submit(
 		{
 			...payload,
@@ -963,6 +1037,12 @@ function submitBooking(payload, paymentGateway) {
 		},
 		{
 			onSuccess: (data) => {
+				clearBookingCache();
+
+				if (isOtpFlow) {
+					clearOtpState();
+				}
+
 				if (data.payment_link) {
 					window.location.href = data.payment_link;
 				} else if (props.isGuestMode) {
@@ -974,6 +1054,9 @@ function submitBooking(payload, paymentGateway) {
 				}
 			},
 			onError: (error) => {
+				if (isOtpFlow) {
+					otpCode.value = "";
+				}
 				const message = error.messages?.[0] || error.message || __("Booking failed");
 				toast.error(message);
 			},
@@ -986,6 +1069,43 @@ function onGatewaySelected(gateway) {
 		submitBooking(pendingPayload.value, gateway);
 		pendingPayload.value = null;
 	}
+}
+
+// --- OTP VERIFICATION FOR GUEST BOOKINGS ---
+function submitWithOtp() {
+	if (!otpCode.value.trim()) {
+		toast.error(__("Please enter the verification code"));
+		return;
+	}
+
+	// Add OTP to pending payload
+	const payloadWithOtp = {
+		...pendingBookingPayload.value,
+		otp: otpCode.value.trim(),
+	};
+
+	// Check if we need to show gateway selection dialog
+	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+		pendingPayload.value = payloadWithOtp;
+		showOtpModal.value = false;
+		showGatewayDialog.value = true;
+		return;
+	}
+
+	// Single gateway or free event - submit with OTP (dialog stays open until success)
+	submitBooking(payloadWithOtp, props.paymentGateways[0] || null, { isOtpFlow: true });
+}
+
+function resendOtp() {
+	if (sendOtpResource.loading) return;
+	otpCode.value = "";
+	sendOtpResource.submit({ email: guestEmail.value.trim() });
+}
+
+function clearOtpState() {
+	showOtpModal.value = false;
+	otpCode.value = "";
+	pendingBookingPayload.value = null;
 }
 
 const submitButtonText = computed(() => {

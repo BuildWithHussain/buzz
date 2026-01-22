@@ -1,10 +1,42 @@
+import os
+from base64 import b32encode
+
 import frappe
+import pyotp
 from frappe import _
+from frappe.rate_limiter import rate_limit
 from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today, validate_email_address
 
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
 from buzz.utils import is_app_installed
+
+
+@frappe.whitelist(allow_guest=True)
+@rate_limit(limit=5, seconds=3600)
+def send_guest_booking_otp(email: str) -> dict:
+	"""Send 6-digit OTP to email for guest booking verification."""
+	email = email.lower().strip()
+	validate_email_address(email, throw=True)
+
+	# Generate OTP (same pattern as Frappe's twofactor.py)
+	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
+	otp_code = pyotp.HOTP(otp_secret).at(0)
+
+	# Store in cache (10 min expiry)
+	frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
+
+	# Send email
+	frappe.sendmail(
+		recipients=[email],
+		subject=_("Your Booking Verification Code"),
+		message=_("Your verification code is: <b>{0}</b><br><br>" "This code expires in 10 minutes.").format(
+			otp_code
+		),
+		now=True,
+	)
+
+	return {"success": True}
 
 
 def get_or_create_guest_user(email: str, full_name: str) -> str:
@@ -206,6 +238,7 @@ def process_booking(
 	utm_parameters: list[dict] | None = None,
 	guest_email: str | None = None,
 	guest_full_name: str | None = None,
+	otp: str | None = None,
 ) -> dict:
 	# Guest booking handling
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
@@ -217,6 +250,21 @@ def process_booking(
 
 		if not guest_email:
 			frappe.throw(_("Email is required for guest booking"))
+
+		# Verify OTP for guest bookings
+		if not otp:
+			frappe.throw(_("Verification code is required"))
+
+		email = guest_email.lower().strip()
+		otp_secret = frappe.cache.get_value(f"guest_booking_otp:{email}")
+
+		if not otp_secret:
+			frappe.throw(_("Verification code expired. Please request a new one."))
+
+		if not pyotp.HOTP(otp_secret).verify(otp.strip(), 0):
+			frappe.throw(_("Invalid verification code"))
+
+		frappe.cache.delete_value(f"guest_booking_otp:{email}")
 
 		# Use provided guest_full_name or fallback to first attendee's name
 		full_name = guest_full_name or attendees[0].get("full_name", "Guest")
