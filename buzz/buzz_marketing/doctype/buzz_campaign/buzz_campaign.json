@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "enabled",
+  "title",
   "event",
   "qr_code",
   "column_break_onhk",
@@ -42,6 +43,13 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled?"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
