@@ -24,7 +24,12 @@ class BuzzCampaign(Document):
 	# end: auto-generated types
 
 	def before_save(self):
-		if self.enabled and not self.qr_code:
+		if not self.enabled:
+			return
+
+		previous = self.get_doc_before_save()
+		name_changed = previous and previous.name != self.name
+		if not self.qr_code or name_changed:
 			self.generate_qr_code()
 
 	def validate(self):
