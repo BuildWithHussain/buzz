@@ -6,6 +6,8 @@ from unittest.mock import patch
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from buzz.utils import generate_qr_code_file, make_qr_image
+
 EXTRA_TEST_RECORD_DEPENDENCIES = []
 IGNORE_TEST_RECORD_DEPENDENCIES = ["Bulk Ticket Coupon"]
 
@@ -135,3 +137,40 @@ class TestEventTicketEmail(IntegrationTestCase):
 
 		mock_sendmail.assert_called_once()
 		self.assertEqual(mock_sendmail.call_args[1]["template"], "ticket")
+
+
+class TestQRCodeGeneration(IntegrationTestCase):
+	"""Tests for QR code generation utility."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+	def test_make_qr_image_returns_png_bytes(self):
+		"""QR image generation should return valid PNG bytes."""
+		result = make_qr_image("test-data-123")
+
+		self.assertIsInstance(result, bytes)
+		# PNG magic bytes
+		self.assertTrue(result.startswith(b"\x89PNG"))
+
+	def test_generate_qr_code_file_creates_attachment(self):
+		"""QR code file should be created and attached to document."""
+		file_url = generate_qr_code_file(
+			doc=self.test_event,
+			data="test-qr-data",
+			field_name="qr_code",
+			file_prefix="test-qr",
+		)
+
+		self.assertIsNotNone(file_url)
+		self.assertTrue(file_url.endswith(".png"))
+
+		# Verify file exists in File doctype
+		file_doc = frappe.get_doc("File", {"file_url": file_url})
+		self.assertEqual(file_doc.attached_to_doctype, "Buzz Event")
+		self.assertEqual(str(file_doc.attached_to_name), str(self.test_event.name))
+
+		# Cleanup
+		file_doc.delete()
