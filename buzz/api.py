@@ -1049,7 +1049,7 @@ def register_campaign_interest(campaign: str):
 	if existing_lead:
 		frappe.throw(_("You have already registered for this campaign"))
 
-	# Check if user has a ticket for today's event (if campaign has an event linked)
+	# Check if user has a ticket for the campaign's event or an ongoing event today
 	ticket = None
 	if campaign_doc.event:
 		ticket = frappe.db.get_value(
@@ -1061,6 +1061,24 @@ def register_campaign_interest(campaign: str):
 			},
 			"name",
 		)
+
+	# If no event linked or no ticket found, check for any ongoing event today
+	if not ticket:
+		ongoing_events = frappe.get_all(
+			"Buzz Event",
+			filters={"start_date": today()},
+			pluck="name",
+		)
+		if ongoing_events:
+			ticket = frappe.db.get_value(
+				"Event Ticket",
+				{
+					"attendee_email": frappe.session.user,
+					"docstatus": 1,
+					"event": ("in", ongoing_events),
+				},
+				"name",
+			)
 
 	# Create CRM Lead
 	lead = frappe.get_doc(
