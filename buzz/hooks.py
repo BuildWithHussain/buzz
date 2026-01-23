@@ -145,7 +145,7 @@ add_to_apps_screen = [
 # Name of the app being uninstalled is passed as an argument
 
 # before_app_uninstall = "events.utils.before_app_uninstall"
-# after_app_uninstall = "events.utils.after_app_uninstall"
+after_app_uninstall = "buzz.install.after_app_uninstall"
 
 # Desk Notifications
 # ------------------

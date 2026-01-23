@@ -5,7 +5,7 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from buzz.utils import only_if_app_installed
+from buzz.utils import generate_qr_code_file, only_if_app_installed
 
 
 class EventTicket(Document):
@@ -138,18 +138,11 @@ class EventTicket(Document):
 			frappe.throw(frappe._("Coupon has been already used up maximum number of times!"))
 
 	def generate_qr_code(self):
-		qr_data = make_qr_image_with_data(f"{self.name}")
-		qr_code_file = frappe.get_doc(
-			{
-				"doctype": "File",
-				"content": qr_data,
-				"attached_to_doctype": "Event Ticket",
-				"attached_to_name": self.name,
-				"attached_to_field": "qr_code",
-				"file_name": f"ticket-qr-code-{self.name}.png",
-			}
-		).save(ignore_permissions=True)
-		self.qr_code = qr_code_file.file_url
+		self.qr_code = generate_qr_code_file(
+			doc=self,
+			data=self.name,
+			file_prefix="ticket-qr-code",
+		)
 
 	def on_cancel(self):
 		self.ignore_linked_doctypes = ["Event Booking", "Ticket Cancellation Request"]

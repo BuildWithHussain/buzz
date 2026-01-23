@@ -4,6 +4,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today
 
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
+from buzz.utils import is_app_installed
 
 
 @frappe.whitelist()
@@ -1002,3 +1003,74 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 		"remaining_tickets": remaining,
 		"free_add_ons": [a.add_on for a in coupon.free_add_ons],
 	}
+
+
+@frappe.whitelist()
+def get_campaign_details(campaign: str):
+	"""Get campaign details for the register interest page."""
+	if not frappe.db.exists("Buzz Campaign", campaign):
+		frappe.throw(_("Campaign not found"), frappe.DoesNotExistError)
+
+	campaign_doc = frappe.get_cached_doc("Buzz Campaign", campaign)
+
+	if not campaign_doc.enabled:
+		frappe.throw(_("This campaign is not active"))
+
+	return {
+		"title": campaign_doc.title,
+		"description": campaign_doc.description,
+		"event": campaign_doc.event,
+	}
+
+
+@frappe.whitelist()
+def register_campaign_interest(campaign: str):
+	"""Register user interest in a campaign by creating a CRM Lead."""
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to register your interest"))
+
+	if not is_app_installed("crm"):
+		frappe.throw(_("CRM integration is not available"))
+
+	if not frappe.db.exists("Buzz Campaign", campaign):
+		frappe.throw(_("Campaign not found"), frappe.DoesNotExistError)
+
+	campaign_doc = frappe.get_cached_doc("Buzz Campaign", campaign)
+
+	# Get user details
+	user = frappe.get_cached_doc("User", frappe.session.user)
+	first_name = user.first_name or user.full_name or frappe.session.user.split("@")[0]
+
+	# Check if user already registered for this campaign
+	existing_lead = frappe.db.exists(
+		"CRM Lead",
+		{"email": frappe.session.user, "buzz_campaign": campaign},
+	)
+	if existing_lead:
+		frappe.throw(_("You have already registered for this campaign"))
+
+	# Check if user has a ticket for today's event (if campaign has an event linked)
+	ticket = None
+	if campaign_doc.event:
+		ticket = frappe.db.get_value(
+			"Event Ticket",
+			{
+				"attendee_email": frappe.session.user,
+				"event": campaign_doc.event,
+				"docstatus": 1,
+			},
+			"name",
+		)
+
+	# Create CRM Lead
+	lead = frappe.get_doc(
+		{
+			"doctype": "CRM Lead",
+			"first_name": first_name,
+			"email": frappe.session.user,
+			"status": "New",
+			"buzz_campaign": campaign,
+			"event_ticket": ticket,
+		}
+	)
+	lead.insert(ignore_permissions=True)

@@ -20,6 +20,12 @@ const routes = [
 		component: () => import("@/pages/BookTickets.vue"),
 	},
 	{
+		path: "/register-interest/:campaign",
+		props: true,
+		name: "register-interest",
+		component: () => import("@/pages/RegisterInterest.vue"),
+	},
+	{
 		path: "/bookings",
 		name: "bookings-tab",
 		redirect: "/account/bookings",
