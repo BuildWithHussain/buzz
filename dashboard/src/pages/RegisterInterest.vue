@@ -16,7 +16,10 @@
 			</div>
 		</div>
 
-		<div v-else-if="campaign">
+		<div
+			v-else-if="campaign"
+			class="bg-surface-white border border-outline-gray-1 rounded-lg p-6"
+		>
 			<h1 class="text-ink-gray-9 font-bold text-2xl mb-6">
 				{{ campaign.title }}
 			</h1>
@@ -33,7 +36,7 @@
 				:loading="registerResource.loading"
 				@click="registerInterest"
 			>
-				{{ __("Register Interest") }}
+				{{ __("Register") }}
 			</Button>
 
 			<p v-if="errorMessage" class="text-ink-red-2 text-sm mt-4 text-center">
