@@ -1037,9 +1037,6 @@ def register_campaign_interest(campaign: str):
 
 	campaign_doc = frappe.get_cached_doc("Buzz Campaign", campaign)
 
-	if not campaign_doc.enabled:
-		frappe.throw(_("This campaign is not active"))
-
 	# Get user details
 	user = frappe.get_cached_doc("User", frappe.session.user)
 	first_name = user.first_name or user.full_name or frappe.session.user.split("@")[0]
@@ -1077,5 +1074,3 @@ def register_campaign_interest(campaign: str):
 		}
 	)
 	lead.insert(ignore_permissions=True)
-
-	return {"success": True, "lead": lead.name}
