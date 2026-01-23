@@ -4,6 +4,7 @@ from base64 import b32encode
 import frappe
 import pyotp
 from frappe import _
+from frappe.auth import LoginAttemptTracker
 from frappe.rate_limiter import rate_limit
 from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today, validate_email_address
@@ -256,14 +257,28 @@ def process_booking(
 			frappe.throw(_("Verification code is required"))
 
 		email = guest_email.lower().strip()
+
+		# Brute force protection
+		tracker = LoginAttemptTracker(
+			key=f"guest_otp:{email}",
+			max_consecutive_login_attempts=5,
+			lock_interval=600,  # 10 minutes
+		)
+
+		if not tracker.is_user_allowed():
+			frappe.throw(_("Too many failed attempts. Please try again later."))
+
 		otp_secret = frappe.cache.get_value(f"guest_booking_otp:{email}")
 
 		if not otp_secret:
 			frappe.throw(_("Verification code expired. Please request a new one."))
 
 		if not pyotp.HOTP(otp_secret).verify(otp.strip(), 0):
+			tracker.add_failure_attempt()
 			frappe.throw(_("Invalid verification code"))
 
+		# Success - clear tracker and OTP
+		tracker.add_success_attempt()
 		frappe.cache.delete_value(f"guest_booking_otp:{email}")
 
 		# Use provided guest_full_name or fallback to first attendee's name
