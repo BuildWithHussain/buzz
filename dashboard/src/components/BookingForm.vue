@@ -847,7 +847,7 @@ async function applyCoupon() {
 		};
 		// Pass user email for guest mode to properly check per-user limits
 		if (props.isGuestMode && guestEmail.value.trim()) {
-			params.user_email = guestEmail.value.trim();
+			params.user_email = guestEmail.value.trim().toLowerCase();
 		}
 		result = await validateCoupon.submit(params);
 	} catch (error) {

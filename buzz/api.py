@@ -14,7 +14,7 @@ from buzz.utils import is_app_installed
 
 
 @frappe.whitelist(allow_guest=True)
-@rate_limit(limit=5, seconds=3600)
+@rate_limit(key="email", limit=5, seconds=3600)
 def send_guest_booking_otp(email: str) -> dict:
 	"""Send 6-digit OTP to email for guest booking verification."""
 	email = email.lower().strip()
@@ -24,18 +24,22 @@ def send_guest_booking_otp(email: str) -> dict:
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 
-	# Store in cache (10 min expiry)
-	frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
+	# Send email FIRST - fail fast if email service is down
+	try:
+		frappe.sendmail(
+			recipients=[email],
+			subject=_("Your Booking Verification Code"),
+			message=_(
+				"Your verification code is: <b>{0}</b><br><br>" "This code expires in 10 minutes."
+			).format(otp_code),
+			now=True,
+		)
+	except Exception as e:
+		frappe.log_error(f"Failed to send guest OTP to {email}: {e}")
+		frappe.throw(_("Failed to send verification code. Please try again."))
 
-	# Send email
-	frappe.sendmail(
-		recipients=[email],
-		subject=_("Your Booking Verification Code"),
-		message=_("Your verification code is: <b>{0}</b><br><br>" "This code expires in 10 minutes.").format(
-			otp_code
-		),
-		now=True,
-	)
+	# Only store in cache AFTER email sent successfully
+	frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
 
 	return {"success": True}
 
@@ -184,6 +188,20 @@ def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
 
+	# Always include event details (public info)
+	data.event_details = event_doc
+
+	# If guest and guest booking not allowed, return limited data
+	is_guest = frappe.session.user == "Guest"
+	if is_guest and not event_doc.allow_guest_booking:
+		data.available_ticket_types = []
+		data.available_add_ons = []
+		data.tax_settings = {}
+		data.custom_fields = []
+		data.payment_gateways = []
+		data.guest_booking_disabled = True
+		return data
+
 	# Ticket Types
 	available_ticket_types = []
 	published_ticket_types = frappe.db.get_all(
@@ -212,8 +230,6 @@ def get_event_booking_data(event_route: str) -> dict:
 		"tax_label": event_doc.tax_label or "Tax",
 		"tax_percentage": event_doc.tax_percentage or 0,
 	}
-
-	data.event_details = event_doc
 
 	# Custom Fields
 	custom_fields = frappe.db.get_all(
