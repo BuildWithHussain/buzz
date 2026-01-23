@@ -170,7 +170,7 @@ class TestQRCodeGeneration(IntegrationTestCase):
 		# Verify file exists in File doctype
 		file_doc = frappe.get_doc("File", {"file_url": file_url})
 		self.assertEqual(file_doc.attached_to_doctype, "Buzz Event")
-		self.assertEqual(file_doc.attached_to_name, self.test_event.name)
+		self.assertEqual(str(file_doc.attached_to_name), str(self.test_event.name))
 
 		# Cleanup
 		file_doc.delete()
