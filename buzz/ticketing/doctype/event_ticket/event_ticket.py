@@ -88,9 +88,10 @@ class EventTicket(Document):
 			ticket_template = frappe.db.get_single_value("Buzz Settings", "default_ticket_email_template")
 
 		subject = frappe._("Your ticket to {0} 🎟️").format(event_title)
+		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 		args = {
 			"doc": self,
-			"event_doc": frappe.get_cached_doc("Buzz Event", self.event),
+			"event_doc": event_doc,
 			"event_title": event_title,
 			"venue": venue,
 		}
@@ -101,6 +102,13 @@ class EventTicket(Document):
 			email_template = get_email_template(ticket_template, args)
 			subject = email_template.get("subject")
 			content = email_template.get("message")
+
+		if event_doc.attach_calendar_invite:
+			ics_content = generate_ics(event_doc, self.attendee_email)
+			attachments = {
+				"fname": f"{event_doc.title}.ics",
+				"fcontent": ics_content,
+			}
 
 		frappe.sendmail(
 			recipients=[self.attendee_email],
@@ -118,7 +126,7 @@ class EventTicket(Document):
 					"name": self.name,
 					"print_format": ticket_print_format or "Standard Ticket",
 				}
-			],
+			] + ([attachments] if event_doc.attach_calendar_invite else []),
 		)
 
 	def validate_coupon_usage(self):
@@ -158,6 +166,54 @@ class EventTicket(Document):
 			retry=2,
 		)
 
+def build_event_datetimes(event_doc):
+	from datetime import datetime, timedelta
+	from frappe.utils import getdate, get_time
+
+	start_date = getdate(event_doc.start_date)
+	start_time = get_time(event_doc.start_time)
+
+	start_datetime = datetime.combine(start_date, start_time)
+
+	end_date = getdate(event_doc.end_date) if event_doc.end_date else start_date
+
+	if event_doc.end_time:
+		end_time = get_time(event_doc.end_time)
+		end_datetime = datetime.combine(end_date, end_time)
+	else:
+		end_datetime = start_datetime + timedelta(hours=1)
+
+	return start_datetime, end_datetime
+
+def generate_ics(event_doc, attendee_email: str):
+	from uuid import uuid4
+	from frappe.utils import now_datetime
+
+	start_dt, end_dt = build_event_datetimes(event_doc)
+
+	venue_address = ""
+	if event_doc.venue:
+		venue_address = frappe.db.get_value(
+			"Event Venue", event_doc.venue, "address"
+		) or ""
+
+	return f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Buzz Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{uuid4()}@buzz
+DTSTAMP:{now_datetime().strftime("%Y%m%dT%H%M%S")}
+DTSTART;TZID={event_doc.time_zone}:{start_dt.strftime("%Y%m%dT%H%M%S")}
+DTEND;TZID={event_doc.time_zone}:{end_dt.strftime("%Y%m%dT%H%M%S")}
+SUMMARY:{event_doc.title}
+LOCATION:{venue_address}
+ATTENDEE;CN=Attendee;RSVP=TRUE:mailto:{attendee_email}
+DESCRIPTION:Your ticket for {event_doc.title}
+END:VEVENT
+END:VCALENDAR
+"""
 
 def make_qr_image_with_data(data: str) -> bytes:
 	import io
