@@ -21,6 +21,7 @@ class BuzzCampaign(Document):
 		enabled: DF.Check
 		event: DF.Link | None
 		qr_code: DF.AttachImage | None
+		title: DF.Data
 	# end: auto-generated types
 
 	def before_save(self):

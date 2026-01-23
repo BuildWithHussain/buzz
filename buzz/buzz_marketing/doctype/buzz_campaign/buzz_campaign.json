@@ -56,7 +56,7 @@
  "image_field": "qr_code",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-23 15:42:10.405379",
+ "modified": "2026-01-23 17:23:01.011762",
  "modified_by": "Administrator",
  "module": "Buzz Marketing",
  "name": "Buzz Campaign",
@@ -72,6 +72,19 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Event Manager",
+   "select": 1,
    "share": 1,
    "write": 1
   }
