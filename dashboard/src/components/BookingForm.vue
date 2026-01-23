@@ -108,6 +108,7 @@
 								type="text"
 								:label="__('Full Name')"
 								:placeholder="__('Enter your name')"
+								required
 							/>
 							<FormControl
 								v-model="guestEmail"
@@ -840,10 +841,15 @@ async function applyCoupon() {
 	couponError.value = "";
 	let result;
 	try {
-		result = await validateCoupon.submit({
+		const params = {
 			coupon_code: couponCode.value.trim(),
 			event: eventId.value,
-		});
+		};
+		// Pass user email for guest mode to properly check per-user limits
+		if (props.isGuestMode && guestEmail.value.trim()) {
+			params.user_email = guestEmail.value.trim();
+		}
+		result = await validateCoupon.submit(params);
 	} catch (error) {
 		couponError.value = error.message || __("Failed to validate coupon");
 		return;
@@ -1008,6 +1014,10 @@ async function submit() {
 
 	// Guest booking: check for multiple gateways BEFORE sending OTP
 	if (props.isGuestMode) {
+		if (!guestFullName.value.trim()) {
+			toast.error(__("Please enter your full name"));
+			return;
+		}
 		if (!guestEmail.value.trim()) {
 			toast.error(__("Please enter your email address"));
 			return;

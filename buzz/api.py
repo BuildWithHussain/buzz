@@ -42,6 +42,7 @@ def send_guest_booking_otp(email: str) -> dict:
 
 def get_or_create_guest_user(email: str, full_name: str) -> str:
 	"""Get existing user or create a new user silently without sending welcome email."""
+	email = email.lower().strip()
 
 	validate_email_address(email, throw=True)
 	if frappe.db.exists("User", email):
@@ -277,12 +278,12 @@ def process_booking(
 			tracker.add_failure_attempt()
 			frappe.throw(_("Invalid verification code"))
 
-		# Success - clear tracker and OTP
-		tracker.add_success_attempt()
 		frappe.cache.delete_value(f"guest_booking_otp:{email}")
+		tracker.add_success_attempt()
 
-		# Use provided guest_full_name or fallback to first attendee's name
-		full_name = guest_full_name or attendees[0].get("full_name", "Guest")
+		full_name = (guest_full_name or "").strip() or (attendees[0].get("full_name") or "").strip()
+		if not full_name:
+			frappe.throw(_("Full name is required for guest booking"))
 		booking_user = get_or_create_guest_user(guest_email, full_name)
 	else:
 		booking_user = frappe.session.user
@@ -1075,7 +1076,7 @@ def has_app_permission():
 
 
 @frappe.whitelist(allow_guest=True)
-def validate_coupon(coupon_code: str, event: str) -> dict:
+def validate_coupon(coupon_code: str, event: str, user_email: str | None = None) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	if frappe.session.user == "Guest" and not event_doc.allow_guest_booking:
 		frappe.throw(_("Please log in to validate coupons"), frappe.AuthenticationError)
@@ -1093,7 +1094,10 @@ def validate_coupon(coupon_code: str, event: str) -> dict:
 	if not is_available:
 		return {"valid": False, "error": error}
 
-	is_limited, error = coupon.is_user_limit_reached()
+	# For guest users, use provided email for per-user limit check
+	# Otherwise all guests would share the same "Guest" user counter
+	check_user = user_email.lower().strip() if user_email else None
+	is_limited, error = coupon.is_user_limit_reached(user=check_user)
 	if is_limited:
 		return {"valid": False, "error": error}
 
