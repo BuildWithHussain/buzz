@@ -5,7 +5,7 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from buzz.utils import generate_qr_code_file, only_if_app_installed
+from buzz.utils import generate_qr_code_file, only_if_app_installed, generate_ics_file
 
 
 class EventTicket(Document):
@@ -104,7 +104,7 @@ class EventTicket(Document):
 			content = email_template.get("message")
 
 		if event_doc.attach_calendar_invite:
-			ics_content = generate_ics(event_doc, self.attendee_email)
+			ics_content = generate_ics_file(event_doc, self.attendee_email)
 			attachments = {
 				"fname": f"{event_doc.title}.ics",
 				"fcontent": ics_content,
@@ -158,73 +158,3 @@ class EventTicket(Document):
 			delayed=False,
 			retry=2,
 		)
-
-def build_event_datetimes(event_doc):
-	from datetime import datetime, timedelta
-	from frappe.utils import getdate, get_time
-
-	start_date = getdate(event_doc.start_date)
-	start_time = get_time(event_doc.start_time)
-
-	start_datetime = datetime.combine(start_date, start_time)
-
-	end_date = getdate(event_doc.end_date) if event_doc.end_date else start_date
-
-	if event_doc.end_time:
-		end_time = get_time(event_doc.end_time)
-		end_datetime = datetime.combine(end_date, end_time)
-	else:
-		end_datetime = start_datetime + timedelta(hours=1)
-
-	return start_datetime, end_datetime
-
-def generate_ics(event_doc, attendee_email: str):
-	from uuid import uuid4
-	from frappe.utils import now_datetime
-
-	start_dt, end_dt = build_event_datetimes(event_doc)
-
-	venue_address = ""
-	if event_doc.venue:
-		venue_address = frappe.db.get_value(
-			"Event Venue", event_doc.venue, "address"
-		) or ""
-
-	return f"""BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Buzz Events//EN
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-BEGIN:VEVENT
-UID:{uuid4()}@buzz
-DTSTAMP:{now_datetime().strftime("%Y%m%dT%H%M%S")}
-DTSTART;TZID={event_doc.time_zone}:{start_dt.strftime("%Y%m%dT%H%M%S")}
-DTEND;TZID={event_doc.time_zone}:{end_dt.strftime("%Y%m%dT%H%M%S")}
-SUMMARY:{event_doc.title}
-LOCATION:{venue_address}
-ATTENDEE;CN=Attendee;RSVP=TRUE:mailto:{attendee_email}
-DESCRIPTION:Your ticket for {event_doc.title}
-END:VEVENT
-END:VCALENDAR
-"""
-
-def make_qr_image_with_data(data: str) -> bytes:
-	import io
-
-	import qrcode
-	from qrcode.image.styledpil import StyledPilImage
-	from qrcode.image.styles.moduledrawers.pil import HorizontalBarsDrawer
-
-	qr = qrcode.QRCode(
-		version=1,
-		error_correction=qrcode.constants.ERROR_CORRECT_H,
-		box_size=10,
-		border=4,
-	)
-	qr.add_data(data)
-	qr.make(fit=True)
-
-	img = qr.make_image(image_factory=StyledPilImage, module_drawer=HorizontalBarsDrawer())
-	output = io.BytesIO()
-	img.save(output, format="PNG")
-	return output.getvalue()
