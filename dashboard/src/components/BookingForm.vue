@@ -1034,6 +1034,13 @@ async function submit() {
 
 		// Single gateway or free event - store gateway and send OTP directly
 		selectedGateway.value = props.paymentGateways[0] || null;
+
+		// Skip OTP if verification method is "None"
+		if (props.eventDetails.guest_verification_method === "None") {
+			submitBooking(final_payload, selectedGateway.value);
+			return;
+		}
+
 		sendOtpResource.submit({ email: guestEmail.value.trim() });
 		return;
 	}
@@ -1090,6 +1097,13 @@ function onGatewaySelected(gateway) {
 	if (props.isGuestMode) {
 		selectedGateway.value = gateway;
 		showGatewayDialog.value = false;
+
+		// Skip OTP if verification method is "None"
+		if (props.eventDetails.guest_verification_method === "None") {
+			submitBooking(pendingBookingPayload.value, gateway);
+			return;
+		}
+
 		sendOtpResource.submit({ email: guestEmail.value.trim() });
 		return;
 	}

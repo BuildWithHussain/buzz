@@ -15,6 +15,7 @@
   "host",
   "venue",
   "allow_guest_booking",
+  "guest_verification_method",
   "section_break_naqe",
   "start_date",
   "start_time",
@@ -407,6 +408,15 @@
    "fieldname": "allow_guest_booking",
    "fieldtype": "Check",
    "label": "Allow Guest Booking"
+  },
+  {
+   "default": "Email OTP",
+   "depends_on": "eval:doc.allow_guest_booking",
+   "description": "How to verify guest identity before booking",
+   "fieldname": "guest_verification_method",
+   "fieldtype": "Select",
+   "label": "Guest Verification Method",
+   "options": "Email OTP\nNone"
   }
  ],
  "grid_page_length": 50,

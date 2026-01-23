@@ -269,33 +269,34 @@ def process_booking(
 		if not guest_email:
 			frappe.throw(_("Email is required for guest booking"))
 
-		# Verify OTP for guest bookings
-		if not otp:
-			frappe.throw(_("Verification code is required"))
+		# Verify OTP for guest bookings (only if verification method is Email OTP)
+		if event_doc.guest_verification_method == "Email OTP":
+			if not otp:
+				frappe.throw(_("Verification code is required"))
 
-		email = guest_email.lower().strip()
+			email = guest_email.lower().strip()
 
-		# Brute force protection
-		tracker = LoginAttemptTracker(
-			key=f"guest_otp:{email}",
-			max_consecutive_login_attempts=5,
-			lock_interval=600,  # 10 minutes
-		)
+			# Brute force protection
+			tracker = LoginAttemptTracker(
+				key=f"guest_otp:{email}",
+				max_consecutive_login_attempts=5,
+				lock_interval=600,  # 10 minutes
+			)
 
-		if not tracker.is_user_allowed():
-			frappe.throw(_("Too many failed attempts. Please try again later."))
+			if not tracker.is_user_allowed():
+				frappe.throw(_("Too many failed attempts. Please try again later."))
 
-		otp_secret = frappe.cache.get_value(f"guest_booking_otp:{email}")
+			otp_secret = frappe.cache.get_value(f"guest_booking_otp:{email}")
 
-		if not otp_secret:
-			frappe.throw(_("Verification code expired. Please request a new one."))
+			if not otp_secret:
+				frappe.throw(_("Verification code expired. Please request a new one."))
 
-		if not pyotp.HOTP(otp_secret).verify(otp.strip(), 0):
-			tracker.add_failure_attempt()
-			frappe.throw(_("Invalid verification code"))
+			if not pyotp.HOTP(otp_secret).verify(otp.strip(), 0):
+				tracker.add_failure_attempt()
+				frappe.throw(_("Invalid verification code"))
 
-		frappe.cache.delete_value(f"guest_booking_otp:{email}")
-		tracker.add_success_attempt()
+			frappe.cache.delete_value(f"guest_booking_otp:{email}")
+			tracker.add_success_attempt()
 
 		full_name = (guest_full_name or "").strip() or (attendees[0].get("full_name") or "").strip()
 		if not full_name:
