@@ -449,6 +449,7 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
 const pendingPayload = ref(null);
+const selectedGateway = ref(null);
 
 // Coupon state
 const couponCode = ref("");
@@ -1005,14 +1006,24 @@ async function submit() {
 		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
 	};
 
-	// Guest booking: validate email and send OTP before proceeding
+	// Guest booking: check for multiple gateways BEFORE sending OTP
 	if (props.isGuestMode) {
 		if (!guestEmail.value.trim()) {
 			toast.error(__("Please enter your email address"));
 			return;
 		}
-		// Store payload and send OTP
+		// Store payload for later use
 		pendingBookingPayload.value = final_payload;
+
+		// If multiple gateways, show gateway selection first
+		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+			pendingPayload.value = final_payload;
+			showGatewayDialog.value = true;
+			return;
+		}
+
+		// Single gateway or free event - store gateway and send OTP directly
+		selectedGateway.value = props.paymentGateways[0] || null;
 		sendOtpResource.submit({ email: guestEmail.value.trim() });
 		return;
 	}
@@ -1065,6 +1076,15 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 }
 
 function onGatewaySelected(gateway) {
+	// For guest mode, after selecting gateway, send OTP
+	if (props.isGuestMode) {
+		selectedGateway.value = gateway;
+		showGatewayDialog.value = false;
+		sendOtpResource.submit({ email: guestEmail.value.trim() });
+		return;
+	}
+
+	// For logged-in users, submit directly
 	if (pendingPayload.value) {
 		submitBooking(pendingPayload.value, gateway);
 		pendingPayload.value = null;
@@ -1084,16 +1104,8 @@ function submitWithOtp() {
 		otp: otpCode.value.trim(),
 	};
 
-	// Check if we need to show gateway selection dialog
-	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
-		pendingPayload.value = payloadWithOtp;
-		showOtpModal.value = false;
-		showGatewayDialog.value = true;
-		return;
-	}
-
-	// Single gateway or free event - submit with OTP (dialog stays open until success)
-	submitBooking(payloadWithOtp, props.paymentGateways[0] || null, { isOtpFlow: true });
+	// Gateway already selected (or single gateway) - submit directly
+	submitBooking(payloadWithOtp, selectedGateway.value, { isOtpFlow: true });
 }
 
 function resendOtp() {
@@ -1106,6 +1118,7 @@ function clearOtpState() {
 	showOtpModal.value = false;
 	otpCode.value = "";
 	pendingBookingPayload.value = null;
+	selectedGateway.value = null;
 }
 
 const submitButtonText = computed(() => {
