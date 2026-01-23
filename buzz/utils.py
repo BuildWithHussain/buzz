@@ -5,6 +5,11 @@ import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
 
+def is_app_installed(app_name: str) -> bool:
+	"""Check if a specified app is installed."""
+	return app_name in frappe.get_installed_apps()
+
+
 def only_if_app_installed(app_name: str, raise_exception: bool = False) -> Callable:
 	"""
 	Decorator to check if a specified app is installed before running the function.
