@@ -1082,10 +1082,15 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				}
 			},
 			onError: (error) => {
+				const message = error.messages?.[0] || error.message || __("Booking failed");
+
 				if (isOtpFlow) {
 					otpCode.value = "";
+					// Close modal on lockout or expired OTP - user must restart
+					if (message.includes("Too many") || message.includes("expired")) {
+						showOtpModal.value = false;
+					}
 				}
-				const message = error.messages?.[0] || error.message || __("Booking failed");
 				toast.error(message);
 			},
 		}
