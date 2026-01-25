@@ -880,14 +880,15 @@ def validate_ticket_for_checkin(ticket_id: str) -> dict:
 
 
 def get_payment_details_for_ticket(ticket_id: str) -> dict | None:
-	booking = frappe.get_cached_doc(
-		"Event Booking", frappe.get_cached_value("Event Ticket", ticket_id, "booking")
-	)
+	booking_id = frappe.get_cached_value("Event Ticket", ticket_id, "booking")
+	if not booking_id:
+		return None
+
 	payments = frappe.db.get_all(
 		"Event Payment",
 		filters={
 			"reference_doctype": "Event Booking",
-			"reference_docname": booking.name,
+			"reference_docname": booking_id,
 			"payment_received": 1,
 		},
 		fields=["name", "amount", "currency"],
