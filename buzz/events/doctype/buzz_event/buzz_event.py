@@ -15,11 +15,12 @@ class BuzzEvent(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from frappe.types import DF
+
 		from buzz.events.doctype.event_featured_speaker.event_featured_speaker import EventFeaturedSpeaker
 		from buzz.events.doctype.event_payment_gateway.event_payment_gateway import EventPaymentGateway
 		from buzz.events.doctype.schedule_item.schedule_item import ScheduleItem
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
-		from frappe.types import DF
 
 		about: DF.TextEditor | None
 		allow_editing_talks_after_acceptance: DF.Check

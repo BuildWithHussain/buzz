@@ -139,7 +139,8 @@ def generate_qr_code_file(doc, data: str, field_name: str = "qr_code", file_pref
 
 def build_event_datetimes(event_doc):
 	from datetime import datetime, timedelta
-	from frappe.utils import getdate, get_time
+
+	from frappe.utils import get_time, getdate
 
 	start_date = getdate(event_doc.start_date)
 	start_time = get_time(event_doc.start_time)
@@ -156,17 +157,17 @@ def build_event_datetimes(event_doc):
 
 	return start_datetime, end_datetime
 
+
 def generate_ics_file(event_doc, attendee_email: str):
 	from uuid import uuid4
+
 	from frappe.utils import now_datetime
 
 	start_dt, end_dt = build_event_datetimes(event_doc)
 
 	venue_address = ""
 	if event_doc.venue:
-		venue_address = frappe.db.get_value(
-			"Event Venue", event_doc.venue, "address"
-		) or ""
+		venue_address = frappe.db.get_value("Event Venue", event_doc.venue, "address") or ""
 
 	context = {
 		"uid": uuid4(),

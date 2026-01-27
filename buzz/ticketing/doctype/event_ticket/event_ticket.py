@@ -5,7 +5,7 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from buzz.utils import generate_qr_code_file, only_if_app_installed, generate_ics_file
+from buzz.utils import generate_ics_file, generate_qr_code_file, only_if_app_installed
 
 
 class EventTicket(Document):
@@ -126,7 +126,8 @@ class EventTicket(Document):
 					"name": self.name,
 					"print_format": ticket_print_format or "Standard Ticket",
 				}
-			] + ([attachments] if event_doc.attach_calendar_invite else []),
+			]
+			+ ([attachments] if event_doc.attach_calendar_invite else []),
 		)
 
 	def validate_coupon_usage(self):
