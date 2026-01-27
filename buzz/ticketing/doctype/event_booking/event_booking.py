@@ -238,7 +238,6 @@ class EventBooking(Document):
 		if not is_available:
 			frappe.throw(error_msg)
 
-		# Pass booking user for per-user limit check (important for guest bookings)
 		is_limited, error_msg = coupon.is_user_limit_reached(user=self.user)
 		if is_limited:
 			frappe.throw(error_msg)

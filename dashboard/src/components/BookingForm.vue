@@ -1035,7 +1035,6 @@ async function submit() {
 		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
 	};
 
-	// Guest booking: check for multiple gateways BEFORE sending OTP
 	if (props.isGuestMode) {
 		if (!guestFullName.value.trim()) {
 			toast.error(__("Please enter your full name"));
@@ -1050,20 +1049,16 @@ async function submit() {
 			toast.error(__("Please enter a valid email address"));
 			return;
 		}
-		// Store payload for later use
 		pendingBookingPayload.value = final_payload;
 
-		// If multiple gateways, show gateway selection first
 		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
 			pendingPayload.value = final_payload;
 			showGatewayDialog.value = true;
 			return;
 		}
 
-		// Single gateway or free event - store gateway and send OTP directly
 		selectedGateway.value = props.paymentGateways[0] || null;
 
-		// Skip OTP if verification method is "None"
 		if (props.eventDetails.guest_verification_method === "None") {
 			submitBooking(final_payload, selectedGateway.value);
 			return;
@@ -1073,15 +1068,12 @@ async function submit() {
 		return;
 	}
 
-	// Check if we need to show gateway selection dialog
-	// Only show dialog if there's a payment (finalTotal > 0) and multiple gateways
 	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
 		pendingPayload.value = final_payload;
 		showGatewayDialog.value = true;
 		return;
 	}
 
-	// Single gateway or free event - submit directly
 	submitBooking(final_payload, props.paymentGateways[0] || null);
 }
 
@@ -1126,12 +1118,10 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 }
 
 function onGatewaySelected(gateway) {
-	// For guest mode, after selecting gateway, send OTP
 	if (props.isGuestMode) {
 		selectedGateway.value = gateway;
 		showGatewayDialog.value = false;
 
-		// Skip OTP if verification method is "None"
 		if (props.eventDetails.guest_verification_method === "None") {
 			submitBooking(pendingBookingPayload.value, gateway);
 			return;
@@ -1141,27 +1131,23 @@ function onGatewaySelected(gateway) {
 		return;
 	}
 
-	// For logged-in users, submit directly
 	if (pendingPayload.value) {
 		submitBooking(pendingPayload.value, gateway);
 		pendingPayload.value = null;
 	}
 }
 
-// --- OTP VERIFICATION FOR GUEST BOOKINGS ---
 function submitWithOtp() {
 	if (!otpCode.value.trim()) {
 		toast.error(__("Please enter the verification code"));
 		return;
 	}
 
-	// Add OTP to pending payload
 	const payloadWithOtp = {
 		...pendingBookingPayload.value,
 		otp: otpCode.value.trim(),
 	};
 
-	// Gateway already selected (or single gateway) - submit directly
 	submitBooking(payloadWithOtp, selectedGateway.value, { isOtpFlow: true });
 }
 

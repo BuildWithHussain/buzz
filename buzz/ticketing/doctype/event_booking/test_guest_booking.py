@@ -174,7 +174,7 @@ class TestGuestBooking(IntegrationTestCase):
 		# so we need max_consecutive_login_attempts + 1 failures to trigger lockout)
 		for _ in range(6):
 			frappe.cache.set_value(cache_key, otp_secret, expires_in_sec=600)
-			try:
+			with self.assertRaises(frappe.ValidationError):
 				process_booking(
 					attendees=self._make_attendees(email),
 					event=self.event_name,
@@ -182,8 +182,6 @@ class TestGuestBooking(IntegrationTestCase):
 					guest_full_name="Test Guest",
 					otp="000000",
 				)
-			except frappe.ValidationError:
-				pass
 
 		# Next attempt should hit "Too many failed attempts"
 		frappe.cache.set_value(cache_key, otp_secret, expires_in_sec=600)

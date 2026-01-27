@@ -29,7 +29,7 @@
 				:customFields="eventBookingData.customFields"
 				:eventRoute="eventRoute"
 				:paymentGateways="eventBookingData.paymentGateways"
-				:isGuestMode="isGuestMode"
+				:isGuestMode="isGuest"
 			/>
 		</div>
 	</div>
@@ -58,7 +58,7 @@ const props = defineProps({
 	},
 });
 
-const isGuestMode = computed(() => !session.isLoggedIn);
+const isGuest = computed(() => !session.isLoggedIn);
 
 const canAccess = computed(() => {
 	return session.isLoggedIn || eventBookingData.eventDetails?.allow_guest_booking;
