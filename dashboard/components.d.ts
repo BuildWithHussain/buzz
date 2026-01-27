@@ -42,5 +42,6 @@ declare module 'vue' {
     TicketsSection: typeof import('./src/components/TicketsSection.vue')['default']
     TicketTransferDialog: typeof import('./src/components/TicketTransferDialog.vue')['default']
     TransferTicketDialog: typeof import('./src/components/TransferTicketDialog.vue')['default']
+    UPIPaymentDialog: typeof import('./src/components/UPIPaymentDialog.vue')['default']
   }
 }

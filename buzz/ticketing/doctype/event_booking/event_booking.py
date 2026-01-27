@@ -16,11 +16,10 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
+		from frappe.types import DF
 
 		additional_fields: DF.Table[AdditionalField]
 		amended_from: DF.Link | None
@@ -221,6 +220,51 @@ class EventBooking(Document):
 		tickets = frappe.db.get_all("Event Ticket", filters={"booking": self.name}, pluck="name")
 		for ticket in tickets:
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
+
+	@frappe.whitelist()
+	def verify_upi_payment(self):
+		"""Verify UPI payment for this booking."""
+		frappe.only_for("Event Manager")
+		
+		# Check if already verified
+		existing = frappe.db.exists("Additional Field", {
+			"parent": self.name,
+			"fieldname": "payment_verified",
+			"value": "Yes"
+		})
+		if existing:
+			frappe.msgprint("Payment is already verified!")
+			return
+		
+		# Add payment verified field using direct SQL
+		frappe.db.sql(
+			"""INSERT INTO `tabAdditional Field` 
+			   (name, parent, parenttype, parentfield, fieldname, value, label, fieldtype) 
+			   VALUES (%(name)s, %(parent)s, 'Event Booking', 'additional_fields', %(fieldname)s, %(value)s, %(label)s, %(fieldtype)s)""",
+			{
+				"name": frappe.generate_hash(length=10),
+				"parent": self.name,
+				"fieldname": "payment_verified",
+				"value": "Yes",
+				"label": "Payment Verified",
+				"fieldtype": "Data"
+			}
+		)
+		frappe.db.commit()
+		frappe.msgprint("UPI Payment verified successfully!")
+
+	@frappe.whitelist()
+	def unverify_upi_payment(self):
+		"""Remove UPI payment verification."""
+		frappe.only_for("Event Manager")
+		
+		# Remove payment verified field using direct SQL
+		frappe.db.sql(
+			"DELETE FROM `tabAdditional Field` WHERE parent = %s AND fieldname = 'payment_verified'",
+			(self.name,)
+		)
+		frappe.db.commit()
+		frappe.msgprint("UPI Payment marked as unverified!")
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0

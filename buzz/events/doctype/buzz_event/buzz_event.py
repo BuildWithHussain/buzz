@@ -16,12 +16,11 @@ class BuzzEvent(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from buzz.events.doctype.event_featured_speaker.event_featured_speaker import EventFeaturedSpeaker
 		from buzz.events.doctype.event_payment_gateway.event_payment_gateway import EventPaymentGateway
 		from buzz.events.doctype.schedule_item.schedule_item import ScheduleItem
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
+		from frappe.types import DF
 
 		about: DF.TextEditor | None
 		allow_editing_talks_after_acceptance: DF.Check
@@ -34,6 +33,7 @@ class BuzzEvent(Document):
 		card_image: DF.AttachImage | None
 		category: DF.Link
 		default_ticket_type: DF.Link | None
+		enable_upi_payment: DF.Check
 		end_date: DF.Date | None
 		end_time: DF.Time
 		external_registration_page: DF.Check
@@ -65,6 +65,9 @@ class BuzzEvent(Document):
 		ticket_print_format: DF.Link | None
 		time_zone: DF.Autocomplete | None
 		title: DF.Data
+		upi_id: DF.Data | None
+		upi_instructions: DF.SmallText | None
+		upi_qr_code: DF.AttachImage | None
 		venue: DF.Link | None
 	# end: auto-generated types
 

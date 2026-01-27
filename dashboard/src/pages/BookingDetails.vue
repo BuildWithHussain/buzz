@@ -6,6 +6,25 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
+		<!-- UPI Payment Status -->
+		<div v-if="isUpiPayment" class="mb-6">
+			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
+				<div class="flex items-center gap-3">
+					<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+						<LucideClock class="w-4 h-4 text-yellow-600" />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-yellow-800">
+							{{ __("Payment Confirmation Pending") }}
+						</h3>
+						<p class="text-sm text-yellow-700">
+							{{ __("Your booking is confirmed subject to verifying the UPI/QR code payment details. You will be notified once payment is verified.") }}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Event Information and Payment Summary in two columns -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Event Information -->
@@ -39,7 +58,7 @@
 
 		<!-- Tickets Section -->
 		<TicketsSection
-			v-if="!bookingDetails.data.event.free_webinar"
+			v-if="!bookingDetails.data.event.free_webinar && isUpiPaymentVerified"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -52,6 +71,7 @@
 		/>
 
 		<CancellationRequestDialog
+			v-if="isUpiPaymentVerified"
 			v-model="showCancellationDialog"
 			:tickets="bookingDetails.data.tickets"
 			:booking-id="bookingId"
@@ -75,6 +95,7 @@ import TicketsSection from "../components/TicketsSection.vue";
 import CancellationRequestDialog from "../components/CancellationRequestDialog.vue";
 import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
 import BookingEventInfo from "../components/BookingEventInfo.vue";
+import LucideClock from "~icons/lucide/clock";
 
 const route = useRoute();
 
@@ -83,6 +104,32 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+});
+
+// Check if this is a UPI payment by looking at booking data
+const isUpiPayment = computed(() => {
+	if (!bookingDetails.data?.doc?.additional_fields) return false;
+	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
+		field => field.fieldname === 'payment_method'
+	);
+	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
+		field => field.fieldname === 'payment_verified'
+	);
+	// Show message only if it's UPI payment and not yet verified
+	return paymentMethod?.value === 'UPI' && paymentStatus?.value !== 'Yes';
+});
+
+// Check if UPI payment is verified
+const isUpiPaymentVerified = computed(() => {
+	if (!bookingDetails.data?.doc?.additional_fields) return true; // Non-UPI payments are considered verified
+	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
+		field => field.fieldname === 'payment_method'
+	);
+	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
+		field => field.fieldname === 'payment_verified'
+	);
+	// If it's UPI payment, check if verified; otherwise return true
+	return paymentMethod?.value !== 'UPI' || paymentStatus?.value === 'Yes';
 });
 
 // Check if this is a successful payment redirect (check URL immediately)

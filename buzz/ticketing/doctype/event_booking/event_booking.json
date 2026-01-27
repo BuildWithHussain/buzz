@@ -15,6 +15,8 @@
   "section_break_suav",
   "additional_fields",
   "section_break_tsys",
+  "upi_payment_verification",
+  "upi_payment_unverify",
   "net_amount",
   "tax_percentage",
   "tax_label",
@@ -77,6 +79,20 @@
   {
    "fieldname": "section_break_tsys",
    "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.additional_fields && doc.additional_fields.find(f => f.fieldname === 'payment_method' && f.value === 'UPI') && !doc.additional_fields.find(f => f.fieldname === 'payment_verified' && f.value === 'Yes')",
+   "fieldname": "upi_payment_verification",
+   "fieldtype": "Button",
+   "label": "Verify UPI Payment",
+   "options": "verify_upi_payment"
+  },
+  {
+   "depends_on": "eval:doc.additional_fields && doc.additional_fields.find(f => f.fieldname === 'payment_verified' && f.value === 'Yes')",
+   "fieldname": "upi_payment_unverify",
+   "fieldtype": "Button",
+   "label": "Mark as Unverified",
+   "options": "unverify_upi_payment"
   },
   {
    "default": "0",
@@ -182,7 +198,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2026-01-03 17:29:18.102192",
+ "modified": "2026-01-27 22:42:24.144504",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",

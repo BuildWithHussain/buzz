@@ -89,6 +89,18 @@
 		</div>
 
 		<form v-else @submit.prevent="submit">
+		<!-- UPI Payment Dialog -->
+		<UPIPaymentDialog
+			v-model:open="showUPIDialog"
+			:amount="finalTotal"
+			:currency="totalCurrency"
+			:offline-settings="upiSettings"
+			:loading="processBooking.loading"
+			@submit="onUPIPaymentSubmit"
+			@cancel="showUPIDialog = false"
+		/>
+
+		<form @submit.prevent="submit">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
 				<div class="lg:col-span-2">
@@ -370,6 +382,7 @@ import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
+import UPIPaymentDialog from "./UPIPaymentDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
 import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
@@ -434,6 +447,13 @@ const props = defineProps({
 	isGuestMode: {
 		type: Boolean,
 		default: false,
+	upiPaymentEnabled: {
+		type: Boolean,
+		default: false
+	},
+	upiSettings: {
+		type: Object,
+		default: () => ({})
 	},
 });
 
@@ -453,6 +473,7 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
+const showUPIDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
@@ -1073,6 +1094,13 @@ async function submit() {
 		pendingBookingPayload.value = final_payload;
 
 		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+	// Check if we need to show UPI dialog or gateway selection dialog
+	if (finalTotal.value > 0) {
+		if (props.upiPaymentEnabled && (!props.paymentGateways.length || confirm(__("Use UPI Payment instead of gateway?")))) {
+			pendingPayload.value = final_payload;
+			showUPIDialog.value = true;
+			return;
+		} else if (props.paymentGateways.length > 1) {
 			pendingPayload.value = final_payload;
 			showGatewayDialog.value = true;
 			return;
@@ -1117,6 +1145,9 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				} else if (props.isGuestMode) {
 					bookingSuccess.value = true;
 					successBookingName.value = data.booking_name;
+				} else if (data.upi_payment) {
+					// UPI payment submitted - redirect to booking details with UPI flag
+					router.replace(`/bookings/${data.booking_name}?success=true&upi=true`);
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -1140,6 +1171,15 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 			},
 		}
 	);
+}
+
+function onUPIPaymentSubmit(paymentProof) {
+	if (pendingPayload.value) {
+		// For UPI payments, submit without payment gateway
+		submitBooking(pendingPayload.value, null);
+		pendingPayload.value = null;
+		showUPIDialog.value = false;
+	}
 }
 
 function onGatewaySelected(gateway) {
