@@ -58,6 +58,22 @@ export default defineConfig({
 			},
 			dependencies: ["setup", "event-setup"],
 		},
+		{
+			name: "guest-event-setup",
+			testMatch: /guest-event\.setup\.ts/,
+			use: {
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
+		},
+		{
+			name: "guest-chromium",
+			testMatch: /guest-booking\.spec\.ts/,
+			use: {
+				...devices["Desktop Chrome"],
+			},
+			dependencies: ["guest-event-setup"],
+		},
 
 		// {
 		// 	name: "firefox",

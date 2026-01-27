@@ -24,6 +24,10 @@ def send_guest_booking_otp(email: str) -> dict:
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 
+	if frappe.conf.get("e2e_test_mode"):
+		frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
+		return {"success": True, "otp": otp_code}
+
 	try:
 		frappe.sendmail(
 			recipients=[email],
@@ -55,6 +59,10 @@ def send_guest_booking_otp_sms(phone: str) -> dict:
 
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
+
+	if frappe.conf.get("e2e_test_mode"):
+		frappe.cache.set_value(f"guest_booking_otp_sms:{phone}", otp_secret, expires_in_sec=600)
+		return {"success": True, "otp": otp_code}
 
 	try:
 		send_sms(
