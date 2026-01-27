@@ -19,6 +19,26 @@
 				}}</span>
 			</div>
 
+			<!-- Coupon Code -->
+			<div
+				v-if="booking.coupon_code"
+				class="flex justify-between items-center text-ink-gray-7"
+			>
+				<span>{{ __("Coupon") }}</span>
+				<span class="font-medium text-green-600">{{ booking.coupon_code }}</span>
+			</div>
+
+			<!-- Discount -->
+			<div
+				v-if="(booking.discount_amount || 0) > 0"
+				class="flex justify-between items-center text-green-600"
+			>
+				<span>{{ __("Discount") }}</span>
+				<span class="font-medium"
+					>-{{ formatPrice(booking.discount_amount, booking.currency || "INR") }}</span
+				>
+			</div>
+
 			<!-- Tax Information -->
 			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
 				<span

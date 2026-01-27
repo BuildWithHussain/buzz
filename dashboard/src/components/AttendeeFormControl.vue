@@ -51,7 +51,7 @@
 				:options="
 					availableTicketTypes.map((tt) => ({
 						label: `${__(tt.title)} (${formatPriceOrFree(tt.price, tt.currency)})`,
-						value: tt.name,
+						value: String(tt.name),
 					}))
 				"
 			/>
