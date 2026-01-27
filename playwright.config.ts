@@ -52,6 +52,7 @@ export default defineConfig({
 		},
 		{
 			name: "chromium",
+			testIgnore: /guest-booking/,
 			use: {
 				...devices["Desktop Chrome"],
 				storageState: authFile,
