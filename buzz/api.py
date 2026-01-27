@@ -102,7 +102,6 @@ def get_or_create_guest_user(email: str, full_name: str) -> str:
 		}
 	)
 	user.insert(ignore_permissions=True)
-	user.add_roles("Buzz User")
 
 	return email
 
