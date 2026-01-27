@@ -269,12 +269,13 @@ def process_booking(
 		if not guest_email:
 			frappe.throw(_("Email is required for guest booking"))
 
+		validate_email_address(guest_email, throw=True)
+		email = guest_email.lower().strip()
+
 		# Verify OTP for guest bookings (only if verification method is Email OTP)
 		if event_doc.guest_verification_method == "Email OTP":
 			if not otp:
 				frappe.throw(_("Verification code is required"))
-
-			email = guest_email.lower().strip()
 
 			# Brute force protection
 			tracker = LoginAttemptTracker(

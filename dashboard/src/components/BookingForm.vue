@@ -36,9 +36,14 @@
 					variant="ghost"
 					size="sm"
 					:loading="sendOtpResource.loading"
+					:disabled="resendCooldown > 0"
 					@click="resendOtp"
 				>
-					{{ __("Resend code") }}
+					{{
+						resendCooldown > 0
+							? __("Resend code ({0}s)", [resendCooldown])
+							: __("Resend code")
+					}}
 				</Button>
 			</template>
 
@@ -470,6 +475,8 @@ const successBookingName = ref("");
 const showOtpModal = ref(false);
 const otpCode = ref("");
 const pendingBookingPayload = ref(null);
+const resendCooldown = ref(0);
+let resendCooldownTimer = null;
 
 // Ensure user data is loaded (only if not in guest mode)
 if (!props.isGuestMode && !userResource.data) {
@@ -820,10 +827,22 @@ const validateCoupon = createResource({
 	url: "buzz.api.validate_coupon",
 });
 
+function startResendCooldown() {
+	resendCooldown.value = 30;
+	clearInterval(resendCooldownTimer);
+	resendCooldownTimer = setInterval(() => {
+		resendCooldown.value--;
+		if (resendCooldown.value <= 0) {
+			clearInterval(resendCooldownTimer);
+		}
+	}, 1000);
+}
+
 const sendOtpResource = createResource({
 	url: "buzz.api.send_guest_booking_otp",
 	onSuccess: () => {
 		showOtpModal.value = true;
+		startResendCooldown();
 		toast.success(__("Verification code sent to your email"));
 	},
 	onError: (error) => {
@@ -1022,6 +1041,11 @@ async function submit() {
 			toast.error(__("Please enter your email address"));
 			return;
 		}
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(guestEmail.value.trim())) {
+			toast.error(__("Please enter a valid email address"));
+			return;
+		}
 		// Store payload for later use
 		pendingBookingPayload.value = final_payload;
 
@@ -1138,7 +1162,7 @@ function submitWithOtp() {
 }
 
 function resendOtp() {
-	if (sendOtpResource.loading) return;
+	if (sendOtpResource.loading || resendCooldown.value > 0) return;
 	otpCode.value = "";
 	sendOtpResource.submit({ email: guestEmail.value.trim() });
 }
@@ -1148,6 +1172,8 @@ function clearOtpState() {
 	otpCode.value = "";
 	pendingBookingPayload.value = null;
 	selectedGateway.value = null;
+	resendCooldown.value = 0;
+	clearInterval(resendCooldownTimer);
 }
 
 const submitButtonText = computed(() => {
