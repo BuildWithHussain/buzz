@@ -33,7 +33,7 @@ test.describe("Authentication - Fresh state", () => {
 	test("should login via UI", async ({ page }) => {
 		const loginPage = new LoginPage(page);
 
-		await loginPage.login("Administrator", "admin");
+		await loginPage.login(process.env.FRAPPE_USER || "Administrator", process.env.FRAPPE_PASSWORD || "admin");
 
 		// Should be redirected away from login
 		await expect(page).not.toHaveURL(/.*login.*/);
