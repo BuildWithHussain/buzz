@@ -105,6 +105,8 @@ def setup_test_records():
 			"title": "Test Event",
 			"route": "test-route",
 			"start_date": frappe.utils.today(),
+			"start_time": "10:00:00",
+			"end_time": "18:00:00",
 		}
 	).insert(ignore_if_duplicate=True)
 

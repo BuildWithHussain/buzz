@@ -135,3 +135,50 @@ def generate_qr_code_file(doc, data: str, field_name: str = "qr_code", file_pref
 		}
 	).save(ignore_permissions=True)
 	return qr_code_file.file_url
+
+
+def build_event_datetimes(event_doc):
+	from datetime import datetime, timedelta
+
+	from frappe.utils import get_time, getdate
+
+	start_date = getdate(event_doc.start_date)
+	start_time = get_time(event_doc.start_time)
+
+	start_datetime = datetime.combine(start_date, start_time)
+
+	end_date = getdate(event_doc.end_date) if event_doc.end_date else start_date
+
+	if event_doc.end_time:
+		end_time = get_time(event_doc.end_time)
+		end_datetime = datetime.combine(end_date, end_time)
+	else:
+		end_datetime = start_datetime + timedelta(hours=1)
+
+	return start_datetime, end_datetime
+
+
+def generate_ics_file(event_doc, attendee_email: str):
+	from uuid import uuid4
+
+	from frappe.utils import now_datetime
+
+	start_dt, end_dt = build_event_datetimes(event_doc)
+
+	venue_address = ""
+	if event_doc.venue:
+		venue_address = frappe.db.get_value("Event Venue", event_doc.venue, "address") or ""
+
+	context = {
+		"uid": uuid4(),
+		"now": now_datetime().strftime("%Y%m%dT%H%M%S"),
+		"timezone": event_doc.time_zone,
+		"start": start_dt.strftime("%Y%m%dT%H%M%S"),
+		"end": end_dt.strftime("%Y%m%dT%H%M%S"),
+		"title": event_doc.title,
+		"location": venue_address,
+		"attendee_email": attendee_email,
+		"description": f"Your ticket for {event_doc.title}",
+	}
+
+	return frappe.render_template("templates/ics/ics.jinja2", context, is_path=True)

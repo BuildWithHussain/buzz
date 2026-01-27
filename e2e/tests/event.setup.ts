@@ -83,6 +83,8 @@ setup("create test event for booking", async ({ request }) => {
 		start_date: startDate,
 		route: testEventRoute,
 		is_published: 1,
+		start_time: "09:00:00",
+		end_time: "17:00:00",
 		medium: "In Person",
 	});
 	console.log(`Created Buzz Event: ${event.name} (route: ${testEventRoute})`);

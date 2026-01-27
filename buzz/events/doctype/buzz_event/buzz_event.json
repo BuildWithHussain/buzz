@@ -57,6 +57,7 @@
   "sponsor_deck_attachments",
   "customisations_tab",
   "ticket_email_template",
+  "attach_calendar_invite",
   "column_break_ukql",
   "ticket_print_format",
   "talks_section",
@@ -136,12 +137,14 @@
   {
    "fieldname": "start_time",
    "fieldtype": "Time",
-   "label": "Start Time"
+   "label": "Start Time",
+   "reqd": 1
   },
   {
    "fieldname": "end_time",
    "fieldtype": "Time",
-   "label": "End Time"
+   "label": "End Time",
+   "reqd": 1
   },
   {
    "fieldname": "host",
@@ -391,6 +394,12 @@
    "fieldname": "card_image",
    "fieldtype": "Attach Image",
    "label": "Card Image"
+  },
+  {
+   "default": "1",
+   "fieldname": "attach_calendar_invite",
+   "fieldtype": "Check",
+   "label": "Attach Calendar Invite"
   }
  ],
  "grid_page_length": 50,
@@ -463,7 +472,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-14 11:13:04.386770",
+ "modified": "2026-01-27 12:09:30.031738",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

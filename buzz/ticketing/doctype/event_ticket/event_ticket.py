@@ -5,7 +5,7 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from buzz.utils import generate_qr_code_file, only_if_app_installed
+from buzz.utils import generate_ics_file, generate_qr_code_file, only_if_app_installed
 
 
 class EventTicket(Document):
@@ -88,9 +88,10 @@ class EventTicket(Document):
 			ticket_template = frappe.db.get_single_value("Buzz Settings", "default_ticket_email_template")
 
 		subject = frappe._("Your ticket to {0} 🎟️").format(event_title)
+		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 		args = {
 			"doc": self,
-			"event_doc": frappe.get_cached_doc("Buzz Event", self.event),
+			"event_doc": event_doc,
 			"event_title": event_title,
 			"venue": venue,
 		}
@@ -101,6 +102,13 @@ class EventTicket(Document):
 			email_template = get_email_template(ticket_template, args)
 			subject = email_template.get("subject")
 			content = email_template.get("message")
+
+		if event_doc.attach_calendar_invite:
+			ics_content = generate_ics_file(event_doc, self.attendee_email)
+			attachments = {
+				"fname": f"{event_doc.title}.ics",
+				"fcontent": ics_content,
+			}
 
 		frappe.sendmail(
 			recipients=[self.attendee_email],
@@ -118,7 +126,8 @@ class EventTicket(Document):
 					"name": self.name,
 					"print_format": ticket_print_format or "Standard Ticket",
 				}
-			],
+			]
+			+ ([attachments] if event_doc.attach_calendar_invite else []),
 		)
 
 	def validate_coupon_usage(self):

@@ -690,6 +690,8 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"title": "Other Event",
 				"route": "other-event-test",
 				"start_date": "2025-12-31",
+				"start_time": "10:00:00",
+				"end_time": "18:00:00",
 				"category": category,
 				"host": host,
 			}
@@ -784,6 +786,8 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"title": "Other Category Event",
 				"route": "other-category-event-test",
 				"start_date": "2025-12-31",
+				"start_time": "10:00:00",
+				"end_time": "18:00:00",
 				"category": other_category.name,
 				"host": self.test_event.host,
 			}
@@ -856,6 +860,8 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"title": "Another Event",
 				"route": "another-event-global-test",
 				"start_date": "2025-12-31",
+				"start_time": "10:00:00",
+				"end_time": "18:00:00",
 				"category": self.test_event.category,
 				"host": self.test_event.host,
 			}
