@@ -168,20 +168,16 @@ def generate_ics_file(event_doc, attendee_email: str):
 			"Event Venue", event_doc.venue, "address"
 		) or ""
 
-	return f"""BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Buzz Events//EN
-CALSCALE:GREGORIAN
-METHOD:PUBLISH
-BEGIN:VEVENT
-UID:{uuid4()}@buzz
-DTSTAMP:{now_datetime().strftime("%Y%m%dT%H%M%S")}
-DTSTART;TZID={event_doc.time_zone}:{start_dt.strftime("%Y%m%dT%H%M%S")}
-DTEND;TZID={event_doc.time_zone}:{end_dt.strftime("%Y%m%dT%H%M%S")}
-SUMMARY:{event_doc.title}
-LOCATION:{venue_address}
-ATTENDEE;CN=Attendee;RSVP=TRUE:mailto:{attendee_email}
-DESCRIPTION:Your ticket for {event_doc.title}
-END:VEVENT
-END:VCALENDAR
-"""
+	context = {
+		"uid": uuid4(),
+		"now": now_datetime().strftime("%Y%m%dT%H%M%S"),
+		"timezone": event_doc.time_zone,
+		"start": start_dt.strftime("%Y%m%dT%H%M%S"),
+		"end": end_dt.strftime("%Y%m%dT%H%M%S"),
+		"title": event_doc.title,
+		"location": venue_address,
+		"attendee_email": attendee_email,
+		"description": f"Your ticket for {event_doc.title}",
+	}
+
+	return frappe.render_template("templates/ics/ics.jinja2", context, is_path=True)

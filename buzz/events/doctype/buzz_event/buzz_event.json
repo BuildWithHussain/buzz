@@ -396,7 +396,7 @@
    "label": "Card Image"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "attach_calendar_invite",
    "fieldtype": "Check",
    "label": "Attach Calendar Invite"
@@ -472,7 +472,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-22 15:25:37.313481",
+ "modified": "2026-01-27 12:09:30.031738",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
