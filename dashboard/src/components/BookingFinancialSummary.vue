@@ -62,20 +62,6 @@
 				}}</span>
 			</div>
 		</div>
-
-		<!-- Zero amount case -->
-		<div
-			v-if="(booking.total_amount || 0) === 0"
-			class="mt-4 p-3 bg-surface-green-1 rounded-lg"
-		>
-			<div class="flex items-start">
-				<LucideGift class="w-4 h-4 text-ink-green-2 mt-0.5 mr-2 flex-shrink-0" />
-				<div class="text-sm text-ink-green-3">
-					<p class="font-medium">{{ __("Free Event") }}</p>
-					<p>{{ __("This was a free event with no payment required.") }}</p>
-				</div>
-			</div>
-		</div>
 	</div>
 </template>
 
@@ -84,7 +70,6 @@ import { computed } from "vue";
 import { Badge } from "frappe-ui";
 import { formatPrice } from "../utils/currency.js";
 import LucideCheck from "~icons/lucide/check";
-import LucideGift from "~icons/lucide/gift";
 
 const props = defineProps({
 	booking: {

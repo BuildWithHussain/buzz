@@ -668,6 +668,17 @@ watch(netAmount, (newVal) => {
 	}
 });
 
+watch(matchingAttendeesCount, (newCount) => {
+	if (
+		newCount === 0 &&
+		couponApplied.value &&
+		couponData.value?.coupon_type === "Free Tickets"
+	) {
+		removeCoupon();
+		toast.warning(__("Coupon removed — no eligible attendees for this ticket type"));
+	}
+});
+
 const processBooking = createResource({
 	url: "buzz.api.process_booking",
 });
