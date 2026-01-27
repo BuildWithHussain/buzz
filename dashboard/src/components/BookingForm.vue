@@ -368,7 +368,7 @@
 </template>
 
 <script setup>
-import { computed, watch, ref } from "vue";
+import { computed, watch, ref, onUnmounted } from "vue";
 import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
@@ -477,6 +477,10 @@ const otpCode = ref("");
 const pendingBookingPayload = ref(null);
 const resendCooldown = ref(0);
 let resendCooldownTimer = null;
+
+onUnmounted(() => {
+	clearInterval(resendCooldownTimer);
+});
 
 // Ensure user data is loaded (only if not in guest mode)
 if (!props.isGuestMode && !userResource.data) {

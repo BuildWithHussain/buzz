@@ -188,11 +188,33 @@ def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
 
-	# Always include event details (public info)
-	data.event_details = event_doc
+	# If guest, return only the fields the frontend needs (not the full doc)
+	is_guest = frappe.session.user == "Guest"
+	if is_guest:
+		data.event_details = {
+			"name": event_doc.name,
+			"title": event_doc.title,
+			"route": event_doc.route,
+			"start_date": event_doc.start_date,
+			"end_date": event_doc.end_date,
+			"start_time": event_doc.start_time,
+			"end_time": event_doc.end_time,
+			"time_zone": event_doc.time_zone,
+			"venue": event_doc.venue,
+			"medium": event_doc.medium,
+			"currency": event_doc.currency,
+			"category": event_doc.category,
+			"banner_image": event_doc.banner_image,
+			"short_description": event_doc.short_description,
+			"free_webinar": event_doc.free_webinar,
+			"allow_guest_booking": event_doc.allow_guest_booking,
+			"guest_verification_method": event_doc.guest_verification_method,
+			"default_ticket_type": event_doc.default_ticket_type,
+		}
+	else:
+		data.event_details = event_doc
 
 	# If guest and guest booking not allowed, return limited data
-	is_guest = frappe.session.user == "Guest"
 	if is_guest and not event_doc.allow_guest_booking:
 		data.available_ticket_types = []
 		data.available_add_ons = []
@@ -1114,7 +1136,10 @@ def validate_coupon(coupon_code: str, event: str, user_email: str | None = None)
 
 	# For guest users, use provided email for per-user limit check
 	# Otherwise all guests would share the same "Guest" user counter
-	check_user = user_email.lower().strip() if user_email else None
+	if frappe.session.user == "Guest":
+		check_user = user_email.lower().strip() if user_email else None
+	else:
+		check_user = frappe.session.user
 	is_limited, error = coupon.is_user_limit_reached(user=check_user)
 	if is_limited:
 		return {"valid": False, "error": error}
