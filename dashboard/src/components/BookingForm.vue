@@ -368,11 +368,11 @@ const getDefaultTicketType = () => {
 		// Verify that the default ticket type is available
 		const isAvailable = props.availableTicketTypes.some((tt) => tt.name == defaultTicketType);
 		if (isAvailable) {
-			return defaultTicketType;
+			return String(defaultTicketType);
 		}
 	}
 	// Fall back to the first available ticket type
-	return props.availableTicketTypes[0]?.name || "";
+	return String(props.availableTicketTypes[0]?.name || "");
 };
 
 const createNewAttendee = () => {
@@ -486,7 +486,9 @@ const taxPercentage = computed(() => {
 // Count of attendees matching the coupon's ticket type (for Free Tickets)
 const matchingAttendeesCount = computed(() => {
 	if (!couponData.value || couponData.value.coupon_type !== "Free Tickets") return 0;
-	return attendees.value.filter((a) => a.ticket_type === couponData.value.ticket_type).length;
+	return attendees.value.filter(
+		(a) => String(a.ticket_type) === String(couponData.value.ticket_type)
+	).length;
 });
 
 // Discount amount based on coupon
@@ -501,7 +503,7 @@ const discountAmount = computed(() => {
 
 		// Count only attendees with matching ticket type
 		const matchingAttendees = attendees.value.filter(
-			(a) => a.ticket_type === couponTicketType
+			(a) => String(a.ticket_type) === String(couponTicketType)
 		);
 		const freeTicketCount = Math.min(
 			matchingAttendees.length,
@@ -547,7 +549,9 @@ const freeAddOnCounts = computed(() => {
 
 	const counts = {};
 	const couponTicketType = couponData.value.ticket_type;
-	const matchingAttendees = attendees.value.filter((a) => a.ticket_type === couponTicketType);
+	const matchingAttendees = attendees.value.filter(
+		(a) => String(a.ticket_type) === String(couponTicketType)
+	);
 	const freeTicketCount = Math.min(matchingAttendees.length, couponData.value.remaining_tickets);
 
 	for (const addOnName of couponData.value.free_add_ons) {
@@ -664,6 +668,17 @@ watch(netAmount, (newVal) => {
 	}
 });
 
+watch(matchingAttendeesCount, (newCount) => {
+	if (
+		newCount === 0 &&
+		couponApplied.value &&
+		couponData.value?.coupon_type === "Free Tickets"
+	) {
+		removeCoupon();
+		toast.warning(__("Coupon removed — no eligible attendees for this ticket type"));
+	}
+});
+
 const processBooking = createResource({
 	url: "buzz.api.process_booking",
 });
@@ -719,7 +734,7 @@ async function applyCoupon() {
 		} else if (result.coupon_type === "Free Tickets") {
 			couponData.value = {
 				coupon_type: "Free Tickets",
-				ticket_type: result.ticket_type,
+				ticket_type: String(result.ticket_type),
 				remaining_tickets: result.remaining_tickets,
 				free_add_ons: result.free_add_ons || [],
 			};

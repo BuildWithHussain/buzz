@@ -19,6 +19,26 @@
 				}}</span>
 			</div>
 
+			<!-- Coupon Code -->
+			<div
+				v-if="booking.coupon_code"
+				class="flex justify-between items-center text-ink-gray-7"
+			>
+				<span>{{ __("Coupon") }}</span>
+				<span class="font-medium text-green-600">{{ booking.coupon_code }}</span>
+			</div>
+
+			<!-- Discount -->
+			<div
+				v-if="(booking.discount_amount || 0) > 0"
+				class="flex justify-between items-center text-green-600"
+			>
+				<span>{{ __("Discount") }}</span>
+				<span class="font-medium"
+					>-{{ formatPrice(booking.discount_amount, booking.currency || "INR") }}</span
+				>
+			</div>
+
 			<!-- Tax Information -->
 			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
 				<span
@@ -42,20 +62,6 @@
 				}}</span>
 			</div>
 		</div>
-
-		<!-- Zero amount case -->
-		<div
-			v-if="(booking.total_amount || 0) === 0"
-			class="mt-4 p-3 bg-surface-green-1 rounded-lg"
-		>
-			<div class="flex items-start">
-				<LucideGift class="w-4 h-4 text-ink-green-2 mt-0.5 mr-2 flex-shrink-0" />
-				<div class="text-sm text-ink-green-3">
-					<p class="font-medium">{{ __("Free Event") }}</p>
-					<p>{{ __("This was a free event with no payment required.") }}</p>
-				</div>
-			</div>
-		</div>
 	</div>
 </template>
 
@@ -64,7 +70,6 @@ import { computed } from "vue";
 import { Badge } from "frappe-ui";
 import { formatPrice } from "../utils/currency.js";
 import LucideCheck from "~icons/lucide/check";
-import LucideGift from "~icons/lucide/gift";
 
 const props = defineProps({
 	booking: {
