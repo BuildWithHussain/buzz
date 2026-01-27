@@ -416,7 +416,7 @@
    "fieldname": "guest_verification_method",
    "fieldtype": "Select",
    "label": "Guest Verification Method",
-   "options": "Email OTP\nNone"
+   "options": "None\nEmail OTP\nPhone OTP"
   }
  ],
  "grid_page_length": 50,
@@ -489,7 +489,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-27 12:09:30.031738",
+ "modified": "2026-01-27 19:16:55.220837",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

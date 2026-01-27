@@ -24,7 +24,6 @@ def send_guest_booking_otp(email: str) -> dict:
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 
-	# Send email FIRST - fail fast if email service is down
 	try:
 		frappe.sendmail(
 			recipients=[email],
@@ -35,11 +34,38 @@ def send_guest_booking_otp(email: str) -> dict:
 			now=True,
 		)
 	except Exception as e:
-		frappe.log_error(f"Failed to send guest OTP to {email}: {e}")
+		frappe.log_error("Failed to send Email OTP", str(e))
 		frappe.throw(_("Failed to send verification code. Please try again."))
 
 	# Only store in cache AFTER email sent successfully
 	frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
+
+	return {"success": True}
+
+
+@frappe.whitelist(allow_guest=True)
+@rate_limit(key="phone", limit=5, seconds=3600)
+def send_guest_booking_otp_sms(phone: str) -> dict:
+	"""Send 6-digit OTP via SMS for guest booking verification."""
+	from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+	phone = phone.strip()
+	if not phone:
+		frappe.throw(_("Phone number is required"))
+
+	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
+	otp_code = pyotp.HOTP(otp_secret).at(0)
+
+	try:
+		send_sms(
+			receiver_list=[phone],
+			msg=_("Your booking verification code is: {0}. It expires in 10 minutes.").format(otp_code),
+		)
+	except Exception as e:
+		frappe.log_error("Failed to send Phone OTP", str(e))
+		frappe.throw(_("Failed to send verification code. Please try again."))
+
+	frappe.cache.set_value(f"guest_booking_otp_sms:{phone}", otp_secret, expires_in_sec=600)
 
 	return {"success": True}
 
@@ -202,7 +228,6 @@ def get_event_booking_data(event_route: str) -> dict:
 			"time_zone": event_doc.time_zone,
 			"venue": event_doc.venue,
 			"medium": event_doc.medium,
-			"currency": event_doc.currency,
 			"category": event_doc.category,
 			"banner_image": event_doc.banner_image,
 			"short_description": event_doc.short_description,
@@ -279,6 +304,7 @@ def process_booking(
 	guest_email: str | None = None,
 	guest_full_name: str | None = None,
 	otp: str | None = None,
+	guest_phone: str | None = None,
 ) -> dict:
 	# Guest booking handling
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
@@ -319,6 +345,36 @@ def process_booking(
 				frappe.throw(_("Invalid verification code"))
 
 			frappe.cache.delete_value(f"guest_booking_otp:{email}")
+			tracker.add_success_attempt()
+
+		elif event_doc.guest_verification_method == "Phone OTP":
+			if not otp:
+				frappe.throw(_("Verification code is required"))
+
+			if not guest_phone:
+				frappe.throw(_("Phone number is required for Phone OTP verification"))
+
+			phone = guest_phone.strip()
+
+			tracker = LoginAttemptTracker(
+				key=f"guest_otp_sms:{phone}",
+				max_consecutive_login_attempts=5,
+				lock_interval=600,
+			)
+
+			if not tracker.is_user_allowed():
+				frappe.throw(_("Too many failed attempts. Please try again later."))
+
+			otp_secret = frappe.cache.get_value(f"guest_booking_otp_sms:{phone}")
+
+			if not otp_secret:
+				frappe.throw(_("Verification code expired. Please request a new one."))
+
+			if not pyotp.HOTP(otp_secret).verify(otp.strip(), 0):
+				tracker.add_failure_attempt()
+				frappe.throw(_("Invalid verification code"))
+
+			frappe.cache.delete_value(f"guest_booking_otp_sms:{phone}")
 			tracker.add_success_attempt()
 
 		full_name = (guest_full_name or "").strip() or (attendees[0].get("full_name") or "").strip()

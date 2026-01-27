@@ -37,6 +37,7 @@ class BuzzEvent(Document):
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
 		free_webinar: DF.Check
+		guest_verification_method: DF.Literal["None", "Email OTP", "Phone OTP"]
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]

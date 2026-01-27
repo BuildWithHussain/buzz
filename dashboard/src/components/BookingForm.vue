@@ -14,14 +14,14 @@
 		<Dialog
 			v-model="showOtpModal"
 			:options="{
-				title: __('Verify Your Email'),
+				title: isPhoneOtp ? __('Verify Your Phone') : __('Verify Your Email'),
 				size: 'sm',
 			}"
 		>
 			<template #body-content>
 				<p class="text-sm text-ink-gray-6 mb-4">
 					{{ __("Enter the 6-digit code sent to") }}
-					<strong>{{ guestEmail }}</strong>
+					<strong>{{ isPhoneOtp ? guestPhone : guestEmail }}</strong>
 				</p>
 				<FormControl
 					v-model="otpCode"
@@ -35,7 +35,7 @@
 				<Button
 					variant="ghost"
 					size="sm"
-					:loading="sendOtpResource.loading"
+					:loading="sendOtpResource.loading || sendOtpSmsResource.loading"
 					:disabled="resendCooldown > 0"
 					@click="resendOtp"
 				>
@@ -120,6 +120,14 @@
 								type="email"
 								:label="__('Email Address')"
 								:placeholder="__('Enter your email')"
+								required
+							/>
+							<FormControl
+								v-if="props.eventDetails.guest_verification_method === 'Phone OTP'"
+								v-model="guestPhone"
+								type="tel"
+								:label="__('Phone Number')"
+								:placeholder="__('Enter your phone number')"
 								required
 							/>
 						</div>
@@ -355,7 +363,11 @@
 								size="lg"
 								class="w-full"
 								type="submit"
-								:loading="processBooking.loading || sendOtpResource.loading"
+								:loading="
+									processBooking.loading ||
+									sendOtpResource.loading ||
+									sendOtpSmsResource.loading
+								"
 							>
 								{{ submitButtonText }}
 							</Button>
@@ -466,6 +478,7 @@ const couponData = ref(null);
 // Guest booking state
 const guestEmail = ref("");
 const guestFullName = ref("");
+const guestPhone = ref("");
 
 // Success state for guest bookings
 const bookingSuccess = ref(false);
@@ -854,6 +867,28 @@ const sendOtpResource = createResource({
 	},
 });
 
+const sendOtpSmsResource = createResource({
+	url: "buzz.api.send_guest_booking_otp_sms",
+	onSuccess: () => {
+		showOtpModal.value = true;
+		startResendCooldown();
+		toast.success(__("Verification code sent to your phone"));
+	},
+	onError: (error) => {
+		toast.error(error.messages?.[0] || __("Failed to send verification code"));
+	},
+});
+
+const isPhoneOtp = computed(() => props.eventDetails.guest_verification_method === "Phone OTP");
+
+function sendOtpForVerification() {
+	if (isPhoneOtp.value) {
+		sendOtpSmsResource.submit({ phone: guestPhone.value.trim() });
+	} else {
+		sendOtpResource.submit({ email: guestEmail.value.trim() });
+	}
+}
+
 // --- COUPON FUNCTIONS ---
 async function applyCoupon() {
 	if (!couponCode.value.trim()) {
@@ -1033,6 +1068,7 @@ async function submit() {
 		utm_parameters: utmParameters.length > 0 ? utmParameters : null,
 		guest_email: props.isGuestMode ? guestEmail.value.trim() : null,
 		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
+		guest_phone: props.isGuestMode && isPhoneOtp.value ? guestPhone.value.trim() : null,
 	};
 
 	if (props.isGuestMode) {
@@ -1047,6 +1083,10 @@ async function submit() {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(guestEmail.value.trim())) {
 			toast.error(__("Please enter a valid email address"));
+			return;
+		}
+		if (isPhoneOtp.value && !guestPhone.value.trim()) {
+			toast.error(__("Please enter your phone number"));
 			return;
 		}
 		pendingBookingPayload.value = final_payload;
@@ -1064,7 +1104,7 @@ async function submit() {
 			return;
 		}
 
-		sendOtpResource.submit({ email: guestEmail.value.trim() });
+		sendOtpForVerification();
 		return;
 	}
 
@@ -1127,7 +1167,7 @@ function onGatewaySelected(gateway) {
 			return;
 		}
 
-		sendOtpResource.submit({ email: guestEmail.value.trim() });
+		sendOtpForVerification();
 		return;
 	}
 
@@ -1152,9 +1192,9 @@ function submitWithOtp() {
 }
 
 function resendOtp() {
-	if (sendOtpResource.loading || resendCooldown.value > 0) return;
+	if (sendOtpResource.loading || sendOtpSmsResource.loading || resendCooldown.value > 0) return;
 	otpCode.value = "";
-	sendOtpResource.submit({ email: guestEmail.value.trim() });
+	sendOtpForVerification();
 }
 
 function clearOtpState() {
