@@ -1,0 +1,13 @@
+{
+  "extends": "frappe-ui/tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["unplugin-icons/types/vue"],
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*", "vite/client"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
