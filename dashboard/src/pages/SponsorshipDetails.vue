@@ -376,7 +376,7 @@ import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideClock from "~icons/lucide/clock";
 import LucideXCircle from "~icons/lucide/x-circle";
 import SponsorshipPaymentDialog from "../components/SponsorshipPaymentDialog.vue";
-import { usePaymentSuccess } from "../composables/usePaymentSuccess.js";
+import { usePaymentSuccess } from "../composables/usePaymentSuccess";
 import BackButton from "../components/common/BackButton.vue";
 
 const props = defineProps({

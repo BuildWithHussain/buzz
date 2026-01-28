@@ -161,7 +161,7 @@ import { Button, Dialog } from "frappe-ui";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideUserCheck from "~icons/lucide/user-check";
 import LucideXCircle from "~icons/lucide/x-circle";
-import { useTicketValidation } from "../composables/useTicketValidation.js";
+import { useTicketValidation } from "../composables/useTicketValidation";
 import { formatPriceOrFree } from "../utils/currency.js";
 
 const props = defineProps({

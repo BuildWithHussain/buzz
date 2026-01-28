@@ -4,12 +4,19 @@
  * parsing field options, and generating placeholders.
  */
 
+import type { BuzzCustomField } from "@/types/doctypes";
+
+export interface FieldOption {
+	label: string;
+	value: string;
+}
+
 /**
  * Convert Frappe field types to FormControl types
  * @param {string} fieldtype - Frappe field type
- * @returns {string} - FormControl type
+ * @returns {any} - FormControl type (any to avoid strict mapping issues in templates)
  */
-export function getFormControlType(fieldtype) {
+export function getFormControlType(fieldtype: string): any {
 	switch (fieldtype) {
 		case "Phone":
 			return "text";
@@ -33,7 +40,7 @@ export function getFormControlType(fieldtype) {
  * @param {string} fieldtype - Frappe field type
  * @returns {boolean}
  */
-export function isDateField(fieldtype) {
+export function isDateField(fieldtype: string): boolean {
 	return fieldtype === "Date";
 }
 
@@ -42,39 +49,30 @@ export function isDateField(fieldtype) {
  * @param {string} fieldtype - Frappe field type
  * @returns {boolean}
  */
-export function isDateTimeField(fieldtype) {
+export function isDateTimeField(fieldtype: string): boolean {
 	return fieldtype === "Datetime";
 }
 
 /**
  * Get field options for select fields
- * @param {Object} field - Field definition object
- * @returns {Array} - Array of { label, value } objects
+ * @param {BuzzCustomField} field - Field definition object
+ * @returns {FieldOption[]} - Array of { label, value } objects
  */
-export function getFieldOptions(field) {
+export function getFieldOptions(field: BuzzCustomField): FieldOption[] {
 	const isSelectType = field.fieldtype === "Select" || field.fieldtype === "Multi Select";
 	if (isSelectType && field.options) {
-		let options = [];
+		let options: string[] = [];
 
 		if (typeof field.options === "string") {
 			// Split by newlines and filter out empty options
 			options = field.options
 				.split("\n")
-				.map((option) => option.trim())
-				.filter((option) => option.length > 0);
-		} else if (Array.isArray(field.options)) {
-			// If options is already an array
-			options = field.options.filter((option) => {
-				try {
-					return option != null && String(option).trim().length > 0;
-				} catch {
-					return false;
-				}
-			});
+				.map((option: string) => option.trim())
+				.filter((option: string) => option.length > 0);
 		}
 
-		const formattedOptions = options.map((option) => {
-			const optionStr = String(option).trim();
+		const formattedOptions = options.map((option: string) => {
+			const optionStr = option.trim();
 			return {
 				label: optionStr,
 				value: optionStr,
@@ -83,7 +81,7 @@ export function getFieldOptions(field) {
 
 		// Debug log for development
 		if (
-			process.env.NODE_ENV === "development" &&
+			import.meta.env.DEV &&
 			formattedOptions.length === 0 &&
 			field.options
 		) {
@@ -100,13 +98,14 @@ export function getFieldOptions(field) {
 
 /**
  * Get placeholder text for a field
- * @param {Object} field - Field definition object
+ * @param {BuzzCustomField} field - Field definition object
  * @returns {string} - Placeholder text
  */
-export function getFieldPlaceholder(field) {
+export function getFieldPlaceholder(field: BuzzCustomField): string {
 	// If custom placeholder is provided, use it
 	if (field.placeholder?.trim()) {
 		const placeholder = field.placeholder.trim();
+		// @ts-ignore: __ is global
 		return field.mandatory ? `${placeholder} (${__("required")})` : placeholder;
 	}
 
@@ -116,11 +115,10 @@ export function getFieldPlaceholder(field) {
 
 /**
  * Get the default value for a field
- * @param {Object} field - Field definition object
- * @param {Function} getFieldOptionsFn - Function to get field options
- * @returns {*} - Default value or empty string
+ * @param {BuzzCustomField} field - Field definition object
+ * @returns {any} - Default value or empty string
  */
-export function getFieldDefaultValue(field) {
+export function getFieldDefaultValue(field: BuzzCustomField): any {
 	// Check for explicit default value
 	if (field.default_value) {
 		return field.default_value;

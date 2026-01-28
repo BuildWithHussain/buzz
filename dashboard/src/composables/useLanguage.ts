@@ -9,7 +9,7 @@ export function useLanguage() {
 		cache: "enabled_languages",
 	});
 
-	const currentLanguage = computed(() => {
+	const currentLanguage = computed((): string => {
 		return userResource.data?.language || "en";
 	});
 
@@ -21,7 +21,7 @@ export function useLanguage() {
 		},
 	});
 
-	function changeLanguage(languageCode) {
+	function changeLanguage(languageCode: string) {
 		switchLanguage.submit({ language_code: languageCode });
 	}
 
@@ -29,6 +29,6 @@ export function useLanguage() {
 		availableLanguages,
 		currentLanguage,
 		changeLanguage,
-		isSwitching: computed(() => switchLanguage.loading),
+		isSwitching: computed((): boolean => switchLanguage.loading),
 	};
 }

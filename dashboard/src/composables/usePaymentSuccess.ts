@@ -13,7 +13,14 @@ import { triggerCelebrationConfetti } from "../utils/confetti.js";
  * @param {boolean} options.cleanupUrl - Whether to clean up success parameter from URL (default: true)
  * @returns {Object} - Returns reactive state and helper functions
  */
-export function usePaymentSuccess(options = {}) {
+interface PaymentSuccessOptions {
+	onSuccess?: () => void;
+	messageDuration?: number;
+	enableConfetti?: boolean;
+	cleanupUrl?: boolean;
+}
+
+export function usePaymentSuccess(options: PaymentSuccessOptions = {}) {
 	const {
 		onSuccess,
 		messageDuration = 10000,

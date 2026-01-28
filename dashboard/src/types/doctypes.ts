@@ -27,44 +27,6 @@ export interface EventCategory extends DocType {
   description?: string;
 }
 
-// Last updated: 2025-10-28 17:00:34.475703
-export interface SponsorshipEnquiry extends DocType {
-  /** Status: Select */
-  status?: 'Approval Pending' | 'Payment Pending' | 'Paid' | 'Withdrawn';
-  /** Company Name: Data */
-  company_name: string;
-  /** Company Logo: Attach Image */
-  company_logo: string;
-  /** Tier: Link (Sponsorship Tier) */
-  tier?: string;
-  /** Event: Link (Buzz Event) */
-  event: string;
-  /** Website: Data */
-  website?: string;
-  /** Country: Link (Country) */
-  country?: string;
-  /** Phone: Phone */
-  phone?: any;
-}
-
-// Last updated: 2025-10-28 16:18:05.658346
-export interface EventSponsor extends DocType {
-  /** Event: Link (Buzz Event) */
-  event: string;
-  /** Company Name: Data */
-  company_name: string;
-  /** Tier: Link (Sponsorship Tier) */
-  tier: string;
-  /** Company Logo: Attach Image */
-  company_logo: string;
-  /** Enquiry: Link (Sponsorship Enquiry) */
-  enquiry?: string;
-  /** Website: Data */
-  website?: string;
-  /** Country: Link (Country) */
-  country?: string;
-}
-
 // Last updated: 2025-10-28 16:18:05.552522
 export interface EventTrack extends DocType {
   /** Event: Link (Buzz Event) */
@@ -93,16 +55,30 @@ export interface EventBookingAttendee extends ChildDocType {
   custom_fields?: any;
 }
 
-// Last updated: 2025-10-28 16:17:50.389537
-export interface SponsorshipTier extends DocType {
+// Last updated: 2026-01-05 05:49:52.998996
+export interface BuzzCustomField extends DocType {
   /** Event: Link (Buzz Event) */
   event: string;
-  /** Title: Data */
-  title: string;
-  /** Price: Currency */
-  price?: any;
-  /** Currency: Link (Currency) */
-  currency?: string;
+  /** Applied To: Select */
+  applied_to?: 'Booking' | 'Ticket';
+  /** Label: Data */
+  label: string;
+  /** Name: Data */
+  fieldname?: string;
+  /** Type: Select */
+  fieldtype: 'Data' | 'Phone' | 'Email' | 'Select' | 'Date' | 'Number' | 'Multi Select';
+  /** Options: Small Text */
+  options?: string;
+  /** Enabled?: Check */
+  enabled: 0 | 1;
+  /** Mandatory?: Check */
+  mandatory: 0 | 1;
+  /** Placeholder: Data */
+  placeholder?: string;
+  /** Order: Int */
+  order?: number;
+  /** Default Value: Data */
+  default_value?: string;
 }
 
 // Last updated: 2025-11-08 15:25:00.872093
@@ -123,6 +99,34 @@ export interface TicketAdd-on extends DocType {
   description?: string;
   /** Enabled?: Check */
   enabled: 0 | 1;
+}
+
+// Last updated: 2025-07-26 12:24:58.729143
+export interface EventHost extends DocType {
+  /** Logo: Attach Image */
+  logo?: string;
+  /** By Line: Data */
+  by_line?: string;
+  /** About: Text Editor */
+  about?: string;
+  /** Country: Link (Country) */
+  country?: string;
+  /** Address: Small Text */
+  address?: string;
+  /** Social Media Links: Table (Social Media Link) */
+  social_media_links: SocialMediaLink[];
+}
+
+// Last updated: 2025-10-28 16:17:50.389537
+export interface SponsorshipTier extends DocType {
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Title: Data */
+  title: string;
+  /** Price: Currency */
+  price?: any;
+  /** Currency: Link (Currency) */
+  currency?: string;
 }
 
 // Last updated: 2025-10-28 16:17:49.999214
@@ -147,6 +151,26 @@ export interface EventTicketType extends DocType {
   tickets_sold?: number;
 }
 
+// Last updated: 2025-10-28 17:00:34.475703
+export interface SponsorshipEnquiry extends DocType {
+  /** Status: Select */
+  status?: 'Approval Pending' | 'Payment Pending' | 'Paid' | 'Withdrawn';
+  /** Company Name: Data */
+  company_name: string;
+  /** Company Logo: Attach Image */
+  company_logo: string;
+  /** Tier: Link (Sponsorship Tier) */
+  tier?: string;
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Website: Data */
+  website?: string;
+  /** Country: Link (Country) */
+  country?: string;
+  /** Phone: Phone */
+  phone?: any;
+}
+
 // Last updated: 2025-12-06 06:42:53.095763
 export interface EventPayment extends DocType {
   /** Payment Received: Check */
@@ -169,20 +193,22 @@ export interface EventPayment extends DocType {
   payment_gateway?: string;
 }
 
-// Last updated: 2025-07-26 12:24:58.729143
-export interface EventHost extends DocType {
-  /** Logo: Attach Image */
-  logo?: string;
-  /** By Line: Data */
-  by_line?: string;
-  /** About: Text Editor */
-  about?: string;
+// Last updated: 2025-10-28 16:18:05.658346
+export interface EventSponsor extends DocType {
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Company Name: Data */
+  company_name: string;
+  /** Tier: Link (Sponsorship Tier) */
+  tier: string;
+  /** Company Logo: Attach Image */
+  company_logo: string;
+  /** Enquiry: Link (Sponsorship Enquiry) */
+  enquiry?: string;
+  /** Website: Data */
+  website?: string;
   /** Country: Link (Country) */
   country?: string;
-  /** Address: Small Text */
-  address?: string;
-  /** Social Media Links: Table (Social Media Link) */
-  social_media_links: SocialMediaLink[];
 }
 
 // Last updated: 2025-12-30 13:25:40.498434
@@ -207,82 +233,6 @@ export interface EventTicket extends DocType {
   coupon_used?: string;
   /** Additional Fields: Table (Additional Field) */
   additional_fields: AdditionalField[];
-}
-
-// Last updated: 2025-10-28 18:54:43.428725
-export interface ScheduleItem extends ChildDocType {
-  /** Type: Select */
-  type: 'Talk' | 'Break';
-  /** Talk: Link (Event Talk) */
-  talk?: string;
-  /** Track: Link (Event Track) */
-  track: string;
-  /** Start Time: Time */
-  start_time: any;
-  /** End Time: Time */
-  end_time: any;
-  /** Description: Data */
-  description?: string;
-  /** Date: Date */
-  date: string;
-}
-
-// Last updated: 2025-11-01 11:38:22.581796
-export interface AdditionalField extends ChildDocType {
-  /** Label: Data */
-  label?: string;
-  /** Fieldname: Data */
-  fieldname: string;
-  /** Value: Data */
-  value: string;
-  /** Fieldtype: Data */
-  fieldtype?: string;
-}
-
-// Last updated: 2025-07-19 12:39:15.298215
-export interface TalkSpeaker extends ChildDocType {
-  /** Speaker: Link (Speaker Profile) */
-  speaker: string;
-  /** Social Media Links: Table (Social Media Link) */
-  social_media_links: SocialMediaLink[];
-}
-
-// Last updated: 2026-01-14 12:38:51.583900
-export interface EventTalk extends DocType {
-  /** Title: Data */
-  title: string;
-  /** Speakers: Table (Talk Speaker) */
-  speakers: TalkSpeaker[];
-  /** Submitted By: Link (User) */
-  submitted_by: string;
-  /** Proposal: Link (Talk Proposal) */
-  proposal?: string;
-  /** Event: Link (Buzz Event) */
-  event: string;
-  /** Description: Text Editor */
-  description?: string;
-}
-
-// Last updated: 2025-07-19 12:38:48.912298
-export interface SocialMediaLink extends ChildDocType {
-  /** URL: Data */
-  url: string;
-}
-
-// Last updated: 2025-10-27 15:00:22.785410
-export interface SpeakerProfile extends DocType {
-  /** User: Link (User) */
-  user: string;
-  /** Display Name: Data */
-  display_name?: string;
-  /** Designation: Data */
-  designation?: string;
-  /** Company: Data */
-  company?: string;
-  /** Display Image: Attach Image */
-  display_image?: string;
-  /** Social Media Links: Table (Social Media Link) */
-  social_media_links: SocialMediaLink[];
 }
 
 // Last updated: 2025-07-26 12:12:56.836403
@@ -311,6 +261,82 @@ export interface TalkProposal extends DocType {
   speakers: ProposalSpeaker[];
   /** Phone: Phone */
   phone?: any;
+}
+
+// Last updated: 2025-07-19 12:39:15.298215
+export interface TalkSpeaker extends ChildDocType {
+  /** Speaker: Link (Speaker Profile) */
+  speaker: string;
+  /** Social Media Links: Table (Social Media Link) */
+  social_media_links: SocialMediaLink[];
+}
+
+// Last updated: 2026-01-14 12:38:51.583900
+export interface EventTalk extends DocType {
+  /** Title: Data */
+  title: string;
+  /** Speakers: Table (Talk Speaker) */
+  speakers: TalkSpeaker[];
+  /** Submitted By: Link (User) */
+  submitted_by: string;
+  /** Proposal: Link (Talk Proposal) */
+  proposal?: string;
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Description: Text Editor */
+  description?: string;
+}
+
+// Last updated: 2025-11-01 11:38:22.581796
+export interface AdditionalField extends ChildDocType {
+  /** Label: Data */
+  label?: string;
+  /** Fieldname: Data */
+  fieldname: string;
+  /** Value: Data */
+  value: string;
+  /** Fieldtype: Data */
+  fieldtype?: string;
+}
+
+// Last updated: 2025-07-19 12:38:48.912298
+export interface SocialMediaLink extends ChildDocType {
+  /** URL: Data */
+  url: string;
+}
+
+// Last updated: 2025-10-27 15:00:22.785410
+export interface SpeakerProfile extends DocType {
+  /** User: Link (User) */
+  user: string;
+  /** Display Name: Data */
+  display_name?: string;
+  /** Designation: Data */
+  designation?: string;
+  /** Company: Data */
+  company?: string;
+  /** Display Image: Attach Image */
+  display_image?: string;
+  /** Social Media Links: Table (Social Media Link) */
+  social_media_links: SocialMediaLink[];
+}
+
+// Last updated: 2025-10-28 18:54:43.428725
+export interface ScheduleItem extends ChildDocType {
+  /** Type: Select */
+  type: 'Talk' | 'Break';
+  /** Talk: Link (Event Talk) */
+  talk?: string;
+  /** Track: Link (Event Track) */
+  track: string;
+  /** Start Time: Time */
+  start_time: any;
+  /** End Time: Time */
+  end_time: any;
+  /** Description: Data */
+  description?: string;
+  /** Date: Date */
+  date: string;
 }
 
 // Last updated: 2025-12-30 11:23:32.333785

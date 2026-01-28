@@ -3,14 +3,14 @@ import { ref } from "vue";
 import beepFailSound from "../assets/audio/beep-fail.wav";
 import beepSound from "../assets/audio/beep.wav";
 
-let ticketValidationState = null;
+let ticketValidationState: any = null;
 
 const isProcessingTicket = ref(false);
 const isCheckingIn = ref(false);
-const validationResult = ref(null);
+const validationResult = ref<any>(null);
 const showTicketModal = ref(false);
 
-let lastToastMessage = null;
+let lastToastMessage: string | null = null;
 let lastToastTime = 0;
 const TOAST_DEBOUNCE_MS = 500;
 
@@ -24,7 +24,7 @@ const playErrorSound = () => {
 	audio.play();
 };
 
-const showDebouncedToast = (message, type = "error") => {
+const showDebouncedToast = (message: string, type: "error" | "success" = "error") => {
 	const now = Date.now();
 	if (lastToastMessage === message && now - lastToastTime < TOAST_DEBOUNCE_MS) {
 		return;
@@ -42,13 +42,13 @@ const showDebouncedToast = (message, type = "error") => {
 // Ticket validation resource
 const validateTicketResource = createResource({
 	url: "buzz.api.validate_ticket_for_checkin",
-	onSuccess: (data) => {
+	onSuccess: (data: any) => {
 		validationResult.value = data;
 		showTicketModal.value = true;
 		playSuccessSound();
 		isProcessingTicket.value = false;
 	},
-	onError: (error) => {
+	onError: (error: any) => {
 		validationResult.value = null;
 		isProcessingTicket.value = false;
 		const errorData = JSON.stringify(error);
@@ -73,12 +73,12 @@ const validateTicketResource = createResource({
 // Check-in resource
 const checkInResource = createResource({
 	url: "buzz.api.checkin_ticket",
-	onSuccess: (data) => {
+	onSuccess: (data: any) => {
 		validationResult.value = data;
 		showTicketModal.value = false;
 		isCheckingIn.value = false;
 	},
-	onError: (error) => {
+	onError: () => {
 		isCheckingIn.value = false;
 	},
 });
@@ -89,7 +89,7 @@ export function useTicketValidation() {
 	}
 
 	// Methods
-	const validateTicket = (ticketId) => {
+	const validateTicket = (ticketId: string) => {
 		isProcessingTicket.value = true;
 		validateTicketResource.submit({ ticket_id: ticketId });
 	};

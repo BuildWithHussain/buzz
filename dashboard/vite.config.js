@@ -36,6 +36,8 @@ export default defineConfig(async ({ command, mode }) => {
 				frappeTypes: {
 					input: {
 						buzz: [
+							// Buzz module
+							"buzz_custom_field",
 							// Events module
 							"buzz_event",
 							"event_category",
