@@ -33,6 +33,31 @@ export default defineConfig(async ({ command, mode }) => {
 				},
 				jinjaBootData: true,
 				lucideIcons: true,
+				frappeTypes: {
+					input: {
+						buzz: [
+							// Events module
+							"buzz_event",
+							"event_category",
+							"event_host",
+							"event_sponsor",
+							"event_talk",
+							"event_track",
+							"speaker_profile",
+							"sponsorship_tier",
+							// Ticketing module
+							"event_booking",
+							"event_booking_attendee",
+							"event_ticket",
+							"event_ticket_type",
+							"ticket_add_on",
+							"event_payment",
+							// Proposals module
+							"talk_proposal",
+							"sponsorship_enquiry",
+						],
+					},
+				},
 				buildConfig: {
 					indexHtmlPath: "../buzz/www/dashboard.html",
 					emptyOutDir: true,
