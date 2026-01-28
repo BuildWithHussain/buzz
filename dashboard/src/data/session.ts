@@ -2,10 +2,9 @@ import router from "@/router";
 import { createResource } from "frappe-ui";
 import { computed, reactive } from "vue";
 import { userResource } from "./user";
-import { useRoute } from "vue-router";
 import { clearBookingCache } from "@/utils";
 
-export function sessionUser() {
+export function sessionUser(): string | null {
 	const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
 	let _sessionUser = cookies.get("user_id");
 	if (_sessionUser === "Guest") {
@@ -14,16 +13,21 @@ export function sessionUser() {
 	return _sessionUser;
 }
 
+interface LoginPayload {
+	email?: string;
+	password?: string;
+}
+
 export const session = reactive({
 	login: createResource({
 		url: "login",
-		makeParams({ email, password }) {
+		makeParams({ email, password }: LoginPayload) {
 			return {
 				usr: email,
 				pwd: password,
 			};
 		},
-		onSuccess(data) {
+		onSuccess(data: any) {
 			userResource.reload();
 			session.user = sessionUser();
 			session.login.reset();
