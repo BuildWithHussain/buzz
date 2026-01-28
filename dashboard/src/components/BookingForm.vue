@@ -37,6 +37,7 @@
 				<Button
 					variant="ghost"
 					size="sm"
+					class="pl-0"
 					:loading="sendOtpResource.loading || sendOtpSmsResource.loading"
 					:disabled="resendCooldown > 0"
 					@click="resendOtp"
@@ -124,13 +125,6 @@
 								required
 							/>
 						</div>
-						<p class="text-xs text-ink-gray-5 mt-3">
-							{{
-								__(
-									"We'll create an account for you to manage your tickets and bookings."
-								)
-							}}
-						</p>
 					</div>
 
 					<!-- Booking-level Custom Fields -->
