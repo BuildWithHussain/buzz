@@ -2,7 +2,7 @@ import router from "@/router";
 import { createResource } from "frappe-ui";
 import { computed, reactive } from "vue";
 import { userResource } from "./user";
-import { clearBookingCache } from "@/utils";
+import { clearBookingCache } from "@/utils/index";
 
 export function sessionUser(): string | null {
 	const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));

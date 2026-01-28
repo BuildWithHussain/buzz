@@ -81,26 +81,6 @@ export interface BuzzCustomField extends DocType {
   default_value?: string;
 }
 
-// Last updated: 2025-11-08 15:25:00.872093
-export interface TicketAdd-on extends DocType {
-  /** Price: Currency */
-  price?: any;
-  /** Currency: Link (Currency) */
-  currency?: string;
-  /** Event: Link (Buzz Event) */
-  event: string;
-  /** Title: Data */
-  title: string;
-  /** Options: Small Text */
-  options?: string;
-  /** User Selects Option?: Check */
-  user_selects_option: 0 | 1;
-  /** Description: Small Text */
-  description?: string;
-  /** Enabled?: Check */
-  enabled: 0 | 1;
-}
-
 // Last updated: 2025-07-26 12:24:58.729143
 export interface EventHost extends DocType {
   /** Logo: Attach Image */
@@ -475,4 +455,24 @@ export interface BuzzEvent extends DocType {
   tax_percentage?: number;
   /** Card Image: Attach Image */
   card_image?: string;
+}
+
+// Last updated: 2025-11-08 15:25:00.872093
+export interface TicketAdd-on extends DocType {
+  /** Price: Currency */
+  price?: any;
+  /** Currency: Link (Currency) */
+  currency?: string;
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Title: Data */
+  title: string;
+  /** Options: Small Text */
+  options?: string;
+  /** User Selects Option?: Check */
+  user_selects_option: 0 | 1;
+  /** Description: Small Text */
+  description?: string;
+  /** Enabled?: Check */
+  enabled: 0 | 1;
 }

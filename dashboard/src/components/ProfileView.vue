@@ -64,7 +64,7 @@
 
 <script setup>
 import LucideCamera from "~icons/lucide/camera";
-import { validateIsImageFile } from "@/utils";
+import { validateIsImageFile } from "@/utils/index";
 import { userResource } from "../data/user";
 import { Dropdown, FileUploader, Avatar, createResource, toast } from "frappe-ui";
 import { ref, onMounted } from "vue";

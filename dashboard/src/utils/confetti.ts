@@ -1,4 +1,4 @@
-import confetti from "canvas-confetti";
+import confetti, { type Options } from "canvas-confetti";
 
 /**
  * Utility function to create a random number within a range
@@ -6,17 +6,20 @@ import confetti from "canvas-confetti";
  * @param {number} max - Maximum value
  * @returns {number} Random number between min and max
  */
-const randomInRange = (min, max) => Math.random() * (max - min) + min;
+const randomInRange = (min: number, max: number): number => Math.random() * (max - min) + min;
+
+interface ConfettiOptions {
+	duration?: number;
+	particleCount?: number;
+	startVelocity?: number;
+	spread?: number;
+}
 
 /**
  * Triggers a celebratory confetti animation
- * @param {Object} options - Configuration options for the confetti
- * @param {number} options.duration - Duration of the animation in milliseconds (default: 3000)
- * @param {number} options.particleCount - Base particle count (default: 50)
- * @param {number} options.startVelocity - Starting velocity of particles (default: 30)
- * @param {number} options.spread - Spread angle of particles (default: 360)
+ * @param {ConfettiOptions} options - Configuration options for the confetti
  */
-export const triggerCelebrationConfetti = (options = {}) => {
+export const triggerCelebrationConfetti = (options: ConfettiOptions = {}) => {
 	const { duration = 3000, particleCount = 50, startVelocity = 30, spread = 360 } = options;
 
 	const animationEnd = Date.now() + duration;
@@ -29,7 +32,7 @@ export const triggerCelebrationConfetti = (options = {}) => {
 			return;
 		}
 
-		const currentParticleCount = particleCount * (timeLeft / duration);
+		const currentParticleCount = Math.floor(particleCount * (timeLeft / duration));
 
 		// Left side confetti burst
 		confetti({
@@ -57,9 +60,9 @@ export const triggerCelebrationConfetti = (options = {}) => {
 
 /**
  * Triggers a simple single-burst confetti animation
- * @param {Object} options - Configuration options
+ * @param {Options} options - Configuration options from canvas-confetti
  */
-export const triggerSimpleConfetti = (options = {}) => {
+export const triggerSimpleConfetti = (options: Options = {}) => {
 	const {
 		particleCount = 100,
 		startVelocity = 30,

@@ -12,6 +12,7 @@
     "copy-html-entry": "cp ../buzz/public/dashboard/index.html ../buzz/www/dashboard.html"
   },
   "dependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@vueuse/core": "^13.6.0",
     "canvas-confetti": "^1.9.3",
     "feather-icons": "^4.29.2",

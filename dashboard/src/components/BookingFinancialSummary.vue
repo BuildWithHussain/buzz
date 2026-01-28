@@ -62,7 +62,7 @@
 <script setup>
 import { computed } from "vue";
 import { Badge } from "frappe-ui";
-import { formatPrice } from "../utils/currency.js";
+import { formatPrice } from "../utils/currency";
 import LucideCheck from "~icons/lucide/check";
 import LucideGift from "~icons/lucide/gift";
 

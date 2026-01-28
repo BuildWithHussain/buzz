@@ -1,11 +1,16 @@
 // Currency formatting utilities using JavaScript Intl API
 
-export function formatCurrency(amount, currencyCode = "INR", locale = "en-US") {
+export function formatCurrency(
+	amount: number | string,
+	currencyCode: string = "INR",
+	locale: string = "en-US"
+): string {
+	const amountNum = typeof amount === "string" ? parseFloat(amount) : amount;
 	try {
 		return new Intl.NumberFormat(locale, {
 			style: "currency",
 			currency: currencyCode,
-		}).format(amount);
+		}).format(amountNum);
 	} catch (error) {
 		// Fallback if currency code is invalid or not supported
 		console.warn(
@@ -14,22 +19,31 @@ export function formatCurrency(amount, currencyCode = "INR", locale = "en-US") {
 		return new Intl.NumberFormat(locale, {
 			style: "currency",
 			currency: "INR",
-		}).format(amount);
+		}).format(amountNum);
 	}
 }
 
-export function formatPrice(price, currencyCode = "INR", locale = "en-US") {
+export function formatPrice(
+	price: number | string,
+	currencyCode: string = "INR",
+	locale: string = "en-US"
+): string {
 	return formatCurrency(price, currencyCode, locale);
 }
 
-export function formatPriceOrFree(price, currencyCode = "INR", locale = "en-US") {
+export function formatPriceOrFree(
+	price: number | string,
+	currencyCode: string = "INR",
+	locale: string = "en-US"
+): string {
 	if (price === 0 || price === "0") {
+		// @ts-ignore: __ is global
 		return __("Free");
 	}
 	return formatPrice(price, currencyCode, locale);
 }
 
-export function getCurrencySymbol(currencyCode, locale = "en-US") {
+export function getCurrencySymbol(currencyCode: string, locale: string = "en-US"): string {
 	try {
 		const formatter = new Intl.NumberFormat(locale, {
 			style: "currency",
