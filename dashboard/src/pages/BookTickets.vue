@@ -4,7 +4,7 @@
 			<Spinner v-if="eventBookingResource.loading" />
 		</div>
 		<div
-			v-if="!canAccess && !eventBookingResource.loading"
+			v-if="!canAccessBookingPage && !eventBookingResource.loading"
 			class="flex flex-col items-center justify-center py-16 px-4"
 		>
 			<div class="text-center max-w-md">
@@ -60,7 +60,7 @@ const props = defineProps({
 
 const isGuest = computed(() => !session.isLoggedIn);
 
-const canAccess = computed(() => {
+const canAccessBookingPage = computed(() => {
 	return session.isLoggedIn || eventBookingData.eventDetails?.allow_guest_booking;
 });
 

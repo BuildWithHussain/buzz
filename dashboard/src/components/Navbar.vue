@@ -15,7 +15,6 @@
 					<LucideMoon v-else class="w-4 h-4" />
 				</Button>
 				<LanguageSwitcher />
-				<!-- Show Log Out for logged-in users -->
 				<Button
 					v-if="session.isLoggedIn"
 					:loading="session.logout.loading"
@@ -26,7 +25,6 @@
 				>
 					{{ __("Log Out") }}
 				</Button>
-				<!-- Show Log In for guests -->
 				<Button
 					v-else
 					@click="redirectToLogin"

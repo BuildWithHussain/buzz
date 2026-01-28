@@ -24,9 +24,9 @@ def send_guest_booking_otp(email: str) -> dict:
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 
-	if frappe.conf.get("e2e_test_mode"):
+	if frappe.conf.allow_tests:
 		frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
-		return {"success": True, "otp": otp_code}
+		return {"otp": otp_code}
 
 	try:
 		frappe.sendmail(
@@ -44,8 +44,6 @@ def send_guest_booking_otp(email: str) -> dict:
 	# Only store in cache AFTER email sent successfully
 	frappe.cache.set_value(f"guest_booking_otp:{email}", otp_secret, expires_in_sec=600)
 
-	return {"success": True}
-
 
 @frappe.whitelist(allow_guest=True)
 @rate_limit(key="phone", limit=5, seconds=3600)
@@ -60,9 +58,9 @@ def send_guest_booking_otp_sms(phone: str) -> dict:
 	otp_secret = b32encode(os.urandom(10)).decode("utf-8")
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 
-	if frappe.conf.get("e2e_test_mode"):
+	if frappe.conf.allow_tests:
 		frappe.cache.set_value(f"guest_booking_otp_sms:{phone}", otp_secret, expires_in_sec=600)
-		return {"success": True, "otp": otp_code}
+		return {"otp": otp_code}
 
 	try:
 		send_sms(
@@ -74,8 +72,6 @@ def send_guest_booking_otp_sms(phone: str) -> dict:
 		frappe.throw(_("Failed to send verification code. Please try again."))
 
 	frappe.cache.set_value(f"guest_booking_otp_sms:{phone}", otp_secret, expires_in_sec=600)
-
-	return {"success": True}
 
 
 def get_or_create_guest_user(email: str, full_name: str) -> str:
@@ -221,7 +217,6 @@ def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
 
-	# If guest, return only the fields the frontend needs (not the full doc)
 	is_guest = frappe.session.user == "Guest"
 	if is_guest:
 		data.event_details = {
@@ -246,7 +241,6 @@ def get_event_booking_data(event_route: str) -> dict:
 	else:
 		data.event_details = event_doc
 
-	# If guest and guest booking not allowed, return limited data
 	if is_guest and not event_doc.allow_guest_booking:
 		data.available_ticket_types = []
 		data.available_add_ons = []
@@ -313,13 +307,12 @@ def process_booking(
 	otp: str | None = None,
 	guest_phone: str | None = None,
 ) -> dict:
-	# Guest booking handling
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
 
 	if is_guest:
 		if not event_doc.allow_guest_booking:
-			frappe.throw(_("Please log in to book tickets for this event"), frappe.AuthenticationError)
+			frappe.throw(_("Please log in to access this feature"), frappe.AuthenticationError)
 
 		if not guest_email:
 			frappe.throw(_("Email is required for guest booking"))
@@ -327,12 +320,10 @@ def process_booking(
 		validate_email_address(guest_email, throw=True)
 		email = guest_email.lower().strip()
 
-		# Verify OTP for guest bookings (only if verification method is Email OTP)
 		if event_doc.guest_verification_method == "Email OTP":
 			if not otp:
 				frappe.throw(_("Verification code is required"))
 
-			# Brute force protection
 			tracker = LoginAttemptTracker(
 				key=f"guest_otp:{email}",
 				max_consecutive_login_attempts=5,
@@ -1182,7 +1173,7 @@ def has_app_permission():
 def validate_coupon(coupon_code: str, event: str, user_email: str | None = None) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	if frappe.session.user == "Guest" and not event_doc.allow_guest_booking:
-		frappe.throw(_("Please log in to validate coupons"), frappe.AuthenticationError)
+		frappe.throw(_("Please log in to access this feature"), frappe.AuthenticationError)
 
 	if not frappe.db.exists("Buzz Coupon Code", coupon_code):
 		return {"valid": False, "error": _("Invalid coupon code")}
