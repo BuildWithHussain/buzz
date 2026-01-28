@@ -31,7 +31,9 @@
 					placeholder="123456"
 					class="mb-3"
 					@keyup.enter="submitWithOtp"
+					@input="otpError = ''"
 				/>
+				<ErrorMessage :message="otpError" />
 				<Button
 					variant="ghost"
 					size="sm"
@@ -95,18 +97,9 @@
 						v-if="props.isGuestMode"
 						class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 md:p-6 mb-6 shadow-sm"
 					>
-						<div class="flex items-center justify-between mb-4">
-							<h3 class="text-sm font-semibold text-ink-gray-8">
-								{{ __("Your Details") }}
-							</h3>
-							<button
-								type="button"
-								@click="redirectToLogin"
-								class="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
-							>
-								{{ __("Have an account? Log in") }}
-							</button>
-						</div>
+						<h3 class="text-sm font-semibold text-ink-gray-8 mb-4">
+							{{ __("Your Details") }}
+						</h3>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<FormControl
 								v-model="guestFullName"
@@ -487,6 +480,7 @@ const successBookingName = ref("");
 // OTP verification state for guest bookings
 const showOtpModal = ref(false);
 const otpCode = ref("");
+const otpError = ref("");
 const pendingBookingPayload = ref(null);
 const resendCooldown = ref(0);
 let resendCooldownTimer = null;
@@ -1149,9 +1143,13 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 					// Close modal on lockout or expired OTP - user must restart
 					if (message.includes("Too many") || message.includes("expired")) {
 						showOtpModal.value = false;
+						toast.error(message);
+					} else {
+						otpError.value = message;
 					}
+				} else {
+					toast.error(message);
 				}
-				toast.error(message);
 			},
 		}
 	);
@@ -1179,7 +1177,7 @@ function onGatewaySelected(gateway) {
 
 function submitWithOtp() {
 	if (!otpCode.value.trim()) {
-		toast.error(__("Please enter the verification code"));
+		otpError.value = __("Please enter the verification code");
 		return;
 	}
 
@@ -1200,6 +1198,7 @@ function resendOtp() {
 function clearOtpState() {
 	showOtpModal.value = false;
 	otpCode.value = "";
+	otpError.value = "";
 	pendingBookingPayload.value = null;
 	selectedGateway.value = null;
 	resendCooldown.value = 0;
