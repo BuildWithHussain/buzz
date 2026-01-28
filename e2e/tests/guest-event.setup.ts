@@ -120,6 +120,8 @@ setup("create guest booking test events", async ({ request }) => {
 			category: testCategoryName,
 			host: testHostName,
 			start_date: startDate,
+			start_time: "09:00:00",
+			end_time: "17:00:00",
 			route: evt.route,
 			is_published: 1,
 			medium: "In Person",
