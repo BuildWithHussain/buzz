@@ -1,8 +1,8 @@
 import { userResource } from "@/data/user";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 import { session } from "./data/session";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
 	{
 		path: "/",
 		name: "dashboard",
@@ -28,9 +28,8 @@ const routes = [
 		path: "/bookings/:bookingId",
 		redirect: (to) => ({
 			name: "booking-details",
-			params: { bookingId: to.params.bookingId },
+			params: { bookingId: to.params.bookingId as string },
 		}),
-		props: true,
 	},
 	{
 		path: "/tickets",
@@ -40,9 +39,8 @@ const routes = [
 		path: "/tickets/:ticketId",
 		redirect: (to) => ({
 			name: "ticket-details",
-			params: { ticketId: to.params.ticketId },
+			params: { ticketId: to.params.ticketId as string },
 		}),
-		props: true,
 	},
 	{
 		path: "/account",
@@ -53,7 +51,6 @@ const routes = [
 				path: "bookings",
 				name: "bookings-list",
 				component: () => import("@/pages/BookingsList.vue"),
-				default: true,
 			},
 			{
 				path: "bookings/:bookingId",

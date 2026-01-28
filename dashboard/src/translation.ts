@@ -1,19 +1,20 @@
 import { createResource } from "frappe-ui";
+import type { App } from "vue";
 
-export default function translationPlugin(app) {
+export default function translationPlugin(app: App) {
 	app.config.globalProperties.__ = translate;
-	window.__ = translate;
-	if (!window.translatedMessages) fetchTranslations();
+	(window as any).__ = translate;
+	if (!(window as any).translatedMessages) fetchTranslations();
 }
 
-function format(message, replace) {
+function format(message: string, replace: any[]) {
 	return message.replace(/{(\d+)}/g, function (match, number) {
 		return typeof replace[number] != "undefined" ? replace[number] : match;
 	});
 }
 
-function translate(message, replace, context = null) {
-	let translatedMessages = window.translatedMessages || {};
+function translate(message: string, replace: any[] = [], context: string | null = null) {
+	let translatedMessages = (window as any).translatedMessages || {};
 	let translatedMessage = "";
 
 	if (context) {
@@ -35,12 +36,12 @@ function translate(message, replace, context = null) {
 	return format(translatedMessage, replace);
 }
 
-function fetchTranslations(lang) {
+function fetchTranslations() {
 	createResource({
 		url: "buzz.api.get_translations",
 		auto: true,
-		transform: (data) => {
-			window.translatedMessages = data;
+		transform: (data: any) => {
+			(window as any).translatedMessages = data;
 		},
 	});
 }

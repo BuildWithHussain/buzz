@@ -25,6 +25,7 @@ declare module 'vue' {
     EventSelector: typeof import('./src/components/EventSelector.vue')['default']
     EventSponsorForm: typeof import('./src/components/EventSponsorForm.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
+    LucideX: typeof import('~icons/lucide/x')['default']
     Navbar: typeof import('./src/components/Navbar.vue')['default']
     PaymentGatewayDialog: typeof import('./src/components/PaymentGatewayDialog.vue')['default']
     ProfileView: typeof import('./src/components/ProfileView.vue')['default']
