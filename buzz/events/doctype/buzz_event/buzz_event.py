@@ -26,6 +26,7 @@ class BuzzEvent(Document):
 		allow_editing_talks_after_acceptance: DF.Check
 		apply_tax: DF.Check
 		attach_calendar_invite: DF.Check
+		attach_email_ticket: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
 		card_image: DF.AttachImage | None

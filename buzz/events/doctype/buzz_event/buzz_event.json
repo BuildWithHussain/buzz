@@ -58,6 +58,7 @@
   "customisations_tab",
   "ticket_email_template",
   "attach_calendar_invite",
+  "attach_email_ticket",
   "column_break_ukql",
   "ticket_print_format",
   "talks_section",
@@ -400,6 +401,12 @@
    "fieldname": "attach_calendar_invite",
    "fieldtype": "Check",
    "label": "Attach Calendar Invite"
+  },
+  {
+   "default": "1",
+   "fieldname": "attach_email_ticket",
+   "fieldtype": "Check",
+   "label": "Attach Email Ticket"
   }
  ],
  "grid_page_length": 50,
@@ -472,7 +479,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-27 12:09:30.031738",
+ "modified": "2026-01-29 16:05:57.303461",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
