@@ -95,14 +95,14 @@
 											couponCode
 										}}</span>
 										<span
-											v-if="couponData.coupon_type === 'Discount'"
+											v-if="couponData?.coupon_type === 'Discount'"
 											class="text-green-600 font-medium text-sm"
 										>
 											{{
-												couponData.discount_type === "Percentage"
-													? couponData.discount_value + "% off"
+												couponData?.discount_type === "Percentage"
+													? couponData?.discount_value + "% off"
 													: formatPriceOrFree(
-															couponData.discount_value,
+															couponData?.discount_value ?? 0,
 															totalCurrency
 													  ) + " off"
 											}}
@@ -118,16 +118,17 @@
 									</div>
 									<span
 										v-if="
-											couponData.coupon_type === 'Discount' &&
-											couponData.discount_type === 'Percentage' &&
-											couponData.max_discount_amount > 0
+											couponData?.coupon_type === 'Discount' &&
+											couponData?.discount_type === 'Percentage' &&
+											couponData &&
+											couponData.maximum_discount_amount! > 0
 										"
 										class="text-xs text-green-600/70 ml-6"
 									>
 										save up to
 										{{
 											formatCurrency(
-												couponData.max_discount_amount,
+												couponData?.maximum_discount_amount!,
 												totalCurrency
 											)
 										}}
@@ -145,8 +146,10 @@
 											<span class="text-ink-gray-5">{{ __("Ticket") }}</span>
 											<div class="text-ink-gray-8 font-medium truncate">
 												{{
-													ticketTypesMap[couponData.ticket_type]
-														?.title || couponData.ticket_type
+													(couponData?.ticket_type &&
+														ticketTypesMap[couponData.ticket_type]
+															?.title) ||
+													couponData?.ticket_type
 												}}
 											</div>
 										</div>
@@ -155,7 +158,7 @@
 												__("Available")
 											}}</span>
 											<div class="text-ink-gray-8 font-medium">
-												{{ couponData.remaining_tickets }}
+												{{ remainingTickets }}
 											</div>
 										</div>
 									</div>
@@ -174,7 +177,7 @@
 
 									<!-- Free add-ons -->
 									<div
-										v-if="couponData.free_add_ons?.length"
+										v-if="couponData?.free_add_ons?.length"
 										class="flex items-center gap-1.5 text-xs text-ink-gray-6"
 									>
 										<LucideGift
@@ -188,7 +191,7 @@
 										>
 											{{ addOnsMap[addOn]?.title || addOn
 											}}{{
-												idx < couponData.free_add_ons.length - 1
+												idx < couponData.free_add_ons!.length - 1
 													? ", "
 													: ""
 											}}
@@ -222,7 +225,7 @@
 									? couponData?.ticket_type
 									: ''
 							"
-							:free-ticket-count="couponData?.remaining_tickets || 0"
+							:free-ticket-count="remainingTickets"
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
 							:tax-label="taxLabel"
@@ -249,7 +252,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, watch, ref } from "vue";
 import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
@@ -258,19 +261,53 @@ import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
 import { formatPriceOrFree, formatCurrency } from "../utils/currency";
-import { useBookingFormStorage } from "../composables/useBookingFormStorage";
+import { useBookingFormStorage, type Attendee } from "../composables/useBookingFormStorage";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user";
+import type {
+	BuzzEvent,
+	EventTicketType,
+	BuzzCustomField,
+	EventPaymentGateway,
+	BuzzCouponCode,
+} from "@/types/doctypes";
 import LucideCheck from "~icons/lucide/check";
 import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
 import LucideAlertCircle from "~icons/lucide/alert-circle";
 
+interface Props {
+	availableAddOns?: any[];
+	availableTicketTypes?: EventTicketType[];
+	taxSettings?: {
+		apply_tax: boolean;
+		tax_label: string;
+		tax_percentage: number;
+	};
+	eventDetails: Partial<BuzzEvent> & { free_webinar?: boolean; default_ticket_type?: string };
+	customFields?: BuzzCustomField[];
+	eventRoute: string;
+	paymentGateways?: EventPaymentGateway[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	availableAddOns: () => [],
+	availableTicketTypes: () => [],
+	taxSettings: () => ({
+		apply_tax: false,
+		tax_label: "Tax",
+		tax_percentage: 0,
+	}),
+	eventDetails: () => ({}),
+	customFields: () => [],
+	paymentGateways: () => [],
+});
+
 const router = useRouter();
 const route = useRoute();
 
 const getUtmParameters = () => {
-	const utmParams = [];
+	const utmParams: { utm_name: string; value: string }[] = [];
 	for (const [key, value] of Object.entries(route.query)) {
 		if (key.toLowerCase().startsWith("utm_") && value) {
 			utmParams.push({
@@ -281,41 +318,6 @@ const getUtmParameters = () => {
 	}
 	return utmParams;
 };
-
-const props = defineProps({
-	availableAddOns: {
-		type: Array,
-		default: () => [],
-	},
-	availableTicketTypes: {
-		type: Array,
-		default: () => [],
-	},
-	taxSettings: {
-		type: Object,
-		default: () => ({
-			apply_tax: false,
-			tax_label: "Tax",
-			tax_percentage: 0,
-		}),
-	},
-	eventDetails: {
-		type: Object,
-		default: () => ({}),
-	},
-	customFields: {
-		type: Array,
-		default: () => [],
-	},
-	eventRoute: {
-		type: String,
-		required: true,
-	},
-	paymentGateways: {
-		type: Array,
-		default: () => [],
-	},
-});
 
 // --- STATE ---
 // Use the booking form storage composable with event-scoped keys
@@ -330,13 +332,20 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
-const pendingPayload = ref(null);
+const pendingPayload = ref<any>(null);
 
 // Coupon state
 const couponCode = ref("");
 const couponApplied = ref(false);
 const couponError = ref("");
-const couponData = ref(null);
+const couponData = ref<Partial<BuzzCouponCode> | null>(null);
+
+const remainingTickets = computed(() => {
+	if (!couponData.value || couponData.value.coupon_type !== "Free Tickets") return 0;
+	const total = couponData.value.number_of_free_tickets || 0;
+	const claimed = couponData.value.free_tickets_claimed || 0;
+	return Math.max(0, total - claimed);
+});
 
 // Ensure user data is loaded
 if (!userResource.data) {
@@ -366,7 +375,9 @@ const getDefaultTicketType = () => {
 	const defaultTicketType = props.eventDetails?.default_ticket_type;
 	if (defaultTicketType) {
 		// Verify that the default ticket type is available
-		const isAvailable = props.availableTicketTypes.some((tt) => tt.name == defaultTicketType);
+		const isAvailable = props.availableTicketTypes.some(
+			(tt: any) => tt.name == defaultTicketType
+		);
 		if (isAvailable) {
 			return defaultTicketType;
 		}
@@ -375,9 +386,9 @@ const getDefaultTicketType = () => {
 	return props.availableTicketTypes[0]?.name || "";
 };
 
-const createNewAttendee = () => {
+const createNewAttendee = (): Attendee => {
 	attendeeIdCounter.value++;
-	const newAttendee = {
+	const newAttendee: Attendee = {
 		id: attendeeIdCounter.value,
 		full_name: "",
 		email: "",
@@ -396,7 +407,7 @@ const createNewAttendee = () => {
 	// Initialize custom fields with default values
 	for (const field of ticketCustomFields.value) {
 		if (field.default_value) {
-			newAttendee.custom_fields[field.fieldname] = field.default_value;
+			newAttendee.custom_fields[field.fieldname!] = field.default_value;
 		}
 	}
 
@@ -408,13 +419,26 @@ const addAttendee = () => {
 	attendees.value.push(newAttendee);
 };
 
-const removeAttendee = (index) => {
+const removeAttendee = (index: number) => {
 	attendees.value.splice(index, 1);
 };
 
+interface SummaryItem {
+	count: number;
+	amount: number;
+	price: number;
+	title: string;
+	currency: string;
+}
+
+interface SummaryData {
+	tickets: Record<string, SummaryItem>;
+	add_ons: Record<string, SummaryItem>;
+}
+
 // --- COMPUTED PROPERTIES FOR SUMMARY ---
-const summary = computed(() => {
-	const summaryData = { tickets: {}, add_ons: {} };
+const summary = computed((): SummaryData => {
+	const summaryData: SummaryData = { tickets: {}, add_ons: {} };
 
 	for (const attendee of attendees.value) {
 		const ticketType = attendee.ticket_type;
@@ -485,8 +509,13 @@ const taxPercentage = computed(() => {
 
 // Count of attendees matching the coupon's ticket type (for Free Tickets)
 const matchingAttendeesCount = computed(() => {
-	if (!couponData.value || couponData.value.coupon_type !== "Free Tickets") return 0;
-	return attendees.value.filter((a) => a.ticket_type === couponData.value.ticket_type).length;
+	if (
+		!couponData.value ||
+		couponData.value.coupon_type !== "Free Tickets" ||
+		!couponData.value.ticket_type
+	)
+		return 0;
+	return attendees.value.filter((a) => a.ticket_type === couponData.value!.ticket_type).length;
 });
 
 // Discount amount based on coupon
@@ -494,7 +523,7 @@ const discountAmount = computed(() => {
 	if (!couponApplied.value || !couponData.value) return 0;
 
 	// Free Tickets - only discount attendees with matching ticket type
-	if (couponData.value.coupon_type === "Free Tickets") {
+	if (couponData.value.coupon_type === "Free Tickets" && couponData.value.ticket_type) {
 		const couponTicketType = couponData.value.ticket_type;
 		const ticketInfo = ticketTypesMap.value[couponTicketType];
 		if (!ticketInfo) return 0;
@@ -503,10 +532,7 @@ const discountAmount = computed(() => {
 		const matchingAttendees = attendees.value.filter(
 			(a) => a.ticket_type === couponTicketType
 		);
-		const freeTicketCount = Math.min(
-			matchingAttendees.length,
-			couponData.value.remaining_tickets
-		);
+		const freeTicketCount = Math.min(matchingAttendees.length, remainingTickets.value);
 		let discount = freeTicketCount * ticketInfo.price;
 
 		// Add free add-ons discount for free ticket holders only
@@ -531,24 +557,32 @@ const discountAmount = computed(() => {
 
 	// Discount coupon
 	if (couponData.value.discount_type === "Percentage") {
-		let discount = netAmount.value * (couponData.value.discount_value / 100);
-		if (couponData.value.max_discount_amount > 0) {
-			discount = Math.min(discount, couponData.value.max_discount_amount);
+		let discount = netAmount.value * (couponData.value.discount_value! / 100);
+		if (
+			couponData.value.maximum_discount_amount &&
+			couponData.value.maximum_discount_amount > 0
+		) {
+			discount = Math.min(discount, couponData.value.maximum_discount_amount);
 		}
 		return discount;
 	}
-	return Math.min(couponData.value.discount_value, netAmount.value);
+	return Math.min(couponData.value.discount_value || 0, netAmount.value);
 });
 
 // Calculate free add-on counts for display
 const freeAddOnCounts = computed(() => {
-	if (!couponApplied.value || couponData.value?.coupon_type !== "Free Tickets") return {};
+	if (
+		!couponApplied.value ||
+		couponData.value?.coupon_type !== "Free Tickets" ||
+		!couponData.value.ticket_type
+	)
+		return {};
 	if (!couponData.value.free_add_ons?.length) return {};
 
-	const counts = {};
+	const counts: Record<string, number> = {};
 	const couponTicketType = couponData.value.ticket_type;
 	const matchingAttendees = attendees.value.filter((a) => a.ticket_type === couponTicketType);
-	const freeTicketCount = Math.min(matchingAttendees.length, couponData.value.remaining_tickets);
+	const freeTicketCount = Math.min(matchingAttendees.length, remainingTickets.value);
 
 	for (const addOnName of couponData.value.free_add_ons) {
 		let count = 0;
@@ -579,6 +613,22 @@ const totalCurrency = computed(() => {
 	return firstTicket ? firstTicket.currency : "INR";
 });
 
+const submitButtonText = computed(() => {
+	if (processBooking.loading) {
+		return __("Processing...");
+	}
+
+	if (finalTotal.value > 0) {
+		return __("Pay & Book");
+	}
+
+	if (props.eventDetails.category === "Webinars") {
+		return __("Register");
+	}
+
+	return __("Book Tickets");
+});
+
 // --- WATCHER ---
 // Initialize with one attendee when component mounts (only if no data in storage)
 watch(
@@ -589,8 +639,8 @@ watch(
 
 			// Pre-populate with current user's information if available
 			if (userResource.data) {
-				newAttendee.full_name = userResource.data.full_name || "";
-				newAttendee.email = userResource.data.email || "";
+				newAttendee.full_name = (userResource.data as any).full_name || "";
+				newAttendee.email = (userResource.data as any).email || "";
 			}
 
 			attendees.value.push(newAttendee);
@@ -646,8 +696,8 @@ watch(
 		if (fields && fields.length > 0) {
 			for (const field of fields) {
 				// Only set default value if field doesn't already have a value
-				if (field.default_value && !bookingCustomFieldsData.value[field.fieldname]) {
-					bookingCustomFieldsData.value[field.fieldname] = field.default_value;
+				if (field.default_value && !bookingCustomFieldsData.value[field.fieldname!]) {
+					bookingCustomFieldsData.value[field.fieldname!] = field.default_value;
 				}
 			}
 		}
@@ -656,8 +706,12 @@ watch(
 );
 
 watch(netAmount, (newVal) => {
-	if (couponApplied.value && couponData.value?.min_order_value > 0) {
-		if (newVal < couponData.value.min_order_value) {
+	if (
+		couponApplied.value &&
+		couponData.value &&
+		(couponData.value.minimum_order_value || 0) > 0
+	) {
+		if (newVal < couponData.value.minimum_order_value!) {
 			removeCoupon();
 			toast.warning(__("Coupon removed - minimum order not met"));
 		}
@@ -680,13 +734,13 @@ async function applyCoupon() {
 	}
 
 	couponError.value = "";
-	let result;
+	let result: any;
 	try {
 		result = await validateCoupon.submit({
 			coupon_code: couponCode.value.trim(),
 			event: eventId.value,
 		});
-	} catch (error) {
+	} catch (error: any) {
 		couponError.value = error.message || __("Failed to validate coupon");
 		return;
 	}
@@ -712,15 +766,16 @@ async function applyCoupon() {
 				coupon_type: "Discount",
 				discount_type: result.discount_type,
 				discount_value: result.discount_value,
-				max_discount_amount: result.max_discount_amount || 0,
-				min_order_value: result.min_order_value || 0,
+				maximum_discount_amount: result.maximum_discount_amount || 0,
+				minimum_order_value: result.minimum_order_value || 0,
 			};
 			toast.success(__("Coupon applied successfully!"));
 		} else if (result.coupon_type === "Free Tickets") {
 			couponData.value = {
 				coupon_type: "Free Tickets",
 				ticket_type: result.ticket_type,
-				remaining_tickets: result.remaining_tickets,
+				number_of_free_tickets: result.number_of_free_tickets,
+				free_tickets_claimed: result.free_tickets_claimed,
 				free_add_ons: result.free_add_ons || [],
 			};
 			// Info panel shows details - no toast needed
@@ -741,12 +796,12 @@ function removeCoupon() {
 
 // --- FORM VALIDATION ---
 const validateForm = () => {
-	const errors = [];
+	const errors: string[] = [];
 
 	// Validate booking-level mandatory fields
 	for (const field of bookingCustomFields.value) {
 		if (field.mandatory) {
-			const value = bookingCustomFieldsData.value[field.fieldname];
+			const value = bookingCustomFieldsData.value[field.fieldname!];
 			if (!value || !String(value).trim()) {
 				errors.push(`${field.label} is required`);
 			}
@@ -757,7 +812,7 @@ const validateForm = () => {
 	attendees.value.forEach((attendee, index) => {
 		for (const field of ticketCustomFields.value) {
 			if (field.mandatory) {
-				const value = attendee.custom_fields?.[field.fieldname];
+				const value = attendee.custom_fields?.[field.fieldname!];
 				if (!value || !String(value).trim()) {
 					errors.push(`${field.label} is required for Attendee #${index + 1}`);
 				}
@@ -788,7 +843,7 @@ async function submit() {
 
 	const attendees_payload = attendees.value.map((attendee) => {
 		const cleanAttendee = JSON.parse(JSON.stringify(attendee));
-		const selected_add_ons = [];
+		const selected_add_ons: { add_on: string; value: string | boolean }[] = [];
 		for (const addOnName in cleanAttendee.add_ons) {
 			const addOnState = cleanAttendee.add_ons[addOnName];
 			if (addOnState.selected) {
@@ -802,7 +857,7 @@ async function submit() {
 
 		// Clean custom fields - include all valid fields (mandatory fields are validated separately)
 		if (cleanAttendee.custom_fields) {
-			const cleanedCustomFields = {};
+			const cleanedCustomFields: Record<string, any> = {};
 			for (const [fieldName, value] of Object.entries(cleanAttendee.custom_fields)) {
 				// Check if this is a valid custom field for tickets
 				const fieldDef = ticketCustomFields.value.find((cf) => cf.fieldname === fieldName);
@@ -822,7 +877,7 @@ async function submit() {
 	});
 
 	// Clean booking custom fields
-	const cleanedBookingCustomFields = {};
+	const cleanedBookingCustomFields: Record<string, any> = {};
 	for (const [fieldName, value] of Object.entries(bookingCustomFieldsData.value)) {
 		// Check if this is a valid custom field for bookings
 		const fieldDef = bookingCustomFields.value.find((cf) => cf.fieldname === fieldName);
@@ -855,17 +910,17 @@ async function submit() {
 	}
 
 	// Single gateway or free event - submit directly
-	submitBooking(final_payload, props.paymentGateways[0] || null);
+	submitBooking(final_payload, props.paymentGateways[0]?.payment_gateway || null);
 }
 
-function submitBooking(payload, paymentGateway) {
+function submitBooking(payload: any, paymentGateway: string | null) {
 	processBooking.submit(
 		{
 			...payload,
 			payment_gateway: paymentGateway,
 		},
 		{
-			onSuccess: (data) => {
+			onSuccess: (data: any) => {
 				if (data.payment_link) {
 					window.location.href = data.payment_link;
 				} else {
@@ -873,7 +928,7 @@ function submitBooking(payload, paymentGateway) {
 					router.replace(`/bookings/${data.booking_name}?success=true`);
 				}
 			},
-			onError: (error) => {
+			onError: (error: any) => {
 				const message = error.messages?.[0] || error.message || __("Booking failed");
 				toast.error(message);
 			},
@@ -881,26 +936,10 @@ function submitBooking(payload, paymentGateway) {
 	);
 }
 
-function onGatewaySelected(gateway) {
+function onGatewaySelected(gateway: string) {
 	if (pendingPayload.value) {
 		submitBooking(pendingPayload.value, gateway);
 		pendingPayload.value = null;
 	}
 }
-
-const submitButtonText = computed(() => {
-	if (processBooking.loading) {
-		return __("Processing...");
-	}
-
-	if (finalTotal.value > 0) {
-		return __("Pay & Book");
-	}
-
-	if (props.eventDetails.category === "Webinars") {
-		return __("Register");
-	}
-
-	return __("Book Tickets");
-});
 </script>

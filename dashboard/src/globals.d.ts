@@ -13,6 +13,25 @@ declare module '@vue/runtime-core' {
     Alert: (typeof import('frappe-ui'))['Alert']
     Badge: (typeof import('frappe-ui'))['Badge']
   }
+  export interface ComponentCustomProperties {
+    $socket: import('socket.io-client').Socket;
+    __: (message: string, replace?: any[], context?: string) => string;
+  }
+}
+
+declare global {
+  interface Window {
+    frappe: any;
+    __: (message: string, replace?: any[], context?: string) => string;
+    site_name: string;
+    time_zone: string;
+    timezone?: {
+      system: string;
+      user: string;
+    };
+    translatedMessages: Record<string, string>;
+  }
+  const __: (message: string, replace?: any[], context?: string) => string;
 }
 
 

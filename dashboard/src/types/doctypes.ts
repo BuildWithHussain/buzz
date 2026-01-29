@@ -206,7 +206,7 @@ export interface EventTicket extends DocType {
   /** QR Code: Attach Image */
   qr_code?: string;
   /** Add Ons: Table (Ticket Add-on Value) */
-  add_ons: TicketAdd-onValue[];
+  add_ons: any[];
   /** Attendee Email: Data */
   attendee_email: string;
   /** Coupon Used : Link (Bulk Ticket Coupon) */
@@ -455,6 +455,68 @@ export interface BuzzEvent extends DocType {
   tax_percentage?: number;
   /** Card Image: Attach Image */
   card_image?: string;
+}
+
+// Last updated: 2025-11-08 15:25:00.872093
+export interface TicketAddOn extends DocType {
+  /** Price: Currency */
+  price?: any;
+  /** Currency: Link (Currency) */
+  currency?: string;
+  /** Event: Link (Buzz Event) */
+  event: string;
+  /** Title: Data */
+  title: string;
+  /** Options: Small Text */
+  options?: string;
+  /** User Selects Option?: Check */
+  user_selects_option: 0 | 1;
+  /** Description: Small Text */
+  description?: string;
+  /** Enabled?: Check */
+  enabled: 0 | 1;
+}
+
+// Last updated: 2026-01-12 10:38:02.737227
+export interface BuzzCouponCode extends DocType {
+  /** Code: Data */
+  code?: string;
+  /** Coupon Type: Select */
+  coupon_type: 'Free Tickets' | 'Discount';
+  /** Is Active: Check */
+  is_active: 0 | 1;
+  /** Event: Link (Buzz Event) */
+  event?: string;
+  /** Event Category: Link (Event Category) */
+  event_category?: string;
+  /** Ticket Type: Link (Event Ticket Type) */
+  ticket_type?: string;
+  /** Number of Free Tickets: Int */
+  number_of_free_tickets?: number;
+  /** Free Add-ons: Table (Coupon Free Add-on) */
+  free_add_ons: any[];
+  /** Discount Type: Select */
+  discount_type?: 'Percentage' | 'Flat Amount';
+  /** Discount Value: Float */
+  discount_value?: number;
+  /** Max Usage Count: Int */
+  max_usage_count?: number;
+  /** Times Used: Int */
+  times_used?: number;
+  /** Free Tickets Claimed: Int */
+  free_tickets_claimed?: number;
+  /** Maximum Discount Amount: Float */
+  maximum_discount_amount?: number;
+  /** Minimum Order Value: Float */
+  minimum_order_value?: number;
+  /** Valid From: Date */
+  valid_from?: string;
+  /** Valid Till: Date */
+  valid_till?: string;
+  /** Max Usage Per User: Int */
+  max_usage_per_user?: number;
+  /** Applies To: Select */
+  applies_to?: '' | 'Event' | 'Event Category';
 }
 
 // Last updated: 2025-11-08 15:25:00.872093

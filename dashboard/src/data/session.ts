@@ -18,7 +18,7 @@ interface LoginPayload {
 	password?: string;
 }
 
-export const session = reactive({
+export const session: any = reactive({
 	login: createResource({
 		url: "login",
 		makeParams({ email, password }: LoginPayload) {

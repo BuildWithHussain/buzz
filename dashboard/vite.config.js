@@ -54,6 +54,7 @@ export default defineConfig(async ({ command, mode }) => {
 							"event_ticket_type",
 							"ticket_add_on",
 							"event_payment",
+							"buzz_coupon_code",
 							// Proposals module
 							"talk_proposal",
 							"sponsorship_enquiry",

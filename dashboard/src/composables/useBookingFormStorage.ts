@@ -1,4 +1,17 @@
 import { useStorage } from "@vueuse/core";
+import type { EventBookingAttendee } from "@/types/doctypes";
+
+export interface Attendee extends Omit<Partial<EventBookingAttendee>, "add_ons" | "custom_fields"> {
+	id: number;
+	add_ons: Record<
+		string,
+		{
+			selected: boolean;
+			option: string | null;
+		}
+	>;
+	custom_fields: Record<string, any>;
+}
 
 /**
  * Composable for managing booking form localStorage data
@@ -12,7 +25,7 @@ export function useBookingFormStorage(eventRoute: string) {
 
 	// Scope storage keys to the specific event route
 	const storageKeyPrefix = `event-booking-${eventRoute}`;
-	const attendees = useStorage<any[]>(`${storageKeyPrefix}-attendees`, []);
+	const attendees = useStorage<Attendee[]>(`${storageKeyPrefix}-attendees`, []);
 	const attendeeIdCounter = useStorage<number>(`${storageKeyPrefix}-counter`, 0);
 	const bookingCustomFields = useStorage<Record<string, any>>(`${storageKeyPrefix}-custom-fields`, {});
 
