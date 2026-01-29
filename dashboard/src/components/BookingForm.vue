@@ -270,6 +270,7 @@ import type {
 	BuzzCustomField,
 	EventPaymentGateway,
 	BuzzCouponCode,
+	TicketAddOn,
 } from "@/types/doctypes";
 import LucideCheck from "~icons/lucide/check";
 import LucideX from "~icons/lucide/x";
@@ -277,14 +278,14 @@ import LucideGift from "~icons/lucide/gift";
 import LucideAlertCircle from "~icons/lucide/alert-circle";
 
 interface Props {
-	availableAddOns?: any[];
+	availableAddOns?: TicketAddOn[];
 	availableTicketTypes?: EventTicketType[];
 	taxSettings?: {
 		apply_tax: boolean;
 		tax_label: string;
 		tax_percentage: number;
 	};
-	eventDetails: Partial<BuzzEvent> & { free_webinar?: boolean; default_ticket_type?: string };
+	eventDetails: Partial<BuzzEvent>;
 	customFields?: BuzzCustomField[];
 	eventRoute: string;
 	paymentGateways?: EventPaymentGateway[];
@@ -353,10 +354,10 @@ if (!userResource.data) {
 }
 
 // --- HELPERS / DERIVED STATE ---
-const addOnsMap = computed(() =>
+const addOnsMap = computed<Record<string, TicketAddOn>>(() =>
 	Object.fromEntries(props.availableAddOns.map((a) => [a.name, a]))
 );
-const ticketTypesMap = computed(() =>
+const ticketTypesMap = computed<Record<string, EventTicketType>>(() =>
 	Object.fromEntries(props.availableTicketTypes.map((t) => [t.name, t]))
 );
 const eventId = computed(() => props.availableTicketTypes[0]?.event || null);
@@ -469,7 +470,7 @@ const summary = computed((): SummaryData => {
 						amount: 0,
 						price: addOnInfo.price,
 						title: addOnInfo.title,
-						currency: addOnInfo.currency,
+						currency: addOnInfo.currency || "INR",
 					};
 				}
 				summaryData.add_ons[addOnName].count++;

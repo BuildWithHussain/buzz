@@ -518,23 +518,3 @@ export interface BuzzCouponCode extends DocType {
   /** Applies To: Select */
   applies_to?: '' | 'Event' | 'Event Category';
 }
-
-// Last updated: 2025-11-08 15:25:00.872093
-export interface TicketAdd-on extends DocType {
-  /** Price: Currency */
-  price?: any;
-  /** Currency: Link (Currency) */
-  currency?: string;
-  /** Event: Link (Buzz Event) */
-  event: string;
-  /** Title: Data */
-  title: string;
-  /** Options: Small Text */
-  options?: string;
-  /** User Selects Option?: Check */
-  user_selects_option: 0 | 1;
-  /** Description: Small Text */
-  description?: string;
-  /** Enabled?: Check */
-  enabled: 0 | 1;
-}
