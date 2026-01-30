@@ -47,6 +47,7 @@ class BuzzEvent(Document):
 		registration_url: DF.Data | None
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
+		send_email: DF.Check
 		short_description: DF.SmallText | None
 		show_sponsorship_section: DF.Check
 		sponsor_deck_attachments: DF.Table[SponsorshipDeckItem]

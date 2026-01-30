@@ -37,6 +37,11 @@ class EventTicket(Document):
 		self.generate_qr_code()
 
 	def on_submit(self):
+		send_email = frappe.get_cached_value("Buzz Event", self.event, "send_email")
+
+		if not send_email:
+			return
+
 		try:
 			self.send_ticket_email()
 		except Exception as e:

@@ -56,10 +56,12 @@
   "section_break_mieu",
   "sponsor_deck_attachments",
   "customisations_tab",
-  "ticket_email_template",
+  "send_email",
+  "section_break_uoke",
   "attach_calendar_invite",
-  "attach_email_ticket",
+  "ticket_email_template",
   "column_break_ukql",
+  "attach_email_ticket",
   "ticket_print_format",
   "talks_section",
   "allow_editing_talks_after_acceptance",
@@ -221,6 +223,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:doc.send_email && doc.attach_email_ticket;",
    "fieldname": "ticket_print_format",
    "fieldtype": "Link",
    "label": "Ticket Print Format",
@@ -240,6 +243,7 @@
    "label": "Allow Editing Talks After Acceptance"
   },
   {
+   "depends_on": "eval:doc.send_email;",
    "fieldname": "ticket_email_template",
    "fieldtype": "Link",
    "label": "Ticket Email Template",
@@ -398,15 +402,27 @@
   },
   {
    "default": "1",
+   "depends_on": "eval:doc.send_email",
    "fieldname": "attach_calendar_invite",
    "fieldtype": "Check",
    "label": "Attach Calendar Invite"
   },
   {
    "default": "1",
+   "fieldname": "send_email",
+   "fieldtype": "Check",
+   "label": "Send Email"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.send_email;",
    "fieldname": "attach_email_ticket",
    "fieldtype": "Check",
    "label": "Attach Email Ticket"
+  },
+  {
+   "fieldname": "section_break_uoke",
+   "fieldtype": "Section Break"
   }
  ],
  "grid_page_length": 50,
@@ -479,7 +495,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-01-29 16:05:57.303461",
+ "modified": "2026-01-30 11:58:41.468747",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
