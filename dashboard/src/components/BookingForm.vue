@@ -108,6 +108,7 @@
 								:label="__('Full Name')"
 								:placeholder="__('Enter your name')"
 								required
+								@blur="prefillAttendee('name')"
 							/>
 							<FormControl
 								v-model="guestEmail"
@@ -115,6 +116,7 @@
 								:label="__('Email Address')"
 								:placeholder="__('Enter your email')"
 								required
+								@blur="prefillAttendee('email')"
 							/>
 							<FormControl
 								v-if="props.eventDetails.guest_verification_method === 'Phone OTP'"
@@ -446,6 +448,9 @@ const {
 	attendees,
 	attendeeIdCounter,
 	bookingCustomFields: storedBookingCustomFields,
+	guestFullName,
+	guestEmail,
+	guestPhone,
 } = useBookingFormStorage(props.eventRoute);
 
 // Use stored booking custom fields data
@@ -461,11 +466,6 @@ const couponCode = ref("");
 const couponApplied = ref(false);
 const couponError = ref("");
 const couponData = ref(null);
-
-// Guest booking state
-const guestEmail = ref("");
-const guestFullName = ref("");
-const guestPhone = ref("");
 
 // Success state for guest bookings
 const bookingSuccess = ref(false);
@@ -823,6 +823,13 @@ watch(matchingAttendeesCount, (newCount) => {
 		toast.warning(__("Coupon removed — no eligible attendees for this ticket type"));
 	}
 });
+
+function prefillAttendee(field) {
+	if (!props.isGuestMode || !attendees.value.length) return;
+	const first = attendees.value[0];
+	if (field === "name" && !first.full_name) first.full_name = guestFullName.value;
+	if (field === "email" && !first.email) first.email = guestEmail.value;
+}
 
 const processBooking = createResource({
 	url: "buzz.api.process_booking",

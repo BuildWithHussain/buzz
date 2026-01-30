@@ -16,6 +16,10 @@ export function useBookingFormStorage(eventRoute) {
 	const attendeeIdCounter = useStorage(`${storageKeyPrefix}-counter`, 0);
 	const bookingCustomFields = useStorage(`${storageKeyPrefix}-custom-fields`, {});
 
+	const guestFullName = useStorage(`${storageKeyPrefix}-guest-name`, "");
+	const guestEmail = useStorage(`${storageKeyPrefix}-guest-email`, "");
+	const guestPhone = useStorage(`${storageKeyPrefix}-guest-phone`, "");
+
 	/**
 	 * Clear all stored booking form data
 	 * This should be called when payment is successful
@@ -24,6 +28,9 @@ export function useBookingFormStorage(eventRoute) {
 		attendees.value = [];
 		attendeeIdCounter.value = 0;
 		bookingCustomFields.value = {};
+		guestFullName.value = "";
+		guestEmail.value = "";
+		guestPhone.value = "";
 	};
 
 	/**
@@ -37,6 +44,9 @@ export function useBookingFormStorage(eventRoute) {
 		attendees,
 		attendeeIdCounter,
 		bookingCustomFields,
+		guestFullName,
+		guestEmail,
+		guestPhone,
 		clearStoredData,
 		hasStoredData,
 	};
