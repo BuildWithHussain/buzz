@@ -37,6 +37,11 @@ class EventTicket(Document):
 		self.generate_qr_code()
 
 	def on_submit(self):
+		send_email = frappe.get_cached_value("Buzz Event", self.event, "send_email")
+
+		if not send_email:
+			return
+
 		try:
 			self.send_ticket_email()
 		except Exception as e:
@@ -103,12 +108,26 @@ class EventTicket(Document):
 			subject = email_template.get("subject")
 			content = email_template.get("message")
 
+		attachments = []
+
+		if event_doc.attach_email_ticket:
+			attachments.append(
+				{
+					"print_format_attachment": 1,
+					"doctype": self.doctype,
+					"name": self.name,
+					"print_format": ticket_print_format or "Standard Ticket",
+				}
+			)
+
 		if event_doc.attach_calendar_invite:
 			ics_content = generate_ics_file(event_doc, self.attendee_email)
-			attachments = {
-				"fname": f"{event_doc.title}.ics",
-				"fcontent": ics_content,
-			}
+			attachments.append(
+				{
+					"fname": f"{event_doc.title}.ics",
+					"fcontent": ics_content,
+				}
+			)
 
 		frappe.sendmail(
 			recipients=[self.attendee_email],
@@ -119,15 +138,7 @@ class EventTicket(Document):
 			reference_doctype=self.doctype,
 			reference_name=self.name,
 			now=now,
-			attachments=[
-				{
-					"print_format_attachment": 1,
-					"doctype": self.doctype,
-					"name": self.name,
-					"print_format": ticket_print_format or "Standard Ticket",
-				}
-			]
-			+ ([attachments] if event_doc.attach_calendar_invite else []),
+			attachments=attachments,
 		)
 
 	def validate_coupon_usage(self):

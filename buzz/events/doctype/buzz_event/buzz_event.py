@@ -27,6 +27,7 @@ class BuzzEvent(Document):
 		allow_guest_booking: DF.Check
 		apply_tax: DF.Check
 		attach_calendar_invite: DF.Check
+		attach_email_ticket: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
 		card_image: DF.AttachImage | None
@@ -48,6 +49,7 @@ class BuzzEvent(Document):
 		registration_url: DF.Data | None
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
+		send_email: DF.Check
 		short_description: DF.SmallText | None
 		show_sponsorship_section: DF.Check
 		sponsor_deck_attachments: DF.Table[SponsorshipDeckItem]
