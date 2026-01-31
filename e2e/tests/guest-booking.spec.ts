@@ -4,6 +4,21 @@ import { BookingPage } from "../pages";
 // Unique suffix per run to avoid rate limits
 const uid = Date.now();
 
+test.describe("Guest Booking UX", () => {
+	test("guest details auto-fill to Attendee 1", async ({ page }) => {
+		const bookingPage = new BookingPage(page);
+		await bookingPage.goto("guest-no-otp-e2e");
+		await bookingPage.waitForFormLoad();
+
+		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest");
+		await page.locator('input[placeholder="Enter your email"]').fill("test@example.com");
+		await page.locator('input[placeholder="Enter your email"]').blur();
+
+		await expect(page.locator('input[placeholder="Enter full name"]').first()).toHaveValue("Test Guest");
+		await expect(page.locator('input[placeholder="Enter email address"]').first()).toHaveValue("test@example.com");
+	});
+});
+
 test.describe("Guest Booking", () => {
 	test("guest booking without OTP", async ({ page }) => {
 		const email = `guest-no-otp-${uid}@test.com`;
