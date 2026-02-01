@@ -15,9 +15,19 @@ from buzz.utils import is_app_installed
 
 @frappe.whitelist(allow_guest=True)
 @rate_limit(key="identifier", limit=5, seconds=3600)
-def send_guest_booking_otp(channel: str, identifier: str) -> dict:
+def send_guest_booking_otp(event: int, identifier: str) -> dict:
 	"""Send OTP via email or SMS for guest booking verification."""
 	from frappe.core.doctype.sms_settings.sms_settings import send_sms
+
+	event_doc = frappe.get_cached_doc("Buzz Event", event)
+
+	if not event_doc.allow_guest_booking:
+		frappe.throw(_("Guest booking is not enabled for this event"))
+
+	if event_doc.guest_verification_method == "None":
+		frappe.throw(_("OTP verification is not enabled for this event"))
+
+	channel = "phone" if event_doc.guest_verification_method == "Phone OTP" else "email"
 
 	identifier = identifier.strip()
 	if not identifier:

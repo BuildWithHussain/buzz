@@ -866,7 +866,7 @@ const isPhoneOtp = computed(() => props.eventDetails.guest_verification_method =
 
 function sendOtpForVerification() {
 	sendOtpResource.submit({
-		channel: isPhoneOtp.value ? "phone" : "email",
+		event: props.eventDetails.name,
 		identifier: isPhoneOtp.value ? guestPhone.value.trim() : guestEmail.value.trim(),
 	});
 }
