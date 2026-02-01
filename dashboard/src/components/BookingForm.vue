@@ -38,7 +38,7 @@
 					variant="ghost"
 					size="sm"
 					class="pl-0"
-					:loading="sendOtpResource.loading || sendOtpSmsResource.loading"
+					:loading="sendOtpResource.loading"
 					:disabled="resendCooldown > 0"
 					@click="resendOtp"
 				>
@@ -352,11 +352,7 @@
 								size="lg"
 								class="w-full"
 								type="submit"
-								:loading="
-									processBooking.loading ||
-									sendOtpResource.loading ||
-									sendOtpSmsResource.loading
-								"
+								:loading="processBooking.loading || sendOtpResource.loading"
 							>
 								{{ submitButtonText }}
 							</Button>
@@ -855,19 +851,11 @@ const sendOtpResource = createResource({
 	onSuccess: () => {
 		showOtpModal.value = true;
 		startResendCooldown();
-		toast.success(__("Verification code sent to your email"));
-	},
-	onError: (error) => {
-		toast.error(error.messages?.[0] || __("Failed to send verification code"));
-	},
-});
-
-const sendOtpSmsResource = createResource({
-	url: "buzz.api.send_guest_booking_otp_sms",
-	onSuccess: () => {
-		showOtpModal.value = true;
-		startResendCooldown();
-		toast.success(__("Verification code sent to your phone"));
+		toast.success(
+			isPhoneOtp.value
+				? __("Verification code sent to your phone")
+				: __("Verification code sent to your email")
+		);
 	},
 	onError: (error) => {
 		toast.error(error.messages?.[0] || __("Failed to send verification code"));
@@ -877,11 +865,10 @@ const sendOtpSmsResource = createResource({
 const isPhoneOtp = computed(() => props.eventDetails.guest_verification_method === "Phone OTP");
 
 function sendOtpForVerification() {
-	if (isPhoneOtp.value) {
-		sendOtpSmsResource.submit({ phone: guestPhone.value.trim() });
-	} else {
-		sendOtpResource.submit({ email: guestEmail.value.trim() });
-	}
+	sendOtpResource.submit({
+		channel: isPhoneOtp.value ? "phone" : "email",
+		identifier: isPhoneOtp.value ? guestPhone.value.trim() : guestEmail.value.trim(),
+	});
 }
 
 // --- COUPON FUNCTIONS ---
@@ -1191,7 +1178,7 @@ function submitWithOtp() {
 }
 
 function resendOtp() {
-	if (sendOtpResource.loading || sendOtpSmsResource.loading || resendCooldown.value > 0) return;
+	if (sendOtpResource.loading || resendCooldown.value > 0) return;
 	otpCode.value = "";
 	sendOtpForVerification();
 }

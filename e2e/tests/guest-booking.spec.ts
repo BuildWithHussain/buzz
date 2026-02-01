@@ -28,9 +28,7 @@ test.describe("Guest Booking", () => {
 
 		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
-
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Test Guest");
-		await page.locator('input[placeholder="Enter email address"]').first().fill(email);
+		await page.locator('input[placeholder="Enter your email"]').blur();
 
 		await bookingPage.submit();
 
@@ -45,15 +43,10 @@ test.describe("Guest Booking", () => {
 
 		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest Email");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
-
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Test Guest Email");
-		await page.locator('input[placeholder="Enter email address"]').first().fill(email);
+		await page.locator('input[placeholder="Enter your email"]').blur();
 
 		const otpResponsePromise = page.waitForResponse(
-			(resp) =>
-				resp.url().includes("send_guest_booking_otp") &&
-				!resp.url().includes("sms") &&
-				resp.status() === 200,
+			(resp) => resp.url().includes("send_guest_booking_otp") && resp.status() === 200,
 		);
 
 		await bookingPage.submit();
@@ -80,13 +73,11 @@ test.describe("Guest Booking", () => {
 
 		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest Phone");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
+		await page.locator('input[placeholder="Enter your email"]').blur(); // triggers auto-fill
 		await page.locator('input[placeholder="Enter your phone number"]').fill(phone);
 
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Test Guest Phone");
-		await page.locator('input[placeholder="Enter email address"]').first().fill(email);
-
 		const otpResponsePromise = page.waitForResponse(
-			(resp) => resp.url().includes("send_guest_booking_otp_sms") && resp.status() === 200,
+			(resp) => resp.url().includes("send_guest_booking_otp") && resp.status() === 200,
 		);
 
 		await bookingPage.submit();

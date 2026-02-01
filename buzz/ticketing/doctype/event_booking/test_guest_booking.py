@@ -94,7 +94,7 @@ class TestGuestBooking(IntegrationTestCase):
 			otp_secret = b32encode(b"TESTSECRET").decode("utf-8")
 			otp_code = pyotp.HOTP(otp_secret).at(0)
 			frappe.cache.set_value(
-				f"guest_booking_otp:{email.lower().strip()}", otp_secret, expires_in_sec=600
+				f"guest_booking_otp:email:{email.lower().strip()}", otp_secret, expires_in_sec=600
 			)
 
 			frappe.set_user("Guest")
@@ -107,7 +107,7 @@ class TestGuestBooking(IntegrationTestCase):
 			)
 			self.assertIn("booking_name", result)
 			# OTP cache should be cleared after successful verification
-			self.assertIsNone(frappe.cache.get_value(f"guest_booking_otp:{email.lower().strip()}"))
+			self.assertIsNone(frappe.cache.get_value(f"guest_booking_otp:email:{email.lower().strip()}"))
 		finally:
 			self._cleanup_test_user(email)
 
@@ -132,7 +132,9 @@ class TestGuestBooking(IntegrationTestCase):
 		self.test_event.save()
 
 		otp_secret = b32encode(b"TESTSECRET").decode("utf-8")
-		frappe.cache.set_value(f"guest_booking_otp:{email.lower().strip()}", otp_secret, expires_in_sec=600)
+		frappe.cache.set_value(
+			f"guest_booking_otp:email:{email.lower().strip()}", otp_secret, expires_in_sec=600
+		)
 
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.ValidationError):
@@ -166,7 +168,7 @@ class TestGuestBooking(IntegrationTestCase):
 		self.test_event.save()
 
 		otp_secret = b32encode(b"TESTSECRET").decode("utf-8")
-		cache_key = f"guest_booking_otp:{email.lower().strip()}"
+		cache_key = f"guest_booking_otp:email:{email.lower().strip()}"
 
 		frappe.set_user("Guest")
 
