@@ -41,7 +41,7 @@ def send_guest_booking_otp(event: int, identifier: str) -> dict:
 	otp_code = pyotp.HOTP(otp_secret).at(0)
 	cache_key = f"guest_booking_otp:{channel}:{identifier}"
 
-	if frappe.conf.allow_tests:
+	if frappe.in_test:
 		frappe.cache.set_value(cache_key, otp_secret, expires_in_sec=600)
 		return {"otp": otp_code}
 
