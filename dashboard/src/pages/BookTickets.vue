@@ -3,7 +3,23 @@
 		<div class="w-8">
 			<Spinner v-if="eventBookingResource.loading" />
 		</div>
-		<div>
+		<div
+			v-if="!canAccessBookingPage && !eventBookingResource.loading"
+			class="flex flex-col items-center justify-center py-16 px-4"
+		>
+			<div class="text-center max-w-md">
+				<h2 class="text-xl font-semibold text-ink-gray-8 mb-2">
+					{{ __("Login Required") }}
+				</h2>
+				<p class="text-ink-gray-6 mb-6">
+					{{ __("Please log in to book tickets for this event.") }}
+				</p>
+				<Button variant="solid" size="lg" @click="redirectToLogin">{{
+					__("Log In")
+				}}</Button>
+			</div>
+		</div>
+		<div v-else>
 			<BookingForm
 				v-if="eventBookingData.availableAddOns && eventBookingData.availableTicketTypes"
 				:availableAddOns="eventBookingData.availableAddOns"
@@ -13,15 +29,18 @@
 				:customFields="eventBookingData.customFields"
 				:eventRoute="eventRoute"
 				:paymentGateways="eventBookingData.paymentGateways"
+				:isGuestMode="isGuest"
 			/>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, computed } from "vue";
 import BookingForm from "../components/BookingForm.vue";
 import { Spinner, createResource } from "frappe-ui";
+import { session } from "@/data/session";
+import { redirectToLogin } from "../utils/index.js";
 
 const eventBookingData = reactive({
 	availableAddOns: null,
@@ -37,6 +56,12 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+});
+
+const isGuest = computed(() => !session.isLoggedIn);
+
+const canAccessBookingPage = computed(() => {
+	return session.isLoggedIn || eventBookingData.eventDetails?.allow_guest_booking;
 });
 
 const eventBookingResource = createResource({

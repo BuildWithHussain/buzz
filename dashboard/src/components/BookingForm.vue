@@ -10,10 +10,125 @@
 			@gateway-selected="onGatewaySelected"
 		/>
 
-		<form @submit.prevent="submit">
+		<!-- OTP Verification Dialog for Guest Booking -->
+		<Dialog
+			v-model="showOtpModal"
+			:options="{
+				title: isPhoneOtp ? __('Verify Your Phone') : __('Verify Your Email'),
+				size: 'sm',
+			}"
+		>
+			<template #body-content>
+				<p class="text-sm text-ink-gray-6 mb-4">
+					{{ __("Enter the 6-digit code sent to") }}
+					<strong>{{ isPhoneOtp ? guestPhone : guestEmail }}</strong>
+				</p>
+				<FormControl
+					v-model="otpCode"
+					type="text"
+					maxlength="6"
+					:label="__('Verification Code')"
+					placeholder="123456"
+					class="mb-3"
+					@keyup.enter="submitWithOtp"
+					@input="otpError = ''"
+				/>
+				<ErrorMessage :message="otpError" />
+				<Button
+					variant="ghost"
+					size="sm"
+					class="pl-0"
+					:loading="sendOtpResource.loading"
+					:disabled="resendCooldown > 0"
+					@click="resendOtp"
+				>
+					{{
+						resendCooldown > 0
+							? __("Resend code ({0}s)", [resendCooldown])
+							: __("Resend code")
+					}}
+				</Button>
+			</template>
+
+			<template #actions>
+				<div class="flex justify-end space-x-3">
+					<Button variant="ghost" @click="clearOtpState">{{ __("Cancel") }}</Button>
+					<Button
+						variant="solid"
+						:loading="processBooking.loading"
+						@click="submitWithOtp"
+					>
+						{{ __("Verify & Book") }}
+					</Button>
+				</div>
+			</template>
+		</Dialog>
+
+		<!-- Success State for Guest Booking -->
+		<div v-if="bookingSuccess" class="text-center py-12 px-4">
+			<div class="bg-green-50 border border-green-200 rounded-xl p-8 max-w-md mx-auto">
+				<LucideCheckCircle class="w-16 h-16 text-green-500 mx-auto mb-4" />
+				<h2 class="text-2xl font-semibold text-green-800 mb-2">
+					{{ __("Booking Confirmed!") }}
+				</h2>
+				<p class="text-green-700 mb-4">
+					{{ __("Your tickets have been sent to") }}
+					<strong>{{ guestEmail }}</strong>
+				</p>
+				<p class="text-sm text-green-600 mb-6">
+					{{ __("Check your email for ticket details and QR codes.") }}
+				</p>
+				<div class="space-y-3">
+					<p class="text-xs text-ink-gray-5">
+						{{ __("Want to manage your bookings?") }}
+					</p>
+					<Button variant="outline" @click="redirectToLogin">
+						{{ __("Log in to your account") }}
+					</Button>
+				</div>
+			</div>
+		</div>
+
+		<form v-else @submit.prevent="submit">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
 				<div class="lg:col-span-2">
+					<!-- Guest Contact Section -->
+					<div
+						v-if="props.isGuestMode"
+						class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 md:p-6 mb-6 shadow-sm"
+					>
+						<h3 class="text-sm font-semibold text-ink-gray-8 mb-4">
+							{{ __("Your Details") }}
+						</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<FormControl
+								v-model="guestFullName"
+								type="text"
+								:label="__('Full Name')"
+								:placeholder="__('Enter your name')"
+								required
+								@blur="prefillAttendee('name')"
+							/>
+							<FormControl
+								v-model="guestEmail"
+								type="email"
+								:label="__('Email Address')"
+								:placeholder="__('Enter your email')"
+								required
+								@blur="prefillAttendee('email')"
+							/>
+							<FormControl
+								v-if="props.eventDetails.guest_verification_method === 'Phone OTP'"
+								v-model="guestPhone"
+								type="tel"
+								:label="__('Phone Number')"
+								:placeholder="__('Enter your phone number')"
+								required
+							/>
+						</div>
+					</div>
+
 					<!-- Booking-level Custom Fields -->
 					<div
 						v-if="bookingCustomFields.length > 0"
@@ -237,7 +352,7 @@
 								size="lg"
 								class="w-full"
 								type="submit"
-								:loading="processBooking.loading"
+								:loading="processBooking.loading || sendOtpResource.loading"
 							>
 								{{ submitButtonText }}
 							</Button>
@@ -250,7 +365,7 @@
 </template>
 
 <script setup>
-import { computed, watch, ref } from "vue";
+import { computed, watch, ref, onUnmounted } from "vue";
 import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
@@ -261,7 +376,9 @@ import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
+import { redirectToLogin, clearBookingCache } from "../utils/index.js";
 import LucideCheck from "~icons/lucide/check";
+import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
 import LucideAlertCircle from "~icons/lucide/alert-circle";
@@ -315,6 +432,10 @@ const props = defineProps({
 		type: Array,
 		default: () => [],
 	},
+	isGuestMode: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 // --- STATE ---
@@ -323,6 +444,9 @@ const {
 	attendees,
 	attendeeIdCounter,
 	bookingCustomFields: storedBookingCustomFields,
+	guestFullName,
+	guestEmail,
+	guestPhone,
 } = useBookingFormStorage(props.eventRoute);
 
 // Use stored booking custom fields data
@@ -331,6 +455,7 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
 const pendingPayload = ref(null);
+const selectedGateway = ref(null);
 
 // Coupon state
 const couponCode = ref("");
@@ -338,8 +463,24 @@ const couponApplied = ref(false);
 const couponError = ref("");
 const couponData = ref(null);
 
-// Ensure user data is loaded
-if (!userResource.data) {
+// Success state for guest bookings
+const bookingSuccess = ref(false);
+const successBookingName = ref("");
+
+// OTP verification state for guest bookings
+const showOtpModal = ref(false);
+const otpCode = ref("");
+const otpError = ref("");
+const pendingBookingPayload = ref(null);
+const resendCooldown = ref(0);
+let resendCooldownTimer = null;
+
+onUnmounted(() => {
+	clearInterval(resendCooldownTimer);
+});
+
+// Ensure user data is loaded (only if not in guest mode)
+if (!props.isGuestMode && !userResource.data) {
 	userResource.fetch();
 }
 
@@ -679,6 +820,13 @@ watch(matchingAttendeesCount, (newCount) => {
 	}
 });
 
+function prefillAttendee(field) {
+	if (!props.isGuestMode || !attendees.value.length) return;
+	const first = attendees.value[0];
+	if (field === "name" && !first.full_name) first.full_name = guestFullName.value;
+	if (field === "email" && !first.email) first.email = guestEmail.value;
+}
+
 const processBooking = createResource({
 	url: "buzz.api.process_booking",
 });
@@ -686,6 +834,42 @@ const processBooking = createResource({
 const validateCoupon = createResource({
 	url: "buzz.api.validate_coupon",
 });
+
+function startResendCooldown() {
+	resendCooldown.value = 30;
+	clearInterval(resendCooldownTimer);
+	resendCooldownTimer = setInterval(() => {
+		resendCooldown.value--;
+		if (resendCooldown.value <= 0) {
+			clearInterval(resendCooldownTimer);
+		}
+	}, 1000);
+}
+
+const sendOtpResource = createResource({
+	url: "buzz.api.send_guest_booking_otp",
+	onSuccess: () => {
+		showOtpModal.value = true;
+		startResendCooldown();
+		toast.success(
+			isPhoneOtp.value
+				? __("Verification code sent to your phone")
+				: __("Verification code sent to your email")
+		);
+	},
+	onError: (error) => {
+		toast.error(error.messages?.[0] || __("Failed to send verification code"));
+	},
+});
+
+const isPhoneOtp = computed(() => props.eventDetails.guest_verification_method === "Phone OTP");
+
+function sendOtpForVerification() {
+	sendOtpResource.submit({
+		event: props.eventDetails.name,
+		identifier: isPhoneOtp.value ? guestPhone.value.trim() : guestEmail.value.trim(),
+	});
+}
 
 // --- COUPON FUNCTIONS ---
 async function applyCoupon() {
@@ -697,10 +881,15 @@ async function applyCoupon() {
 	couponError.value = "";
 	let result;
 	try {
-		result = await validateCoupon.submit({
+		const params = {
 			coupon_code: couponCode.value.trim(),
 			event: eventId.value,
-		});
+		};
+		// Pass user email for guest mode to properly check per-user limits
+		if (props.isGuestMode && guestEmail.value.trim()) {
+			params.user_email = guestEmail.value.trim().toLowerCase();
+		}
+		result = await validateCoupon.submit(params);
 	} catch (error) {
 		couponError.value = error.message || __("Failed to validate coupon");
 		return;
@@ -859,21 +1048,58 @@ async function submit() {
 		booking_custom_fields:
 			Object.keys(cleanedBookingCustomFields).length > 0 ? cleanedBookingCustomFields : null,
 		utm_parameters: utmParameters.length > 0 ? utmParameters : null,
+		guest_email: props.isGuestMode ? guestEmail.value.trim() : null,
+		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
+		guest_phone: props.isGuestMode && isPhoneOtp.value ? guestPhone.value.trim() : null,
 	};
 
-	// Check if we need to show gateway selection dialog
-	// Only show dialog if there's a payment (finalTotal > 0) and multiple gateways
+	if (props.isGuestMode) {
+		if (!guestFullName.value.trim()) {
+			toast.error(__("Please enter your full name"));
+			return;
+		}
+		if (!guestEmail.value.trim()) {
+			toast.error(__("Please enter your email address"));
+			return;
+		}
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(guestEmail.value.trim())) {
+			toast.error(__("Please enter a valid email address"));
+			return;
+		}
+		if (isPhoneOtp.value && !guestPhone.value.trim()) {
+			toast.error(__("Please enter your phone number"));
+			return;
+		}
+		pendingBookingPayload.value = final_payload;
+
+		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+			pendingPayload.value = final_payload;
+			showGatewayDialog.value = true;
+			return;
+		}
+
+		selectedGateway.value = props.paymentGateways[0] || null;
+
+		if (props.eventDetails.guest_verification_method === "None") {
+			submitBooking(final_payload, selectedGateway.value);
+			return;
+		}
+
+		sendOtpForVerification();
+		return;
+	}
+
 	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
 		pendingPayload.value = final_payload;
 		showGatewayDialog.value = true;
 		return;
 	}
 
-	// Single gateway or free event - submit directly
 	submitBooking(final_payload, props.paymentGateways[0] || null);
 }
 
-function submitBooking(payload, paymentGateway) {
+function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	processBooking.submit(
 		{
 			...payload,
@@ -881,8 +1107,17 @@ function submitBooking(payload, paymentGateway) {
 		},
 		{
 			onSuccess: (data) => {
+				clearBookingCache();
+
+				if (isOtpFlow) {
+					clearOtpState();
+				}
+
 				if (data.payment_link) {
 					window.location.href = data.payment_link;
+				} else if (props.isGuestMode) {
+					bookingSuccess.value = true;
+					successBookingName.value = data.booking_name;
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -890,17 +1125,72 @@ function submitBooking(payload, paymentGateway) {
 			},
 			onError: (error) => {
 				const message = error.messages?.[0] || error.message || __("Booking failed");
-				toast.error(message);
+
+				if (isOtpFlow) {
+					otpCode.value = "";
+					// Close modal on lockout or expired OTP - user must restart
+					if (message.includes("Too many") || message.includes("expired")) {
+						showOtpModal.value = false;
+						toast.error(message);
+					} else {
+						otpError.value = message;
+					}
+				} else {
+					toast.error(message);
+				}
 			},
 		}
 	);
 }
 
 function onGatewaySelected(gateway) {
+	if (props.isGuestMode) {
+		selectedGateway.value = gateway;
+		showGatewayDialog.value = false;
+
+		if (props.eventDetails.guest_verification_method === "None") {
+			submitBooking(pendingBookingPayload.value, gateway);
+			return;
+		}
+
+		sendOtpForVerification();
+		return;
+	}
+
 	if (pendingPayload.value) {
 		submitBooking(pendingPayload.value, gateway);
 		pendingPayload.value = null;
 	}
+}
+
+function submitWithOtp() {
+	if (!otpCode.value.trim()) {
+		otpError.value = __("Please enter the verification code");
+		return;
+	}
+
+	const payloadWithOtp = {
+		...pendingBookingPayload.value,
+		otp: otpCode.value.trim(),
+	};
+
+	submitBooking(payloadWithOtp, selectedGateway.value, { isOtpFlow: true });
+}
+
+function resendOtp() {
+	if (sendOtpResource.loading || resendCooldown.value > 0) return;
+	otpCode.value = "";
+	sendOtpForVerification();
+}
+
+function clearOtpState() {
+	showOtpModal.value = false;
+	otpCode.value = "";
+	otpError.value = "";
+	pendingBookingPayload.value = null;
+	selectedGateway.value = null;
+	resendCooldown.value = 0;
+	clearInterval(resendCooldownTimer);
 }
 
 const submitButtonText = computed(() => {

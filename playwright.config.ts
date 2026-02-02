@@ -52,11 +52,28 @@ export default defineConfig({
 		},
 		{
 			name: "chromium",
+			testIgnore: /guest-booking/,
 			use: {
 				...devices["Desktop Chrome"],
 				storageState: authFile,
 			},
 			dependencies: ["setup", "event-setup"],
+		},
+		{
+			name: "guest-event-setup",
+			testMatch: /guest-event\.setup\.ts/,
+			use: {
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
+		},
+		{
+			name: "guest-chromium",
+			testMatch: /guest-booking\.spec\.ts/,
+			use: {
+				...devices["Desktop Chrome"],
+			},
+			dependencies: ["guest-event-setup"],
 		},
 
 		// {

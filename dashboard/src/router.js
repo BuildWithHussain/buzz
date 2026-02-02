@@ -17,6 +17,7 @@ const routes = [
 		path: "/book-tickets/:eventRoute",
 		props: true,
 		name: "event-booking",
+		meta: { isPublic: true },
 		component: () => import("@/pages/BookTickets.vue"),
 	},
 	{
@@ -115,6 +116,11 @@ router.beforeEach(async (to, from, next) => {
 		await userResource.fetch();
 	} catch (error) {
 		isLoggedIn = false;
+	}
+
+	if (to.meta?.isPublic) {
+		next();
+		return;
 	}
 
 	if (to.name === "Login" && isLoggedIn) {

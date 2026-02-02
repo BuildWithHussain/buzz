@@ -25,6 +25,7 @@ class BuzzEvent(Document):
 
 		about: DF.TextEditor | None
 		allow_editing_talks_after_acceptance: DF.Check
+		allow_guest_booking: DF.Check
 		apply_tax: DF.Check
 		attach_calendar_invite: DF.Check
 		attach_email_ticket: DF.Check
@@ -38,6 +39,7 @@ class BuzzEvent(Document):
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
 		free_webinar: DF.Check
+		guest_verification_method: DF.Literal["None", "Email OTP", "Phone OTP"]
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]
@@ -71,6 +73,7 @@ class BuzzEvent(Document):
 		self.validate_schedule()
 		self.validate_route()
 		self.validate_tax_settings()
+		self.validate_guest_verification_config()
 
 	def validate_schedule(self):
 		end_date = self.end_date or self.start_date
@@ -124,6 +127,29 @@ class BuzzEvent(Document):
 	def validate_route(self):
 		if self.is_published and not self.route:
 			self.route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
+
+	def validate_guest_verification_config(self):
+		"""Ensure email/SMS is configured when OTP verification is enabled."""
+		if frappe.in_test or not self.allow_guest_booking:
+			return
+
+		if self.guest_verification_method == "Email OTP":
+			has_email = frappe.db.exists("Email Account", {"default_outgoing": 1, "enable_outgoing": 1})
+			if not has_email:
+				frappe.throw(
+					frappe._(
+						"Please configure an outgoing Email Account before enabling Email OTP verification."
+					),
+					title=frappe._("Email Not Configured"),
+				)
+
+		elif self.guest_verification_method == "Phone OTP":
+			sms_url = frappe.db.get_single_value("SMS Settings", "sms_gateway_url")
+			if not sms_url:
+				frappe.throw(
+					frappe._("Please configure SMS Settings before enabling Phone OTP verification."),
+					title=frappe._("SMS Not Configured"),
+				)
 
 	@frappe.whitelist()
 	def after_insert(self):

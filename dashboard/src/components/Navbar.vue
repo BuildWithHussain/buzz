@@ -16,6 +16,7 @@
 				</Button>
 				<LanguageSwitcher />
 				<Button
+					v-if="session.isLoggedIn"
 					:loading="session.logout.loading"
 					@click="session.logout.submit"
 					icon-right="log-out"
@@ -23,6 +24,15 @@
 					size="md"
 				>
 					{{ __("Log Out") }}
+				</Button>
+				<Button
+					v-else
+					@click="redirectToLogin"
+					icon-right="log-in"
+					variant="ghost"
+					size="md"
+				>
+					{{ __("Log In") }}
 				</Button>
 			</div>
 		</nav>
@@ -39,6 +49,7 @@ import LanguageSwitcher from "./LanguageSwitcher.vue";
 
 import { onMounted } from "vue";
 import { useStorage } from "@vueuse/core";
+import { redirectToLogin } from "../utils/index.js";
 
 const userTheme = useStorage("user-theme", "dark");
 
