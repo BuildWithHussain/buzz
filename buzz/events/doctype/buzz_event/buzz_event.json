@@ -14,8 +14,6 @@
   "banner_image",
   "host",
   "venue",
-  "allow_guest_booking",
-  "guest_verification_method",
   "section_break_naqe",
   "start_date",
   "start_time",
@@ -37,6 +35,10 @@
   "registration_url",
   "meta_image",
   "card_image",
+  "section_break_rmtj",
+  "allow_guest_booking",
+  "column_break_mijz",
+  "guest_verification_method",
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
@@ -424,7 +426,7 @@
    "label": "Guest Verification Method",
    "options": "None\nEmail OTP\nPhone OTP"
   },
-   {
+  {
    "default": "1",
    "depends_on": "eval:doc.send_ticket_email;",
    "fieldname": "attach_email_ticket",
@@ -440,6 +442,14 @@
    "fieldname": "send_ticket_email",
    "fieldtype": "Check",
    "label": "Send Ticket Email"
+  },
+  {
+   "fieldname": "section_break_rmtj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_mijz",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
@@ -512,7 +522,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-02 12:15:25.525720",
+ "modified": "2026-02-02 12:39:20.030745",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
