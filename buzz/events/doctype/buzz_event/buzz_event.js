@@ -9,6 +9,8 @@ const FIELD_LABELS = {
 	about: __("About"),
 	medium: __("Medium"),
 	venue: __("Venue"),
+	allow_guest_booking: __("Allow Guest Booking"),
+	guest_verification_method: __("Guest Verification Method"),
 	time_zone: __("Time Zone"),
 	send_ticket_email: __("Send Ticket Email"),
 	apply_tax: __("Tax Settings"),
@@ -81,6 +83,8 @@ function render_save_template_options(dialog, frm) {
 			"about",
 			"medium",
 			"venue",
+			"allow_guest_booking",
+			"guest_verification_method",
 			"time_zone",
 		],
 		doc

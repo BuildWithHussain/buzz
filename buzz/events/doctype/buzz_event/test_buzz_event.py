@@ -43,6 +43,8 @@ class TestBuzzEvent(FrappeTestCase):
 				"about": "About text",
 				"short_description": "Short desc",
 				"time_zone": "Asia/Kolkata",
+				"allow_guest_booking": 1,
+				"guest_verification_method": "Email OTP",
 				"send_ticket_email": 1,
 				"apply_tax": 1,
 				"tax_label": "GST",
@@ -58,6 +60,8 @@ class TestBuzzEvent(FrappeTestCase):
 			"about": 1,
 			"short_description": 1,
 			"time_zone": 1,
+			"allow_guest_booking": 1,
+			"guest_verification_method": 1,
 			"send_ticket_email": 1,
 			"apply_tax": 1,
 			"tax_label": 1,
@@ -73,6 +77,8 @@ class TestBuzzEvent(FrappeTestCase):
 		self.assertEqual(event.about, "About text")
 		self.assertEqual(event.short_description, "Short desc")
 		self.assertEqual(event.time_zone, "Asia/Kolkata")
+		self.assertEqual(event.allow_guest_booking, 1)
+		self.assertEqual(event.guest_verification_method, "Email OTP")
 		self.assertEqual(event.send_ticket_email, 1)
 		self.assertEqual(event.apply_tax, 1)
 		self.assertEqual(event.tax_label, "GST")

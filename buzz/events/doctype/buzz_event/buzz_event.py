@@ -253,6 +253,8 @@ def create_from_template(template_name: str, options: str, additional_fields: st
 		"about": "about",
 		"medium": "medium",
 		"venue": "venue",
+		"allow_guest_booking": "allow_guest_booking",
+		"guest_verification_method": "guest_verification_method",
 		"time_zone": "time_zone",
 		"send_ticket_email": "send_ticket_email",
 		"ticket_email_template": "ticket_email_template",

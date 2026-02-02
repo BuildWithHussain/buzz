@@ -13,6 +13,8 @@
   "banner_image",
   "host",
   "venue",
+  "allow_guest_booking",
+  "guest_verification_method",
   "section_break_details",
   "time_zone",
   "short_description",
@@ -89,6 +91,21 @@
    "fieldtype": "Link",
    "label": "Venue",
    "options": "Event Venue"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_guest_booking",
+   "fieldtype": "Check",
+   "label": "Allow Guest Booking"
+  },
+  {
+   "default": "Email OTP",
+   "depends_on": "eval:doc.allow_guest_booking",
+   "description": "How to verify guest identity before booking",
+   "fieldname": "guest_verification_method",
+   "fieldtype": "Select",
+   "label": "Guest Verification Method",
+   "options": "None\nEmail OTP\nPhone OTP"
   },
   {
    "fieldname": "section_break_details",
