@@ -10,6 +10,7 @@ const FIELD_LABELS = {
 	medium: __("Medium"),
 	venue: __("Venue"),
 	time_zone: __("Time Zone"),
+	send_ticket_email: __("Send Ticket Email"),
 	apply_tax: __("Tax Settings"),
 	tax_label: __("Tax Label"),
 	tax_percentage: __("Tax Percentage"),
@@ -92,6 +93,7 @@ function render_save_template_options(dialog, frm) {
 	html += '<div class="row">';
 	html += render_save_template_field_group(
 		[
+			"send_ticket_email",
 			"apply_tax",
 			"tax_label",
 			"tax_percentage",

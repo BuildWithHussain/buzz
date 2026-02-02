@@ -16,6 +16,7 @@ const TEMPLATE_FIELD_GROUPS = {
 	ticketing_settings: {
 		label: __("Ticketing Settings"),
 		fields: [
+			"send_ticket_email",
 			"apply_tax",
 			"tax_label",
 			"tax_percentage",
@@ -46,6 +47,7 @@ const FIELD_LABELS = {
 	medium: __("Medium"),
 	venue: __("Venue"),
 	time_zone: __("Time Zone"),
+	send_ticket_email: __("Send Ticket Email"),
 	apply_tax: __("Tax Settings"),
 	tax_label: __("Tax Label"),
 	tax_percentage: __("Tax Percentage"),

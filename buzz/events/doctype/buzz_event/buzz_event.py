@@ -228,6 +228,7 @@ def create_from_template(template_name: str, options: str, additional_fields: st
 		"medium": "medium",
 		"venue": "venue",
 		"time_zone": "time_zone",
+		"send_ticket_email": "send_ticket_email",
 		"ticket_email_template": "ticket_email_template",
 		"ticket_print_format": "ticket_print_format",
 		"apply_tax": "apply_tax",

@@ -35,6 +35,7 @@
   "section_break_attachments",
   "sponsor_deck_attachments",
   "customisations_tab",
+  "send_ticket_email",
   "ticket_email_template",
   "column_break_custom",
   "ticket_print_format",
@@ -206,6 +207,12 @@
    "fieldname": "customisations_tab",
    "fieldtype": "Tab Break",
    "label": "Customisations"
+  },
+  {
+   "default": "1",
+   "fieldname": "send_ticket_email",
+   "fieldtype": "Check",
+   "label": "Send Ticket Email"
   },
   {
    "fieldname": "ticket_email_template",
