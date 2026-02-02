@@ -143,14 +143,6 @@ class BuzzEvent(Document):
 					title=frappe._("Email Not Configured"),
 				)
 
-		elif self.guest_verification_method == "Phone OTP":
-			sms_url = frappe.db.get_single_value("SMS Settings", "sms_gateway_url")
-			if not sms_url:
-				frappe.throw(
-					frappe._("Please configure SMS Settings before enabling Phone OTP verification."),
-					title=frappe._("SMS Not Configured"),
-				)
-
 	@frappe.whitelist()
 	def after_insert(self):
 		self.create_default_records()
