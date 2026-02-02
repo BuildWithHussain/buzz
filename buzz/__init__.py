@@ -2,7 +2,8 @@ __version__ = "0.0.1"
 
 import os
 
-import frappe
+if os.environ.get("CI"):
+	import frappe
+	from frappe.tests.utils import toggle_test_mode
 
-if os.environ.get("FRAPPE_IN_TEST"):
-	frappe.in_test = True
+	toggle_test_mode(True)

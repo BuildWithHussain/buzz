@@ -113,8 +113,6 @@ jobs:
 
       - name: Start Frappe Server
         working-directory: /home/runner/frappe-bench
-        env:
-          FRAPPE_IN_TEST: "1"
         run: |
           # Disable watch and schedule to reduce resource usage
           sed -i 's/^watch:/# watch:/g' Procfile
