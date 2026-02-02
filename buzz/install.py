@@ -71,7 +71,7 @@ ZOOM_INTEGRATION_CUSTOM_FIELDS = {
 			"label": "Zoom Webinar Registration",
 			"fieldtype": "Link",
 			"options": "Zoom Webinar Registration",
-			"insert_after": "coupon_used",
+			"insert_after": "ticket_type",
 			"read_only": 1,
 		},
 	],
@@ -113,6 +113,10 @@ def setup_test_records():
 
 def after_install():
 	create_event_categories()
+	create_custom_fields()
+
+
+def on_migrate():
 	create_custom_fields()
 
 
