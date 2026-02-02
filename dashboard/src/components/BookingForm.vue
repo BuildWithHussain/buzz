@@ -37,14 +37,13 @@
 				<Button
 					variant="ghost"
 					size="sm"
-					class="pl-0"
 					:loading="sendOtpResource.loading"
 					:disabled="resendCooldown > 0"
 					@click="resendOtp"
 				>
 					{{
 						resendCooldown > 0
-							? __("Resend code ({0}s)", [resendCooldown])
+							? __("Resend code in {0}s", [resendCooldown])
 							: __("Resend code")
 					}}
 				</Button>
