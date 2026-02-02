@@ -210,6 +210,8 @@ def create_from_template(template_name: str, options: str, additional_fields: st
 	event = frappe.new_doc("Buzz Event")
 	event.title = f"New Event from {template.template_name}"
 	event.start_date = frappe.utils.today()
+	event.start_time = "09:00:00"
+	event.end_time = "18:00:00"
 
 	# Apply additional fields first (these are mandatory fields provided by user)
 	for field, value in additional_fields.items():

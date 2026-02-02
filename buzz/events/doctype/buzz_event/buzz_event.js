@@ -1,6 +1,288 @@
 // Copyright (c) 2025, BWH Studios and contributors
 // For license information, please see license.txt
 
+const FIELD_LABELS = {
+	category: __("Category"),
+	host: __("Host"),
+	banner_image: __("Banner Image"),
+	short_description: __("Short Description"),
+	about: __("About"),
+	medium: __("Medium"),
+	venue: __("Venue"),
+	time_zone: __("Time Zone"),
+	apply_tax: __("Tax Settings"),
+	tax_label: __("Tax Label"),
+	tax_percentage: __("Tax Percentage"),
+	ticket_email_template: __("Ticket Email Template"),
+	ticket_print_format: __("Ticket Print Format"),
+	auto_send_pitch_deck: __("Auto Send Pitch Deck"),
+	sponsor_deck_email_template: __("Sponsor Deck Email Template"),
+	sponsor_deck_reply_to: __("Sponsor Deck Reply To"),
+	sponsor_deck_cc: __("Sponsor Deck CC"),
+	sponsor_deck_attachments: __("Sponsor Deck Attachments"),
+	payment_gateways: __("Payment Gateways"),
+	ticket_types: __("Ticket Types"),
+	add_ons: __("Add-ons"),
+	custom_fields: __("Custom Fields"),
+};
+
+function get_field_label(field) {
+	return FIELD_LABELS[field] || field;
+}
+
+function render_save_template_field_group(fields, doc) {
+	let html = "";
+	for (let field of fields) {
+		let value = doc[field];
+		let has_value = value !== null && value !== undefined && value !== "" && value !== 0;
+		if (Array.isArray(value)) {
+			has_value = value.length > 0;
+		}
+		let label = get_field_label(field);
+
+		html += `
+			<div class="col-md-6 mb-2">
+				<label class="d-flex align-items-center">
+					<input type="checkbox" class="template-option mr-2" data-option="${field}" ${
+			has_value ? "checked" : "disabled"
+		}>
+					${label}
+					${!has_value ? '<span class="text-muted ml-1">(' + __("Not set") + ")</span>" : ""}
+				</label>
+			</div>
+		`;
+	}
+	return html;
+}
+
+function render_save_template_options(dialog, frm) {
+	let html = "";
+	let doc = frm.doc;
+
+	let buttons_html = `
+		<div class="mb-3">
+			<button class="btn btn-default btn-xs select-all-btn">${__("Select All")}</button>
+			<button class="btn btn-default btn-xs unselect-all-btn">${__("Unselect All")}</button>
+		</div>
+	`;
+	dialog.get_field("select_buttons").$wrapper.html(buttons_html);
+
+	// Event Details
+	html += '<div class="template-section mt-3">';
+	html += `<h6 class="text-muted">${__("Event Details")}</h6>`;
+	html += '<div class="row">';
+	html += render_save_template_field_group(
+		[
+			"category",
+			"host",
+			"banner_image",
+			"short_description",
+			"about",
+			"medium",
+			"venue",
+			"time_zone",
+		],
+		doc
+	);
+	html += "</div></div>";
+
+	// Ticketing Settings
+	html += '<div class="template-section mt-3">';
+	html += `<h6 class="text-muted">${__("Ticketing Settings")}</h6>`;
+	html += '<div class="row">';
+	html += render_save_template_field_group(
+		[
+			"apply_tax",
+			"tax_label",
+			"tax_percentage",
+			"ticket_email_template",
+			"ticket_print_format",
+		],
+		doc
+	);
+	html += "</div></div>";
+
+	// Sponsorship Settings
+	html += '<div class="template-section mt-3">';
+	html += `<h6 class="text-muted">${__("Sponsorship Settings")}</h6>`;
+	html += '<div class="row">';
+	html += render_save_template_field_group(
+		[
+			"auto_send_pitch_deck",
+			"sponsor_deck_email_template",
+			"sponsor_deck_reply_to",
+			"sponsor_deck_cc",
+			"sponsor_deck_attachments",
+		],
+		doc
+	);
+	html += "</div></div>";
+
+	// Related Documents
+	html += '<div class="template-section mt-4" id="related-docs-section">';
+	html += `<h6 class="text-muted">${__("Related Documents")}</h6>`;
+	html += '<div class="row">';
+
+	let pg_count = doc.payment_gateways ? doc.payment_gateways.length : 0;
+	html += `
+		<div class="col-md-6 mb-2">
+			<label class="d-flex align-items-center">
+				<input type="checkbox" class="template-option mr-2" data-option="payment_gateways" ${
+					pg_count > 0 ? "checked" : ""
+				} ${pg_count === 0 ? "disabled" : ""}>
+				${__("Payment Gateways")} ${
+		pg_count > 0
+			? `<span class="text-muted ml-1">(${pg_count})</span>`
+			: '<span class="text-muted ml-1">(' + __("None") + ")</span>"
+	}
+			</label>
+		</div>
+	`;
+
+	html += `
+		<div class="col-md-6 mb-2" id="ticket-types-option">
+			<span class="text-muted">${__("Loading...")}</span>
+		</div>
+		<div class="col-md-6 mb-2" id="add-ons-option">
+			<span class="text-muted">${__("Loading...")}</span>
+		</div>
+		<div class="col-md-6 mb-2" id="custom-fields-option">
+			<span class="text-muted">${__("Loading...")}</span>
+		</div>
+	`;
+
+	html += "</div></div>";
+
+	dialog.get_field("field_options").$wrapper.html(html);
+
+	let $wrapper = dialog.get_field("field_options").$wrapper;
+
+	const linked_doctypes = [
+		{
+			id: "ticket-types-option",
+			doctype: "Event Ticket Type",
+			option: "ticket_types",
+			label: __("Ticket Types"),
+		},
+		{
+			id: "add-ons-option",
+			doctype: "Ticket Add-on",
+			option: "add_ons",
+			label: __("Add-ons"),
+		},
+		{
+			id: "custom-fields-option",
+			doctype: "Buzz Custom Field",
+			option: "custom_fields",
+			label: __("Custom Fields"),
+		},
+	];
+
+	for (let item of linked_doctypes) {
+		frappe.call({
+			method: "frappe.client.get_count",
+			args: { doctype: item.doctype, filters: { event: doc.name } },
+			callback: function (r) {
+				let count = r.message || 0;
+				$wrapper.find(`#${item.id}`).html(`
+					<label class="d-flex align-items-center">
+						<input type="checkbox" class="template-option mr-2" data-option="${item.option}" ${
+					count > 0 ? "checked" : ""
+				} ${count === 0 ? "disabled" : ""}>
+						${item.label} ${
+					count > 0
+						? `<span class="text-muted ml-1">(${count})</span>`
+						: '<span class="text-muted ml-1">(' + __("None") + ")</span>"
+				}
+					</label>
+				`);
+			},
+		});
+	}
+
+	dialog
+		.get_field("select_buttons")
+		.$wrapper.find(".select-all-btn")
+		.on("click", function () {
+			dialog
+				.get_field("field_options")
+				.$wrapper.find(".template-option:not(:disabled)")
+				.prop("checked", true);
+		});
+
+	dialog
+		.get_field("select_buttons")
+		.$wrapper.find(".unselect-all-btn")
+		.on("click", function () {
+			dialog
+				.get_field("field_options")
+				.$wrapper.find(".template-option")
+				.prop("checked", false);
+		});
+}
+
+function show_save_as_template_dialog(frm) {
+	let dialog = new frappe.ui.Dialog({
+		title: __("Save Event as Template"),
+		fields: [
+			{
+				fieldtype: "Data",
+				fieldname: "template_name",
+				label: __("Template Name"),
+				reqd: 1,
+				default: frm.doc.title + " Template",
+			},
+			{
+				fieldtype: "Section Break",
+				label: __("Select What to Include"),
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "select_buttons",
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "field_options",
+			},
+		],
+		size: "large",
+		primary_action_label: __("Save Template"),
+		primary_action: function (values) {
+			let options = {};
+			dialog
+				.get_field("field_options")
+				.$wrapper.find(".template-option:checked")
+				.each(function () {
+					options[$(this).data("option")] = 1;
+				});
+
+			frappe.call({
+				method: "buzz.events.doctype.event_template.event_template.create_template_from_event",
+				args: {
+					event_name: frm.doc.name,
+					template_name: values.template_name,
+					options: JSON.stringify(options),
+				},
+				freeze: true,
+				freeze_message: __("Creating Template..."),
+				callback: function (r) {
+					if (r.message) {
+						dialog.hide();
+						frappe.show_alert({
+							message: __("Template {0} created successfully", [r.message]),
+							indicator: "green",
+						});
+						frappe.set_route("Form", "Event Template", r.message);
+					}
+				},
+			});
+		},
+	});
+
+	render_save_template_options(dialog, frm);
+	dialog.show();
+}
+
 frappe.ui.form.on("Buzz Event", {
 	refresh(frm) {
 		frappe.call("frappe.geo.country_info.get_country_timezone_info").then(({ message }) => {
@@ -43,7 +325,7 @@ frappe.ui.form.on("Buzz Event", {
 			frm.add_custom_button(
 				__("Save as Template"),
 				function () {
-					buzz.events.show_save_as_template_dialog(frm);
+					show_save_as_template_dialog(frm);
 				},
 				__("Actions")
 			);
