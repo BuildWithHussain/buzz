@@ -76,4 +76,13 @@ frappe.ui.form.on("Buzz Event", {
 			});
 		});
 	},
+	category(frm) {
+		if (!frm.is_new()) return;
+
+		if (frm.doc.category === "Webinars") {
+			frm.set_value("attach_email_ticket", 0);
+		} else {
+			frm.set_value("attach_email_ticket", 1);
+		}
+	},
 });

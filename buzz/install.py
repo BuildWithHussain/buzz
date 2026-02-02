@@ -1,8 +1,38 @@
 import frappe
 
-from buzz.utils import get_custom_fields_creator
+from buzz.utils import delete_custom_fields, get_custom_fields_creator
 
 _create_custom_fields = get_custom_fields_creator("Buzz")
+
+CRM_INTEGRATION_CUSTOM_FIELDS = {
+	"CRM Lead": [
+		{
+			"fieldname": "buzz_tab",
+			"label": "Buzz",
+			"fieldtype": "Tab Break",
+			"insert_after": "facebook_form_id",
+		},
+		{
+			"fieldname": "buzz_campaign",
+			"label": "Buzz Campaign",
+			"fieldtype": "Link",
+			"options": "Buzz Campaign",
+			"insert_after": "buzz_tab",
+		},
+		{
+			"fieldname": "buzz_column_break",
+			"fieldtype": "Column Break",
+			"insert_after": "buzz_campaign",
+		},
+		{
+			"fieldname": "event_ticket",
+			"label": "Event Ticket",
+			"fieldtype": "Link",
+			"options": "Event Ticket",
+			"insert_after": "buzz_column_break",
+		},
+	],
+}
 
 ZOOM_INTEGRATION_CUSTOM_FIELDS = {
 	"Buzz Event": [
@@ -35,6 +65,16 @@ ZOOM_INTEGRATION_CUSTOM_FIELDS = {
 			"insert_after": "zoom_integration_section",
 		},
 	],
+	"Event Ticket": [
+		{
+			"fieldname": "zoom_webinar_registration",
+			"label": "Zoom Webinar Registration",
+			"fieldtype": "Link",
+			"options": "Zoom Webinar Registration",
+			"insert_after": "coupon_used",
+			"read_only": 1,
+		},
+	],
 }
 
 
@@ -65,6 +105,8 @@ def setup_test_records():
 			"title": "Test Event",
 			"route": "test-route",
 			"start_date": frappe.utils.today(),
+			"start_time": "10:00:00",
+			"end_time": "18:00:00",
 		}
 	).insert(ignore_if_duplicate=True)
 
@@ -77,6 +119,15 @@ def after_install():
 def after_app_install(app_name: str):
 	if app_name == "zoom_integration":
 		create_zoom_integration_custom_fields()
+	if app_name == "crm":
+		create_crm_integration_custom_fields()
+
+
+def after_app_uninstall(app_name: str):
+	if app_name == "zoom_integration":
+		delete_zoom_integration_custom_fields()
+	if app_name == "crm":
+		delete_crm_integration_custom_fields()
 
 
 def create_custom_fields():
@@ -85,9 +136,24 @@ def create_custom_fields():
 	if "zoom_integration" in installed_apps:
 		create_zoom_integration_custom_fields()
 
+	if "crm" in installed_apps:
+		create_crm_integration_custom_fields()
+
 
 def create_zoom_integration_custom_fields():
 	_create_custom_fields(ZOOM_INTEGRATION_CUSTOM_FIELDS, ignore_validate=True)
+
+
+def create_crm_integration_custom_fields():
+	_create_custom_fields(CRM_INTEGRATION_CUSTOM_FIELDS, ignore_validate=True)
+
+
+def delete_zoom_integration_custom_fields():
+	delete_custom_fields(ZOOM_INTEGRATION_CUSTOM_FIELDS)
+
+
+def delete_crm_integration_custom_fields():
+	delete_custom_fields(CRM_INTEGRATION_CUSTOM_FIELDS)
 
 
 def create_event_categories():

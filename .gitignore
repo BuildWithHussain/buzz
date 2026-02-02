@@ -57,3 +57,11 @@ jspm_packages/
 buzz/public/dashboard/
 buzz/public/node_modules
 buzz/www/dashboard.html
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/e2e/.auth/

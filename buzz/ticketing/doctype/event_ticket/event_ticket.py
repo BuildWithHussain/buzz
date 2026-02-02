@@ -5,7 +5,7 @@ import frappe
 from frappe.core.api.user_invitation import invite_by_email
 from frappe.model.document import Document
 
-from buzz.utils import only_if_app_installed
+from buzz.utils import generate_ics_file, generate_qr_code_file, only_if_app_installed
 
 
 class EventTicket(Document):
@@ -37,6 +37,11 @@ class EventTicket(Document):
 		self.generate_qr_code()
 
 	def on_submit(self):
+		send_email = frappe.get_cached_value("Buzz Event", self.event, "send_email")
+
+		if not send_email:
+			return
+
 		try:
 			self.send_ticket_email()
 		except Exception as e:
@@ -65,6 +70,8 @@ class EventTicket(Document):
 
 			try:
 				registration.submit()
+				# Store the registration reference on the ticket
+				self.db_set("zoom_webinar_registration", registration.name)
 			except Exception:
 				frappe.log_error("Failed to create registration on Zoom")
 
@@ -80,10 +87,16 @@ class EventTicket(Document):
 		event_title, ticket_template, ticket_print_format, venue = frappe.get_cached_value(
 			"Buzz Event", self.event, ["title", "ticket_email_template", "ticket_print_format", "venue"]
 		)
+
+		# Fallback to global setting if event-level not set
+		if not ticket_template:
+			ticket_template = frappe.db.get_single_value("Buzz Settings", "default_ticket_email_template")
+
 		subject = frappe._("Your ticket to {0} 🎟️").format(event_title)
+		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 		args = {
 			"doc": self,
-			"event_doc": frappe.get_cached_doc("Buzz Event", self.event),
+			"event_doc": event_doc,
 			"event_title": event_title,
 			"venue": venue,
 		}
@@ -95,6 +108,27 @@ class EventTicket(Document):
 			subject = email_template.get("subject")
 			content = email_template.get("message")
 
+		attachments = []
+
+		if event_doc.attach_email_ticket:
+			attachments.append(
+				{
+					"print_format_attachment": 1,
+					"doctype": self.doctype,
+					"name": self.name,
+					"print_format": ticket_print_format or "Standard Ticket",
+				}
+			)
+
+		if event_doc.attach_calendar_invite:
+			ics_content = generate_ics_file(event_doc, self.attendee_email)
+			attachments.append(
+				{
+					"fname": f"{event_doc.title}.ics",
+					"fcontent": ics_content,
+				}
+			)
+
 		frappe.sendmail(
 			recipients=[self.attendee_email],
 			subject=subject,
@@ -104,14 +138,7 @@ class EventTicket(Document):
 			reference_doctype=self.doctype,
 			reference_name=self.name,
 			now=now,
-			attachments=[
-				{
-					"print_format_attachment": 1,
-					"doctype": self.doctype,
-					"name": self.name,
-					"print_format": ticket_print_format or "Standard Ticket",
-				}
-			],
+			attachments=attachments,
 		)
 
 	def validate_coupon_usage(self):
@@ -123,18 +150,11 @@ class EventTicket(Document):
 			frappe.throw(frappe._("Coupon has been already used up maximum number of times!"))
 
 	def generate_qr_code(self):
-		qr_data = make_qr_image_with_data(f"{self.name}")
-		qr_code_file = frappe.get_doc(
-			{
-				"doctype": "File",
-				"content": qr_data,
-				"attached_to_doctype": "Event Ticket",
-				"attached_to_name": self.name,
-				"attached_to_field": "qr_code",
-				"file_name": f"ticket-qr-code-{self.name}.png",
-			}
-		).save(ignore_permissions=True)
-		self.qr_code = qr_code_file.file_url
+		self.qr_code = generate_qr_code_file(
+			doc=self,
+			data=self.name,
+			file_prefix="ticket-qr-code",
+		)
 
 	def on_cancel(self):
 		self.ignore_linked_doctypes = ["Event Booking", "Ticket Cancellation Request"]
@@ -150,25 +170,3 @@ class EventTicket(Document):
 			delayed=False,
 			retry=2,
 		)
-
-
-def make_qr_image_with_data(data: str) -> bytes:
-	import io
-
-	import qrcode
-	from qrcode.image.styledpil import StyledPilImage
-	from qrcode.image.styles.moduledrawers.pil import HorizontalBarsDrawer
-
-	qr = qrcode.QRCode(
-		version=1,
-		error_correction=qrcode.constants.ERROR_CORRECT_H,
-		box_size=10,
-		border=4,
-	)
-	qr.add_data(data)
-	qr.make(fit=True)
-
-	img = qr.make_image(image_factory=StyledPilImage, module_drawer=HorizontalBarsDrawer())
-	output = io.BytesIO()
-	img.save(output, format="PNG")
-	return output.getvalue()

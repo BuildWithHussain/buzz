@@ -1,2 +1,7 @@
 @import "./assets/Inter/inter.css";
-@import "frappe-ui/src/style.css";
+@import "frappe-ui/style.css";
+
+/* Fix tabs spacing */
+[role="tablist"] {
+	gap: 1rem;
+}

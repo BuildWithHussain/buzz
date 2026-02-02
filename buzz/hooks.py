@@ -39,7 +39,7 @@ doc_events = {
 	},
 }
 
-fixtures = [{"dt": "Role", "filters": {"name": ["Buzz User", "Frontdesk Manager"]}}]
+fixtures = [{"dt": "Role", "filters": {"name": ["in", ["Buzz User", "Frontdesk Manager"]]}}]
 
 user_invitation = {"allowed_roles": {"Event Manager": ["Buzz User"], "Buzz User": ["Buzz User"]}}
 
@@ -145,7 +145,7 @@ app_include_js = "/assets/buzz/js/events/create_from_template.js"
 # Name of the app being uninstalled is passed as an argument
 
 # before_app_uninstall = "events.utils.before_app_uninstall"
-# after_app_uninstall = "events.utils.after_app_uninstall"
+after_app_uninstall = "buzz.install.after_app_uninstall"
 
 # Desk Notifications
 # ------------------

@@ -4,6 +4,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import days_diff, format_date, format_time, today
 
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
+from buzz.utils import is_app_installed
 
 
 @frappe.whitelist()
@@ -171,12 +172,14 @@ def get_event_booking_data(event_route: str) -> dict:
 def process_booking(
 	attendees: list[dict],
 	event: str,
+	coupon_code: str | None = None,
 	booking_custom_fields: dict | None = None,
 	payment_gateway: str | None = None,
 	utm_parameters: list[dict] | None = None,
 ) -> dict:
 	booking = frappe.new_doc("Event Booking")
 	booking.event = event
+	booking.coupon_code = coupon_code
 	booking.user = frappe.session.user
 
 	# Add UTM parameters (captured from URL query params starting with utm_)
@@ -267,8 +270,15 @@ def transfer_ticket(ticket_id: str, new_name: str, new_email: str):
 		frappe.throw(frappe._("Ticket not found."))
 
 	ticket = frappe.get_doc("Event Ticket", ticket_id)
+	booking_user = frappe.db.get_value("Event Booking", ticket.booking, "user")
 
-	# Check if ticket transfer is allowed
+	if (
+		ticket.attendee_email != frappe.session.user
+		and booking_user != frappe.session.user
+		and not frappe.has_permission("Event Ticket", "write", ticket)
+	):
+		frappe.throw(frappe._("Not permitted to transfer this ticket."))
+
 	if not is_ticket_transfer_allowed(ticket.event):
 		frappe.throw(frappe._("Ticket transfer is not allowed at this time. The transfer window has closed."))
 
@@ -721,6 +731,19 @@ def get_ticket_details(ticket_id: str) -> dict:
 		can_request_cancellation(details.event.name) if details.event else {"can_request_cancellation": False}
 	)
 
+	# Get Zoom webinar join URL if applicable
+	details.zoom_join_url = None
+	if hasattr(ticket_doc, "zoom_webinar_registration") and ticket_doc.zoom_webinar_registration:
+		zoom_registration = frappe.db.get_value(
+			"Zoom Webinar Registration",
+			ticket_doc.zoom_webinar_registration,
+			["join_url", "webinar"],
+			as_dict=True,
+		)
+		if zoom_registration:
+			details.zoom_join_url = zoom_registration.join_url
+			details.zoom_webinar = zoom_registration.webinar
+
 	return details
 
 
@@ -729,6 +752,12 @@ def create_cancellation_request(booking_id: str, ticket_ids: list | None = None)
 	"""Create a cancellation request for a booking and optionally specific tickets."""
 	# Get booking details
 	booking_doc = frappe.get_cached_doc("Event Booking", booking_id)
+
+	# Check permission - allow booking user or users with write permission
+	if booking_doc.user != frappe.session.user and not frappe.has_permission(
+		"Event Booking", "write", booking_doc
+	):
+		frappe.throw(frappe._("Not permitted to request cancellation for this booking."))
 
 	# Check if cancellation request is allowed for this event
 	if not is_cancellation_request_allowed(booking_doc.event):
@@ -851,14 +880,15 @@ def validate_ticket_for_checkin(ticket_id: str) -> dict:
 
 
 def get_payment_details_for_ticket(ticket_id: str) -> dict | None:
-	booking = frappe.get_cached_doc(
-		"Event Booking", frappe.get_cached_value("Event Ticket", ticket_id, "booking")
-	)
+	booking_id = frappe.get_cached_value("Event Ticket", ticket_id, "booking")
+	if not booking_id:
+		return None
+
 	payments = frappe.db.get_all(
 		"Event Payment",
 		filters={
 			"reference_doctype": "Event Booking",
-			"reference_docname": booking.name,
+			"reference_docname": booking_id,
 			"payment_received": 1,
 		},
 		fields=["name", "amount", "currency"],
@@ -932,3 +962,116 @@ def get_translations():
 
 def has_app_permission():
 	return True
+
+
+@frappe.whitelist()
+def validate_coupon(coupon_code: str, event: str) -> dict:
+	if not frappe.db.exists("Buzz Coupon Code", coupon_code):
+		return {"valid": False, "error": _("Invalid coupon code")}
+
+	coupon = frappe.get_doc("Buzz Coupon Code", coupon_code)
+
+	is_valid, error = coupon.is_valid_for_event(event)
+	if not is_valid:
+		return {"valid": False, "error": error}
+
+	is_available, error = coupon.is_usage_available()
+	if not is_available:
+		return {"valid": False, "error": error}
+
+	is_limited, error = coupon.is_user_limit_reached()
+	if is_limited:
+		return {"valid": False, "error": error}
+
+	if coupon.coupon_type == "Discount":
+		return {
+			"valid": True,
+			"coupon_type": "Discount",
+			"discount_type": coupon.discount_type,
+			"discount_value": coupon.discount_value,
+			"max_discount_amount": coupon.maximum_discount_amount or 0,
+			"min_order_value": coupon.minimum_order_value or 0,
+		}
+
+	remaining = coupon.number_of_free_tickets - coupon.free_tickets_claimed
+	if remaining <= 0:
+		return {"valid": False, "error": _("All free tickets have been claimed")}
+
+	return {
+		"valid": True,
+		"coupon_type": "Free Tickets",
+		"ticket_type": coupon.ticket_type,
+		"remaining_tickets": remaining,
+		"free_add_ons": [a.add_on for a in coupon.free_add_ons],
+	}
+
+
+@frappe.whitelist()
+def get_campaign_details(campaign: str):
+	"""Get campaign details for the register interest page."""
+	if not frappe.db.exists("Buzz Campaign", campaign):
+		frappe.throw(_("Campaign not found"), frappe.DoesNotExistError)
+
+	campaign_doc = frappe.get_cached_doc("Buzz Campaign", campaign)
+
+	if not campaign_doc.enabled:
+		frappe.throw(_("This campaign is not active"))
+
+	return {
+		"title": campaign_doc.title,
+		"description": campaign_doc.description,
+		"event": campaign_doc.event,
+	}
+
+
+@frappe.whitelist()
+def register_campaign_interest(campaign: str):
+	"""Register user interest in a campaign by creating a CRM Lead."""
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please login to register your interest"))
+
+	if not is_app_installed("crm"):
+		frappe.throw(_("CRM integration is not available"))
+
+	if not frappe.db.exists("Buzz Campaign", campaign):
+		frappe.throw(_("Campaign not found"), frappe.DoesNotExistError)
+
+	campaign_doc = frappe.get_cached_doc("Buzz Campaign", campaign)
+
+	# Get user details
+	user = frappe.get_cached_doc("User", frappe.session.user)
+	first_name = user.first_name or user.full_name or frappe.session.user.split("@")[0]
+
+	# Check if user already registered for this campaign
+	existing_lead = frappe.db.exists(
+		"CRM Lead",
+		{"email": frappe.session.user, "buzz_campaign": campaign},
+	)
+	if existing_lead:
+		frappe.throw(_("You have already registered for this campaign"))
+
+	# Check if user has a ticket for today's event (if campaign has an event linked)
+	ticket = None
+	if campaign_doc.event:
+		ticket = frappe.db.get_value(
+			"Event Ticket",
+			{
+				"attendee_email": frappe.session.user,
+				"event": campaign_doc.event,
+				"docstatus": 1,
+			},
+			"name",
+		)
+
+	# Create CRM Lead
+	lead = frappe.get_doc(
+		{
+			"doctype": "CRM Lead",
+			"first_name": first_name,
+			"email": frappe.session.user,
+			"status": "New",
+			"buzz_campaign": campaign,
+			"event_ticket": ticket,
+		}
+	)
+	lead.insert(ignore_permissions=True)

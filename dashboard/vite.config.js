@@ -65,6 +65,10 @@ export default defineConfig(async ({ command, mode }) => {
 			const fs = await import("node:fs");
 			const localFrappeUIPath = path.resolve(__dirname, "frappe-ui");
 			if (fs.existsSync(localFrappeUIPath)) {
+				config.resolve.alias["frappe-ui/style.css"] = path.resolve(
+					localFrappeUIPath,
+					"src/style.css"
+				);
 				config.resolve.alias["frappe-ui"] = localFrappeUIPath;
 			} else {
 				console.warn("Local frappe-ui directory not found, using npm package");

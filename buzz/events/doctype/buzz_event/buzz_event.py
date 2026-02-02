@@ -24,31 +24,41 @@ class BuzzEvent(Document):
 		from buzz.proposals.doctype.sponsorship_deck_item.sponsorship_deck_item import SponsorshipDeckItem
 
 		about: DF.TextEditor | None
+		allow_editing_talks_after_acceptance: DF.Check
+		apply_tax: DF.Check
+		attach_calendar_invite: DF.Check
+		attach_email_ticket: DF.Check
 		auto_send_pitch_deck: DF.Check
 		banner_image: DF.AttachImage | None
+		card_image: DF.AttachImage | None
 		category: DF.Link
 		default_ticket_type: DF.Link | None
 		end_date: DF.Date | None
-		end_time: DF.Time | None
+		end_time: DF.Time
 		external_registration_page: DF.Check
 		featured_speakers: DF.Table[EventFeaturedSpeaker]
 		free_webinar: DF.Check
 		host: DF.Link
 		is_published: DF.Check
 		medium: DF.Literal["In Person", "Online"]
+		meta_image: DF.AttachImage | None
 		name: DF.Int | None
 		payment_gateways: DF.Table[EventPaymentGateway]
 		proposal: DF.Link | None
 		registration_url: DF.Data | None
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
+		send_email: DF.Check
 		short_description: DF.SmallText | None
+		show_sponsorship_section: DF.Check
 		sponsor_deck_attachments: DF.Table[SponsorshipDeckItem]
 		sponsor_deck_cc: DF.SmallText | None
 		sponsor_deck_email_template: DF.Link | None
 		sponsor_deck_reply_to: DF.Data | None
 		start_date: DF.Date
-		start_time: DF.Time | None
+		start_time: DF.Time
+		tax_label: DF.Data | None
+		tax_percentage: DF.Percent
 		ticket_email_template: DF.Link | None
 		ticket_print_format: DF.Link | None
 		time_zone: DF.Autocomplete | None
@@ -57,8 +67,51 @@ class BuzzEvent(Document):
 	# end: auto-generated types
 
 	def validate(self):
+		self.validate_dates()
+		self.validate_schedule()
 		self.validate_route()
 		self.validate_tax_settings()
+
+	def validate_schedule(self):
+		end_date = self.end_date or self.start_date
+		for item in self.schedule:
+			if item.date < self.start_date or item.date > end_date:
+				frappe.throw(
+					frappe._("<b>Schedule</b> row #{0}: <b>Date</b> must be within event dates").format(
+						item.idx
+					)
+				)
+
+			if time_diff_in_seconds(item.end_time, item.start_time) <= 0:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>End Time</b> must be after <b>Start Time</b>"
+					).format(item.idx)
+				)
+
+			if item.date == self.start_date and self.start_time and item.start_time < self.start_time:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>Start Time</b> cannot be before event start time"
+					).format(item.idx)
+				)
+
+			if item.date == end_date and self.end_time and item.end_time > self.end_time:
+				frappe.throw(
+					frappe._(
+						"<b>Schedule</b> row #{0}: <b>End Time</b> cannot be after event end time"
+					).format(item.idx)
+				)
+
+	def validate_dates(self):
+		self.validate_from_to_dates("start_date", "end_date")
+		if (
+			(not self.end_date or self.start_date == self.end_date)
+			and self.start_time
+			and self.end_time
+			and time_diff_in_seconds(self.end_time, self.start_time) <= 0
+		):
+			frappe.throw(frappe._("<b>End Time</b> must be after <b>Start Time</b>"))
 
 	def validate_tax_settings(self):
 		"""Set default tax values when tax is enabled."""

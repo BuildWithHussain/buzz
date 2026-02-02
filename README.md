@@ -2,6 +2,7 @@
 
 <div style="text-align: center;">
   <a href="https://github.com/BuildWithHussain/buzz/actions/workflows/ci.yml"><img src="https://github.com/BuildWithHussain/buzz/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/BuildWithHussain/buzz/actions/workflows/ui-tests.yml"><img src="https://github.com/BuildWithHussain/buzz/actions/workflows/ui-tests.yml/badge.svg?branch=main" alt="UI Tests"></a>
   <a href="https://github.com/BuildWithHussain/buzz/stargazers"><img src="https://img.shields.io/github/stars/BuildWithHussain/buzz?style=social" alt="GitHub stars"></a>
   <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
   <a href="https://github.com/BuildWithHussain/buzz/commits/main"><img src="https://img.shields.io/github/commit-activity/m/BuildWithHussain/buzz" alt="GitHub commit activity"></a>

@@ -71,7 +71,7 @@ def get_columns(filters):
 				"fieldname": f"cf_{cf.fieldname}",
 				"label": _(cf.label),
 				"fieldtype": "Data",
-				"width": 120,
+				"width": 180,
 			}
 		)
 
@@ -83,7 +83,7 @@ def get_columns(filters):
 				"fieldname": f"addon_{addon.name}",
 				"label": _(addon.title),
 				"fieldtype": "Data",
-				"width": 120,
+				"width": 150,
 			}
 		)
 
@@ -95,7 +95,7 @@ def get_columns(filters):
 				"fieldname": f"utm_{utm}",
 				"label": _(utm.replace("_", " ").title()),
 				"fieldtype": "Data",
-				"width": 120,
+				"width": 150,
 			}
 		)
 

@@ -20,6 +20,12 @@ const routes = [
 		component: () => import("@/pages/BookTickets.vue"),
 	},
 	{
+		path: "/register-interest/:campaign",
+		props: true,
+		name: "register-interest",
+		component: () => import("@/pages/RegisterInterest.vue"),
+	},
+	{
 		path: "/bookings",
 		name: "bookings-tab",
 		redirect: "/account/bookings",
@@ -71,6 +77,17 @@ const routes = [
 				props: true,
 				name: "ticket-details",
 				component: () => import("@/pages/TicketDetails.vue"),
+			},
+			{
+				path: "proposals",
+				name: "proposals-list",
+				component: () => import("@/pages/ProposalsList.vue"),
+			},
+			{
+				path: "proposals/:proposalId",
+				props: true,
+				name: "proposal-details",
+				component: () => import("@/pages/ProposalDetails.vue"),
 			},
 			{
 				path: "sponsorships",
