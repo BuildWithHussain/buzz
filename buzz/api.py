@@ -307,13 +307,13 @@ def get_event_booking_data(event_route: str) -> dict:
 	# Payment Gateways
 	data.payment_gateways = get_payment_gateways_for_event(event_doc.name)
 
-	# UPI Payment Settings
-	data.upi_payment_enabled = event_doc.enable_upi_payment
-	if event_doc.enable_upi_payment:
-		data.upi_settings = {
-			"upi_id": event_doc.upi_id,
-			"qr_code": event_doc.upi_qr_code,
-			"instructions": event_doc.upi_instructions
+	# Off-platform Payment Settings
+	data.off_platform_payment_enabled = event_doc.enable_off_platform_payment
+	if event_doc.enable_off_platform_payment:
+		data.off_platform_settings = {
+			"payment_id": event_doc.off_platform_payment_id,
+			"qr_code": event_doc.off_platform_qr_code,
+			"instructions": event_doc.off_platform_instructions
 		}
 
 	return data
@@ -430,20 +430,20 @@ def process_booking(
 		booking.submit()
 		return {"booking_name": booking.name}
 
-	# Check if UPI payment is enabled and no payment gateway is provided
+	# Check if off-platform payment is enabled and no payment gateway is provided
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
-	if event_doc.enable_upi_payment and not payment_gateway:
-		# For UPI payments, submit booking directly without payment gateway
-		# Mark this as UPI payment in additional fields
+	if event_doc.enable_off_platform_payment and not payment_gateway:
+		# For off-platform payments, submit booking directly without payment gateway
+		# Mark this as off-platform payment in additional fields
 		booking.append("additional_fields", {
 			"fieldname": "payment_method",
-			"value": "UPI",
+			"value": "Off-platform",
 			"label": "Payment Method",
 			"fieldtype": "Data"
 		})
 		booking.flags.ignore_permissions = True
 		booking.submit()
-		return {"booking_name": booking.name, "upi_payment": True}
+		return {"booking_name": booking.name, "off_platform_payment": True}
 
 	return {
 		"payment_link": get_payment_link_for_booking(

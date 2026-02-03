@@ -6,8 +6,8 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
-		<!-- UPI Payment Status -->
-		<div v-if="isUpiPayment" class="mb-6">
+		<!-- Off-platform Payment Status -->
+		<div v-if="isOffPlatformPayment" class="mb-6">
 			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
 				<div class="flex items-center gap-3">
 					<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -18,7 +18,7 @@
 							{{ __("Payment Confirmation Pending") }}
 						</h3>
 						<p class="text-sm text-yellow-700">
-							{{ __("Your booking is confirmed subject to verifying the UPI/QR code payment details. You will be notified once payment is verified.") }}
+							{{ __("Your booking is confirmed subject to verifying the off-platform payment details. You will be notified once payment is verified.") }}
 						</p>
 					</div>
 				</div>
@@ -58,7 +58,7 @@
 
 		<!-- Tickets Section -->
 		<TicketsSection
-			v-if="!bookingDetails.data.event.free_webinar && isUpiPaymentVerified"
+			v-if="!bookingDetails.data.event.free_webinar && isOffPlatformPaymentVerified"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -71,7 +71,7 @@
 		/>
 
 		<CancellationRequestDialog
-			v-if="isUpiPaymentVerified"
+			v-if="isOffPlatformPaymentVerified"
 			v-model="showCancellationDialog"
 			:tickets="bookingDetails.data.tickets"
 			:booking-id="bookingId"
@@ -106,8 +106,8 @@ const props = defineProps({
 	},
 });
 
-// Check if this is a UPI payment by looking at booking data
-const isUpiPayment = computed(() => {
+// Check if this is an off-platform payment by looking at booking data
+const isOffPlatformPayment = computed(() => {
 	if (!bookingDetails.data?.doc?.additional_fields) return false;
 	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
 		field => field.fieldname === 'payment_method'
@@ -115,21 +115,21 @@ const isUpiPayment = computed(() => {
 	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
 		field => field.fieldname === 'payment_verified'
 	);
-	// Show message only if it's UPI payment and not yet verified
-	return paymentMethod?.value === 'UPI' && paymentStatus?.value !== 'Yes';
+	// Show message only if it's off-platform payment and not yet verified
+	return (paymentMethod?.value === 'Off-platform' || paymentMethod?.value === 'UPI') && paymentStatus?.value !== 'Yes';
 });
 
-// Check if UPI payment is verified
-const isUpiPaymentVerified = computed(() => {
-	if (!bookingDetails.data?.doc?.additional_fields) return true; // Non-UPI payments are considered verified
+// Check if off-platform payment is verified
+const isOffPlatformPaymentVerified = computed(() => {
+	if (!bookingDetails.data?.doc?.additional_fields) return true; // Non-off-platform payments are considered verified
 	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
 		field => field.fieldname === 'payment_method'
 	);
 	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
 		field => field.fieldname === 'payment_verified'
 	);
-	// If it's UPI payment, check if verified; otherwise return true
-	return paymentMethod?.value !== 'UPI' || paymentStatus?.value === 'Yes';
+	// If it's off-platform payment, check if verified; otherwise return true
+	return (paymentMethod?.value !== 'Off-platform' && paymentMethod?.value !== 'UPI') || paymentStatus?.value === 'Yes';
 });
 
 // Check if this is a successful payment redirect (check URL immediately)

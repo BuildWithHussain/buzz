@@ -2,7 +2,7 @@
 	<Dialog v-model:open="isOpen" :options="{ size: 'md' }">
 		<template #body>
 			<div class="p-4">
-				<h3 class="text-lg font-semibold mb-4">{{ __("UPI Payment") }}</h3>
+				<h3 class="text-lg font-semibold mb-4">{{ __("Off-platform Payment") }}</h3>
 
 				<div class="space-y-4">
 					<!-- Amount -->
@@ -11,10 +11,10 @@
 					</div>
 
 					<!-- Payment Methods -->
-					<div v-if="offlineSettings.upi_id">
+					<div v-if="offlineSettings.payment_id">
 						<div class="flex items-center gap-2 p-2 bg-gray-50 rounded">
-							<code class="flex-1 text-sm">{{ offlineSettings.upi_id }}</code>
-							<Button size="sm" @click="copyToClipboard(offlineSettings.upi_id)">
+							<code class="flex-1 text-sm">{{ offlineSettings.payment_id }}</code>
+							<Button size="sm" @click="copyToClipboard(offlineSettings.payment_id)">
 								<LucideCopy class="w-4 h-4" />
 							</Button>
 						</div>
@@ -28,14 +28,14 @@
 
 					<!-- Upload Proof -->
 					<div>
-						<label class="text-sm font-medium">{{ __("Payment Screenshot") }} *</label>
+						<label class="text-sm font-medium">{{ __("Payment Proof") }} *</label>
 						<FileUploader 
 							v-model="paymentProof" 
 							:file-types="['image/*']"
 							@success="onFileUpload"
 						/>
 						<div v-if="paymentProof" class="mt-2 text-sm text-green-600">
-							✓ File uploaded: {{ paymentProof.name || 'Screenshot' }}
+							✓ File uploaded: {{ paymentProof.name || 'Payment Proof' }}
 						</div>
 					</div>
 				</div>
@@ -107,7 +107,7 @@ const copyToClipboard = async (text) => {
 
 const submitOfflinePayment = () => {
 	if (!paymentProof.value) {
-		toast.error(__('Please upload payment screenshot'))
+		toast.error(__('Please upload payment proof'))
 		return
 	}
 	

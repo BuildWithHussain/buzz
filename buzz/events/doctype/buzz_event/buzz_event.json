@@ -381,32 +381,32 @@
    "label": "Tax Settings"
   },
   {
-   "description": "Copy UPI ID or scan QR and upload screenshot for verification",
-   "fieldname": "upi_payment_section",
+   "description": "Copy payment details or scan QR and upload proof for verification",
+   "fieldname": "off_platform_payment_section",
    "fieldtype": "Section Break",
-   "label": "UPI Payment via QR / UPI ID"
+   "label": "Off-platform Payment Settings"
   },
   {
    "default": "0",
-   "fieldname": "enable_upi_payment",
+   "fieldname": "enable_off_platform_payment",
    "fieldtype": "Check",
-   "label": "Allow Manual UPI Payment"
+   "label": "Enable Off-platform Payments"
   },
   {
-   "depends_on": "eval:doc.enable_upi_payment==1",
-   "fieldname": "upi_id",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_payment_id",
    "fieldtype": "Data",
-   "label": "Merchant UPI ID"
+   "label": "Payment ID (UPI ID, Account Number, etc.)"
   },
   {
-   "depends_on": "eval:doc.enable_upi_payment==1",
-   "fieldname": "upi_qr_code",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_qr_code",
    "fieldtype": "Attach Image",
-   "label": "UPI QR Code"
+   "label": "Payment QR Code"
   },
   {
-   "depends_on": "eval:doc.enable_upi_payment==1",
-   "fieldname": "upi_instructions",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_instructions",
    "fieldtype": "Small Text",
    "label": "Payment Instructions"
   },

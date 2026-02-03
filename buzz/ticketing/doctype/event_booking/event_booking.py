@@ -222,8 +222,8 @@ class EventBooking(Document):
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
 
 	@frappe.whitelist()
-	def verify_upi_payment(self):
-		"""Verify UPI payment for this booking."""
+	def verify_off_platform_payment(self):
+		"""Verify off-platform payment for this booking."""
 		frappe.only_for("Event Manager")
 		
 		# Check if already verified
@@ -251,11 +251,11 @@ class EventBooking(Document):
 			}
 		)
 		frappe.db.commit()
-		frappe.msgprint("UPI Payment verified successfully!")
+		frappe.msgprint("Off-platform payment verified successfully!")
 
 	@frappe.whitelist()
-	def unverify_upi_payment(self):
-		"""Remove UPI payment verification."""
+	def unverify_off_platform_payment(self):
+		"""Remove off-platform payment verification."""
 		frappe.only_for("Event Manager")
 		
 		# Remove payment verified field using direct SQL
@@ -264,7 +264,7 @@ class EventBooking(Document):
 			(self.name,)
 		)
 		frappe.db.commit()
-		frappe.msgprint("UPI Payment marked as unverified!")
+		frappe.msgprint("Off-platform payment marked as unverified!")
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0

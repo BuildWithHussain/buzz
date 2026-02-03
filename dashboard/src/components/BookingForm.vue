@@ -92,12 +92,15 @@
 		<!-- UPI Payment Dialog -->
 		<UPIPaymentDialog
 			v-model:open="showUPIDialog"
+		<!-- Off-platform Payment Dialog -->
+		<OffPlatformPaymentDialog
+			v-model:open="showOffPlatformDialog"
 			:amount="finalTotal"
 			:currency="totalCurrency"
-			:offline-settings="upiSettings"
+			:offline-settings="offPlatformSettings"
 			:loading="processBooking.loading"
-			@submit="onUPIPaymentSubmit"
-			@cancel="showUPIDialog = false"
+			@submit="onOffPlatformPaymentSubmit"
+			@cancel="showOffPlatformDialog = false"
 		/>
 
 		<form @submit.prevent="submit">
@@ -382,7 +385,7 @@ import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
-import UPIPaymentDialog from "./UPIPaymentDialog.vue";
+import OffPlatformPaymentDialog from "./OffPlatformPaymentDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
 import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
@@ -448,10 +451,11 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	upiPaymentEnabled: {
+	offPlatformPaymentEnabled: {
 		type: Boolean,
 		default: false
 	},
-	upiSettings: {
+	offPlatformSettings: {
 		type: Object,
 		default: () => ({})
 	},
@@ -473,7 +477,7 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
-const showUPIDialog = ref(false);
+const showOffPlatformDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
@@ -1095,10 +1099,11 @@ async function submit() {
 
 		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
 	// Check if we need to show UPI dialog or gateway selection dialog
+	// Check if we need to show off-platform dialog or gateway selection dialog
 	if (finalTotal.value > 0) {
-		if (props.upiPaymentEnabled && (!props.paymentGateways.length || confirm(__("Use UPI Payment instead of gateway?")))) {
+		if (props.offPlatformPaymentEnabled && (!props.paymentGateways.length || confirm(__("Use Off-platform Payment instead of gateway?")))) {
 			pendingPayload.value = final_payload;
-			showUPIDialog.value = true;
+			showOffPlatformDialog.value = true;
 			return;
 		} else if (props.paymentGateways.length > 1) {
 			pendingPayload.value = final_payload;
@@ -1148,6 +1153,9 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				} else if (data.upi_payment) {
 					// UPI payment submitted - redirect to booking details with UPI flag
 					router.replace(`/bookings/${data.booking_name}?success=true&upi=true`);
+				} else if (data.off_platform_payment) {
+					// Off-platform payment submitted - redirect to booking details with off-platform flag
+					router.replace(`/bookings/${data.booking_name}?success=true&off_platform=true`);
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -1173,12 +1181,12 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	);
 }
 
-function onUPIPaymentSubmit(paymentProof) {
+function onOffPlatformPaymentSubmit(paymentProof) {
 	if (pendingPayload.value) {
-		// For UPI payments, submit without payment gateway
+		// For off-platform payments, submit without payment gateway
 		submitBooking(pendingPayload.value, null);
 		pendingPayload.value = null;
-		showUPIDialog.value = false;
+		showOffPlatformDialog.value = false;
 	}
 }
 
