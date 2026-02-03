@@ -2,7 +2,14 @@
 	<Dialog v-model:open="isOpen" :options="{ size: 'md' }">
 		<template #body>
 			<div class="p-4">
-				<h3 class="text-lg font-semibold mb-4">{{ __("Off-platform Payment") }}</h3>
+				<!-- Title (shows custom label if set, otherwise default) -->
+				<h3 class="text-lg font-semibold mb-4">
+					{{ offlineSettings.label ? offlineSettings.label : __("Off-platform Payment") }}
+				</h3>
+				<!-- Instructions -->
+				<div v-if="offlineSettings.instructions" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+					<p class="text-sm text-blue-800">{{ offlineSettings.instructions }}</p>
+				</div>
 
 				<div class="space-y-4">
 					<!-- Amount -->

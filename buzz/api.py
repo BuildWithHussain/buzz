@@ -305,7 +305,14 @@ def get_event_booking_data(event_route: str) -> dict:
 	data.custom_fields = custom_fields
 
 	# Payment Gateways
-	data.payment_gateways = get_payment_gateways_for_event(event_doc.name)
+	payment_gateways = get_payment_gateways_for_event(event_doc.name)
+	
+	# If off-platform payment is enabled, add it to the payment gateways list
+	if event_doc.enable_off_platform_payment:
+		off_platform_label = event_doc.off_platform_payment_label or "Off-platform Payment"
+		payment_gateways.append(off_platform_label)
+	
+	data.payment_gateways = payment_gateways
 
 	# Off-platform Payment Settings
 	data.off_platform_payment_enabled = event_doc.enable_off_platform_payment
@@ -314,7 +321,8 @@ def get_event_booking_data(event_route: str) -> dict:
 			"payment_id": event_doc.off_platform_payment_id,
 			"qr_code": event_doc.off_platform_qr_code,
 			"instructions": event_doc.off_platform_instructions,
-			"collect_payment_proof": event_doc.collect_payment_proof
+			"collect_payment_proof": event_doc.collect_payment_proof,
+			"label": event_doc.off_platform_payment_label or "Off-platform Payment"
 		}
 
 	return data

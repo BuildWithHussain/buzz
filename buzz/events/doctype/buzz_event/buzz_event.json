@@ -51,6 +51,7 @@
   "off_platform_qr_code",
   "column_break_xghf",
   "off_platform_instructions",
+  "off_platform_payment_label",
   "tax_settings_section",
   "apply_tax",
   "tax_label",
@@ -411,6 +412,14 @@
    "fieldname": "off_platform_instructions",
    "fieldtype": "Small Text",
    "label": "Payment Instructions"
+  },
+  {
+   "default": "Off-platform Payment",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "description": "Label displayed to users when selecting payment method (e.g., UPI Payment, Bank Transfer, etc.)",
+   "fieldname": "off_platform_payment_label",
+   "fieldtype": "Data",
+   "label": "Payment Method Label"
   },
   {
    "default": "0",
