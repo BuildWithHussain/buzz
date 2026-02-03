@@ -27,7 +27,7 @@
 					</div>
 
 					<!-- Upload Proof -->
-					<div>
+					<div v-if="offlineSettings.collect_payment_proof">
 						<label class="text-sm font-medium">{{ __("Payment Proof") }} *</label>
 						<FileUploader 
 							v-model="paymentProof" 
@@ -44,7 +44,7 @@
 					<Button variant="outline" class="flex-1" @click="$emit('cancel')">
 						{{ __("Cancel") }}
 					</Button>
-					<Button variant="solid" class="flex-1" @click="submitOfflinePayment" :loading="loading" :disabled="!paymentProof">
+					<Button variant="solid" class="flex-1" @click="submitOfflinePayment" :loading="loading" :disabled="offlineSettings.collect_payment_proof && !paymentProof">
 						{{ __("Submit") }}
 					</Button>
 				</div>
@@ -106,7 +106,7 @@ const copyToClipboard = async (text) => {
 }
 
 const submitOfflinePayment = () => {
-	if (!paymentProof.value) {
+	if (props.offlineSettings.collect_payment_proof && !paymentProof.value) {
 		toast.error(__('Please upload payment proof'))
 		return
 	}

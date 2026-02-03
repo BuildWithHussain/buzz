@@ -44,11 +44,13 @@
   "payments_tab",
   "section_break_owtc",
   "payment_gateways",
-  "upi_payment_section",
-  "enable_upi_payment",
-  "upi_id",
-  "upi_qr_code",
-  "upi_instructions",
+  "off_platform_payment_section",
+  "enable_off_platform_payment",
+  "collect_payment_proof",
+  "off_platform_payment_id",
+  "off_platform_qr_code",
+  "column_break_xghf",
+  "off_platform_instructions",
   "tax_settings_section",
   "apply_tax",
   "tax_label",
@@ -412,6 +414,13 @@
   },
   {
    "default": "0",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "collect_payment_proof",
+   "fieldtype": "Check",
+   "label": "Collect Proof of Payment"
+  },
+  {
+   "default": "0",
    "fieldname": "apply_tax",
    "fieldtype": "Check",
    "label": "Apply Tax on Bookings?"
@@ -484,6 +493,7 @@
   },
   {
    "fieldname": "column_break_mijz",
+   "fieldname": "column_break_xghf",
    "fieldtype": "Column Break"
   }
  ],
@@ -557,7 +567,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-02 12:39:20.030745",
+ "modified": "2026-02-03 22:32:53.974109",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

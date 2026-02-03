@@ -1183,8 +1183,12 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 
 function onOffPlatformPaymentSubmit(paymentProof) {
 	if (pendingPayload.value) {
-		// For off-platform payments, submit without payment gateway
-		submitBooking(pendingPayload.value, null);
+		// For off-platform payments, submit without payment gateway but include payment proof
+		const payloadWithProof = {
+			...pendingPayload.value,
+			payment_proof: paymentProof?.file_url || null
+		};
+		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
 		showOffPlatformDialog.value = false;
 	}

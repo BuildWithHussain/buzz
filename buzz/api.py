@@ -313,7 +313,8 @@ def get_event_booking_data(event_route: str) -> dict:
 		data.off_platform_settings = {
 			"payment_id": event_doc.off_platform_payment_id,
 			"qr_code": event_doc.off_platform_qr_code,
-			"instructions": event_doc.off_platform_instructions
+			"instructions": event_doc.off_platform_instructions,
+			"collect_payment_proof": event_doc.collect_payment_proof
 		}
 
 	return data
@@ -331,6 +332,7 @@ def process_booking(
 	guest_full_name: str | None = None,
 	otp: str | None = None,
 	guest_phone: str | None = None,
+	payment_proof: str | None = None,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
@@ -441,6 +443,24 @@ def process_booking(
 			"label": "Payment Method",
 			"fieldtype": "Data"
 		})
+		
+		# Attach payment proof if provided
+		if payment_proof:
+			from frappe.utils.file_manager import save_file_on_filesystem
+			try:
+				# Create file attachment
+				file_doc = frappe.get_doc({
+					"doctype": "File",
+					"file_url": payment_proof,
+					"attached_to_doctype": "Event Booking",
+					"attached_to_name": booking.name,
+					"attached_to_field": "payment_proof",
+					"is_private": 1
+				})
+				file_doc.insert(ignore_permissions=True)
+			except Exception as e:
+				frappe.log_error(f"Failed to attach payment proof: {e}")
+		
 		booking.flags.ignore_permissions = True
 		booking.submit()
 		return {"booking_name": booking.name, "off_platform_payment": True}
