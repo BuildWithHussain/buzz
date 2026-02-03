@@ -10,6 +10,10 @@
   "column_break_cjxu",
   "user",
   "naming_series",
+  "section_break_status",
+  "payment_status",
+  "column_break_status",
+  "status",
   "section_break_xvkp",
   "attendees",
   "section_break_suav",
@@ -17,6 +21,7 @@
   "section_break_tsys",
   "upi_payment_verification",
   "upi_payment_unverify",
+  "reject_booking_btn",
   "net_amount",
   "tax_percentage",
   "tax_label",
@@ -93,6 +98,13 @@
    "fieldtype": "Button",
    "label": "Mark as Unverified",
    "options": "unverify_off_platform_payment"
+  },
+  {
+   "depends_on": "eval:doc.status === 'Approval Pending'",
+   "fieldname": "reject_booking_btn",
+   "fieldtype": "Button",
+   "label": "Reject Booking",
+   "options": "reject_booking"
   },
   {
    "default": "0",
@@ -182,6 +194,33 @@
    "fieldtype": "Currency",
    "label": "Discount Amount",
    "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Unpaid",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Status",
+   "options": "Unpaid\nPaid\nVerification Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Approval Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Confirmed\nApproval Pending\nApproved\nRejected",
    "read_only": 1
   }
  ],

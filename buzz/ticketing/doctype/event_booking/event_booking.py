@@ -46,6 +46,23 @@ class EventBooking(Document):
 		self.apply_coupon_if_applicable()
 		self.apply_taxes_if_applicable()
 
+	def before_submit(self):
+		"""Set status before submit based on payment method."""
+		payment_method = None
+		for field in self.additional_fields or []:
+			if field.fieldname == "payment_method":
+				payment_method = field.value
+				break
+		
+		if payment_method == "Off-platform":
+			self.payment_status = "Verification Pending"
+			self.status = "Approval Pending"
+		else:
+			# Payment gateway mode - check if payment was already authorized
+			if not hasattr(self, 'payment_status') or self.payment_status != "Paid":
+				self.payment_status = "Unpaid"
+				self.status = "Approval Pending"
+
 	def set_currency(self):
 		self.currency = self.attendees[0].currency
 
@@ -201,6 +218,8 @@ class EventBooking(Document):
 	def on_payment_authorized(self, payment_status: str):
 		if payment_status in ("Authorized", "Completed"):
 			# payment success, submit the booking
+			self.payment_status = "Paid"
+			self.status = "Confirmed"
 			self.update_payment_record()
 
 	def update_payment_record(self):
@@ -236,6 +255,10 @@ class EventBooking(Document):
 			frappe.msgprint("Payment is already verified!")
 			return
 		
+		# Update payment and booking status using db_set for submitted docs
+		self.db_set("payment_status", "Paid")
+		self.db_set("status", "Approved")
+		
 		# Add payment verified field using direct SQL
 		frappe.db.sql(
 			"""INSERT INTO `tabAdditional Field` 
@@ -254,9 +277,21 @@ class EventBooking(Document):
 		frappe.msgprint("Off-platform payment verified successfully!")
 
 	@frappe.whitelist()
+	def reject_booking(self):
+		"""Reject the booking."""
+		frappe.only_for("Event Manager")
+		
+		self.db_set("status", "Rejected")
+		frappe.msgprint("Booking has been rejected!")
+
+	@frappe.whitelist()
 	def unverify_off_platform_payment(self):
 		"""Remove off-platform payment verification."""
 		frappe.only_for("Event Manager")
+		
+		# Update payment and booking status using db_set for submitted docs
+		self.db_set("payment_status", "Verification Pending")
+		self.db_set("status", "Approval Pending")
 		
 		# Remove payment verified field using direct SQL
 		frappe.db.sql(
