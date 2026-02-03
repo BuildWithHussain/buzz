@@ -26,6 +26,14 @@
 						</div>
 					</div>
 
+					<!-- Custom Fields -->
+					<CustomFieldsSection
+						v-if="offPlatformCustomFields.length > 0"
+						:custom-fields="offPlatformCustomFields"
+						v-model="customFieldsData"
+						:show-title="false"
+					/>
+
 					<!-- Upload Proof -->
 					<div v-if="offlineSettings.collect_payment_proof">
 						<label class="text-sm font-medium">{{ __("Payment Proof") }} *</label>
@@ -44,7 +52,7 @@
 					<Button variant="outline" class="flex-1" @click="$emit('cancel')">
 						{{ __("Cancel") }}
 					</Button>
-					<Button variant="solid" class="flex-1" @click="submitOfflinePayment" :loading="loading" :disabled="offlineSettings.collect_payment_proof && !paymentProof">
+					<Button variant="solid" class="flex-1" @click="submitOfflinePayment" :loading="loading" :disabled="isSubmitDisabled">
 						{{ __("Submit") }}
 					</Button>
 				</div>
@@ -57,6 +65,7 @@
 import { ref, computed } from 'vue'
 import { Dialog, Button, FileUploader, toast } from 'frappe-ui'
 import { formatCurrency } from '../utils/currency.js'
+import CustomFieldsSection from './CustomFieldsSection.vue'
 import LucideCopy from '~icons/lucide/copy'
 
 const props = defineProps({
@@ -79,6 +88,10 @@ const props = defineProps({
 	loading: {
 		type: Boolean,
 		default: false
+	},
+	customFields: {
+		type: Array,
+		default: () => []
 	}
 })
 
@@ -90,6 +103,29 @@ const isOpen = computed({
 })
 
 const paymentProof = ref(null)
+const customFieldsData = ref({})
+
+// Filter custom fields for off-platform payment
+const offPlatformCustomFields = computed(() => 
+	props.customFields.filter(field => field.applied_to === 'Off-platform Payment')
+)
+
+// Check if submit should be disabled
+const isSubmitDisabled = computed(() => {
+	// Check payment proof requirement
+	if (props.offlineSettings.collect_payment_proof && !paymentProof.value) {
+		return true
+	}
+	
+	// Check mandatory custom fields
+	for (const field of offPlatformCustomFields.value) {
+		if (field.mandatory && (!customFieldsData.value[field.fieldname] || customFieldsData.value[field.fieldname] === '')) {
+			return true
+		}
+	}
+	
+	return false
+})
 
 const onFileUpload = (file) => {
 	paymentProof.value = file
@@ -106,11 +142,14 @@ const copyToClipboard = async (text) => {
 }
 
 const submitOfflinePayment = () => {
-	if (props.offlineSettings.collect_payment_proof && !paymentProof.value) {
-		toast.error(__('Please upload payment proof'))
+	if (isSubmitDisabled.value) {
+		toast.error(__('Please fill all required fields'))
 		return
 	}
 	
-	emit('submit', paymentProof.value)
+	emit('submit', {
+		payment_proof: paymentProof.value,
+		custom_fields: customFieldsData.value
+	})
 }
 </script>

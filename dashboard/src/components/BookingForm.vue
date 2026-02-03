@@ -99,6 +99,7 @@
 			:currency="totalCurrency"
 			:offline-settings="offPlatformSettings"
 			:loading="processBooking.loading"
+			:custom-fields="customFields"
 			@submit="onOffPlatformPaymentSubmit"
 			@cancel="showOffPlatformDialog = false"
 		/>
@@ -1181,12 +1182,13 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	);
 }
 
-function onOffPlatformPaymentSubmit(paymentProof) {
+function onOffPlatformPaymentSubmit(data) {
 	if (pendingPayload.value) {
-		// For off-platform payments, submit without payment gateway but include payment proof
+		// For off-platform payments, submit without payment gateway but include payment proof and custom fields
 		const payloadWithProof = {
 			...pendingPayload.value,
-			payment_proof: paymentProof?.file_url || null
+			payment_proof: data?.payment_proof?.file_url || null,
+			off_platform_custom_fields: data?.custom_fields || null
 		};
 		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
