@@ -305,7 +305,25 @@ def get_event_booking_data(event_route: str) -> dict:
 	data.custom_fields = custom_fields
 
 	# Payment Gateways
-	data.payment_gateways = get_payment_gateways_for_event(event_doc.name)
+	payment_gateways = get_payment_gateways_for_event(event_doc.name)
+	
+	# If off-platform payment is enabled, add it to the payment gateways list
+	if event_doc.enable_off_platform_payment:
+		off_platform_label = event_doc.off_platform_payment_label or "Off-platform Payment"
+		payment_gateways.append(off_platform_label)
+	
+	data.payment_gateways = payment_gateways
+
+	# Off-platform Payment Settings
+	data.off_platform_payment_enabled = event_doc.enable_off_platform_payment
+	if event_doc.enable_off_platform_payment:
+		data.off_platform_settings = {
+			"payment_id": event_doc.off_platform_payment_id,
+			"qr_code": event_doc.off_platform_qr_code,
+			"instructions": event_doc.off_platform_instructions,
+			"collect_payment_proof": event_doc.collect_payment_proof,
+			"label": event_doc.off_platform_payment_label or "Off-platform Payment"
+		}
 
 	return data
 
@@ -322,6 +340,7 @@ def process_booking(
 	guest_full_name: str | None = None,
 	otp: str | None = None,
 	guest_phone: str | None = None,
+	payment_proof: str | None = None,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
@@ -420,6 +439,39 @@ def process_booking(
 		booking.flags.ignore_permissions = True
 		booking.submit()
 		return {"booking_name": booking.name}
+
+	# Check if off-platform payment is enabled and no payment gateway is provided
+	event_doc = frappe.get_cached_doc("Buzz Event", event)
+	if event_doc.enable_off_platform_payment and not payment_gateway:
+		# For off-platform payments, submit booking directly without payment gateway
+		# Mark this as off-platform payment in additional fields
+		booking.append("additional_fields", {
+			"fieldname": "payment_method",
+			"value": "Off-platform",
+			"label": "Payment Method",
+			"fieldtype": "Data"
+		})
+		
+		# Attach payment proof if provided
+		if payment_proof:
+			from frappe.utils.file_manager import save_file_on_filesystem
+			try:
+				# Create file attachment
+				file_doc = frappe.get_doc({
+					"doctype": "File",
+					"file_url": payment_proof,
+					"attached_to_doctype": "Event Booking",
+					"attached_to_name": booking.name,
+					"attached_to_field": "payment_proof",
+					"is_private": 1
+				})
+				file_doc.insert(ignore_permissions=True)
+			except Exception as e:
+				frappe.log_error(f"Failed to attach payment proof: {e}")
+		
+		booking.flags.ignore_permissions = True
+		booking.submit()
+		return {"booking_name": booking.name, "off_platform_payment": True}
 
 	return {
 		"payment_link": get_payment_link_for_booking(
@@ -1192,7 +1244,6 @@ def validate_coupon(coupon_code: str, event: str, user_email: str | None = None)
 		"remaining_tickets": remaining,
 		"free_add_ons": [a.add_on for a in coupon.free_add_ons],
 	}
-
 
 @frappe.whitelist()
 def get_campaign_details(campaign: str):

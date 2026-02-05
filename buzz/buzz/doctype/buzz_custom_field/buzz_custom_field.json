@@ -33,13 +33,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Booking",
-   "fieldname": "applied_to",
-   "fieldtype": "Select",
-   "label": "Applied To",
-   "options": "Booking\nTicket"
-  },
-  {
    "fieldname": "label",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -93,12 +86,19 @@
    "fieldname": "default_value",
    "fieldtype": "Data",
    "label": "Default Value"
+  },
+  {
+   "default": "Booking",
+   "fieldname": "applied_to",
+   "fieldtype": "Select",
+   "label": "Applied To",
+   "options": "Booking\nTicket\nOff-platform Payment"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-05 05:49:52.998996",
+ "modified": "2026-02-04 00:18:48.234798",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz Custom Field",

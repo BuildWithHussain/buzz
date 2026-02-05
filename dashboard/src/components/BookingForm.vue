@@ -89,6 +89,22 @@
 		</div>
 
 		<form v-else @submit.prevent="submit">
+		<!-- UPI Payment Dialog -->
+		<UPIPaymentDialog
+			v-model:open="showUPIDialog"
+		<!-- Off-platform Payment Dialog -->
+		<OffPlatformPaymentDialog
+			v-model:open="showOffPlatformDialog"
+			:amount="finalTotal"
+			:currency="totalCurrency"
+			:offline-settings="offPlatformSettings"
+			:loading="processBooking.loading"
+			:custom-fields="customFields"
+			@submit="onOffPlatformPaymentSubmit"
+			@cancel="showOffPlatformDialog = false"
+		/>
+
+		<form @submit.prevent="submit">
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
 				<div class="lg:col-span-2">
@@ -370,6 +386,7 @@ import BookingSummary from "./BookingSummary.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
+import OffPlatformPaymentDialog from "./OffPlatformPaymentDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
 import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
@@ -434,6 +451,14 @@ const props = defineProps({
 	isGuestMode: {
 		type: Boolean,
 		default: false,
+	upiPaymentEnabled: {
+	offPlatformPaymentEnabled: {
+		type: Boolean,
+		default: false
+	},
+	offPlatformSettings: {
+		type: Object,
+		default: () => ({})
 	},
 });
 
@@ -453,6 +478,7 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
+const showOffPlatformDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
@@ -1073,9 +1099,23 @@ async function submit() {
 		pendingBookingPayload.value = final_payload;
 
 		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
+	// Check if we need to show UPI dialog or gateway selection dialog
+	// Check if we need to show off-platform dialog or gateway selection dialog
+	if (finalTotal.value > 0) {
+		if (props.paymentGateways.length > 1) {
+			// Multiple payment options available (including off-platform if enabled)
 			pendingPayload.value = final_payload;
 			showGatewayDialog.value = true;
 			return;
+		} else if (props.paymentGateways.length === 1) {
+			// Single payment option - check if it's off-platform
+			const singleGateway = props.paymentGateways[0];
+			if (props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+				// Single option is off-platform payment
+				pendingPayload.value = final_payload;
+				showOffPlatformDialog.value = true;
+				return;
+			}
 		}
 
 		selectedGateway.value = props.paymentGateways[0] || null;
@@ -1096,6 +1136,16 @@ async function submit() {
 	}
 
 	submitBooking(final_payload, props.paymentGateways[0] || null);
+	// Single gateway or free event - submit directly
+	const singleGateway = props.paymentGateways[0] || null;
+	if (singleGateway && props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+		// Single gateway is off-platform payment, but we already handled this above
+		// This shouldn't be reached, but just in case
+		pendingPayload.value = final_payload;
+		showOffPlatformDialog.value = true;
+	} else {
+		submitBooking(final_payload, singleGateway);
+	}
 }
 
 function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
@@ -1117,6 +1167,12 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				} else if (props.isGuestMode) {
 					bookingSuccess.value = true;
 					successBookingName.value = data.booking_name;
+				} else if (data.upi_payment) {
+					// UPI payment submitted - redirect to booking details with UPI flag
+					router.replace(`/bookings/${data.booking_name}?success=true&upi=true`);
+				} else if (data.off_platform_payment) {
+					// Off-platform payment submitted - redirect to booking details with off-platform flag
+					router.replace(`/bookings/${data.booking_name}?success=true&off_platform=true`);
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -1142,6 +1198,20 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	);
 }
 
+function onOffPlatformPaymentSubmit(data) {
+	if (pendingPayload.value) {
+		// For off-platform payments, submit without payment gateway but include payment proof and custom fields
+		const payloadWithProof = {
+			...pendingPayload.value,
+			payment_proof: data?.payment_proof?.file_url || null,
+			off_platform_custom_fields: data?.custom_fields || null
+		};
+		submitBooking(payloadWithProof, null);
+		pendingPayload.value = null;
+		showOffPlatformDialog.value = false;
+	}
+}
+
 function onGatewaySelected(gateway) {
 	if (props.isGuestMode) {
 		selectedGateway.value = gateway;
@@ -1157,8 +1227,15 @@ function onGatewaySelected(gateway) {
 	}
 
 	if (pendingPayload.value) {
-		submitBooking(pendingPayload.value, gateway);
-		pendingPayload.value = null;
+		// Check if the selected gateway is off-platform payment
+		if (props.offPlatformPaymentEnabled && gateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+			// Show off-platform payment dialog
+			showOffPlatformDialog.value = true;
+		} else {
+			// Regular payment gateway
+			submitBooking(pendingPayload.value, gateway);
+			pendingPayload.value = null;
+		}
 	}
 }
 

@@ -37,13 +37,20 @@
   "card_image",
   "section_break_rmtj",
   "allow_guest_booking",
-  "column_break_mijz",
   "guest_verification_method",
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
   "section_break_owtc",
   "payment_gateways",
+  "off_platform_payment_section",
+  "enable_off_platform_payment",
+  "collect_payment_proof",
+  "off_platform_payment_id",
+  "off_platform_qr_code",
+  "column_break_xgh",
+  "off_platform_instructions",
+  "off_platform_payment_label",
   "tax_settings_section",
   "apply_tax",
   "tax_label",
@@ -376,6 +383,51 @@
    "label": "Tax Settings"
   },
   {
+   "description": "Copy payment details or scan QR and upload proof for verification",
+   "fieldname": "off_platform_payment_section",
+   "fieldtype": "Section Break",
+   "label": "Off-platform Payment Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_off_platform_payment",
+   "fieldtype": "Check",
+   "label": "Enable Off-platform Payments"
+  },
+  {
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_payment_id",
+   "fieldtype": "Data",
+   "label": "Payment ID (UPI ID, Account Number, etc.)"
+  },
+  {
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_qr_code",
+   "fieldtype": "Attach Image",
+   "label": "Payment QR Code"
+  },
+  {
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "off_platform_instructions",
+   "fieldtype": "Small Text",
+   "label": "Payment Instructions"
+  },
+  {
+   "default": "Off-platform Payment",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "description": "Label displayed to users when selecting payment method (e.g., UPI Payment, Bank Transfer, etc.)",
+   "fieldname": "off_platform_payment_label",
+   "fieldtype": "Data",
+   "label": "Payment Method Label"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "fieldname": "collect_payment_proof",
+   "fieldtype": "Check",
+   "label": "Collect Proof of Payment"
+  },
+  {
    "default": "0",
    "fieldname": "apply_tax",
    "fieldtype": "Check",
@@ -448,7 +500,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "column_break_mijz",
+   "fieldname": "column_break_xgh",
    "fieldtype": "Column Break"
   }
  ],
@@ -522,7 +574,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-02 12:39:20.030745",
+ "modified": "2026-02-05 07:58:37.306420",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",

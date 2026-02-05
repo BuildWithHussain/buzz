@@ -30,6 +30,10 @@
 				:eventRoute="eventRoute"
 				:paymentGateways="eventBookingData.paymentGateways"
 				:isGuestMode="isGuest"
+				:upiPaymentEnabled="eventBookingData.upiPaymentEnabled"
+				:upiSettings="eventBookingData.upiSettings"
+				:offPlatformPaymentEnabled="eventBookingData.offPlatformPaymentEnabled"
+				:offPlatformSettings="eventBookingData.offPlatformSettings"
 			/>
 		</div>
 	</div>
@@ -49,6 +53,8 @@ const eventBookingData = reactive({
 	eventDetails: null,
 	customFields: null,
 	paymentGateways: [],
+	offPlatformPaymentEnabled: false,
+	offPlatformSettings: {},
 });
 
 const props = defineProps({
@@ -81,6 +87,8 @@ const eventBookingResource = createResource({
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];
 		eventBookingData.paymentGateways = data.payment_gateways || [];
+		eventBookingData.offPlatformPaymentEnabled = data.off_platform_payment_enabled || false;
+		eventBookingData.offPlatformSettings = data.off_platform_settings || {};
 	},
 	onError: (error) => {
 		if (error.message.includes("DoesNotExistError")) {

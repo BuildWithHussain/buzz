@@ -16,11 +16,10 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
+		from frappe.types import DF
 
 		additional_fields: DF.Table[AdditionalField]
 		amended_from: DF.Link | None
@@ -31,6 +30,8 @@ class EventBooking(Document):
 		event: DF.Link
 		naming_series: DF.Literal["B.###"]
 		net_amount: DF.Currency
+		payment_status: DF.Literal["Unpaid", "Paid", "Verification Pending"]
+		status: DF.Literal["Confirmed", "Approval Pending", "Approved", "Rejected"]
 		tax_amount: DF.Currency
 		tax_label: DF.Data | None
 		tax_percentage: DF.Percent
@@ -46,6 +47,23 @@ class EventBooking(Document):
 		self.set_total()
 		self.apply_coupon_if_applicable()
 		self.apply_taxes_if_applicable()
+
+	def before_submit(self):
+		"""Set status before submit based on payment method."""
+		payment_method = None
+		for field in self.additional_fields or []:
+			if field.fieldname == "payment_method":
+				payment_method = field.value
+				break
+		
+		if payment_method == "Off-platform":
+			self.payment_status = "Verification Pending"
+			self.status = "Approval Pending"
+		else:
+			# Payment gateway mode - check if payment was already authorized
+			if not hasattr(self, 'payment_status') or self.payment_status != "Paid":
+				self.payment_status = "Unpaid"
+				self.status = "Approval Pending"
 
 	def set_currency(self):
 		self.currency = self.attendees[0].currency
@@ -202,6 +220,8 @@ class EventBooking(Document):
 	def on_payment_authorized(self, payment_status: str):
 		if payment_status in ("Authorized", "Completed"):
 			# payment success, submit the booking
+			self.payment_status = "Paid"
+			self.status = "Confirmed"
 			self.update_payment_record()
 
 	def update_payment_record(self):
@@ -221,6 +241,24 @@ class EventBooking(Document):
 		tickets = frappe.db.get_all("Event Ticket", filters={"booking": self.name}, pluck="name")
 		for ticket in tickets:
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
+
+	@frappe.whitelist()
+	def approve_booking(self):
+		"""Approve the booking."""
+		frappe.only_for("Event Manager")
+		
+		self.db_set("status", "Approved")
+		if self.payment_status == "Verification Pending":
+			self.db_set("payment_status", "Paid")
+		frappe.msgprint("Booking has been approved!")
+
+	@frappe.whitelist()
+	def reject_booking(self):
+		"""Reject the booking."""
+		frappe.only_for("Event Manager")
+		
+		self.db_set("status", "Rejected")
+		frappe.msgprint("Booking has been rejected!")
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0
