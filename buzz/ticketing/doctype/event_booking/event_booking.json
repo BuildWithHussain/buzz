@@ -19,9 +19,6 @@
   "section_break_suav",
   "additional_fields",
   "section_break_tsys",
-  "upi_payment_verification",
-  "upi_payment_unverify",
-  "reject_booking_btn",
   "net_amount",
   "tax_percentage",
   "tax_label",
@@ -84,27 +81,6 @@
   {
    "fieldname": "section_break_tsys",
    "fieldtype": "Section Break"
-  },
-  {
-   "depends_on": "eval:doc.additional_fields && doc.additional_fields.find(f => f.fieldname === 'payment_method' && f.value === 'Off-platform') && !doc.additional_fields.find(f => f.fieldname === 'payment_verified' && f.value === 'Yes')",
-   "fieldname": "upi_payment_verification",
-   "fieldtype": "Button",
-   "label": "Verify UPI Payment",
-   "options": "verify_off_platform_payment"
-  },
-  {
-   "depends_on": "eval:doc.additional_fields && doc.additional_fields.find(f => f.fieldname === 'payment_verified' && f.value === 'Yes')",
-   "fieldname": "upi_payment_unverify",
-   "fieldtype": "Button",
-   "label": "Mark as Unverified",
-   "options": "unverify_off_platform_payment"
-  },
-  {
-   "depends_on": "eval:doc.status === 'Approval Pending'",
-   "fieldname": "reject_booking_btn",
-   "fieldtype": "Button",
-   "label": "Reject Booking",
-   "options": "reject_booking"
   },
   {
    "default": "0",
@@ -237,7 +213,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2026-02-03 22:43:01.973002",
+ "modified": "2026-02-05 09:10:22.542973",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",

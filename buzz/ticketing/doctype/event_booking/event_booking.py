@@ -30,6 +30,8 @@ class EventBooking(Document):
 		event: DF.Link
 		naming_series: DF.Literal["B.###"]
 		net_amount: DF.Currency
+		payment_status: DF.Literal["Unpaid", "Paid", "Verification Pending"]
+		status: DF.Literal["Confirmed", "Approval Pending", "Approved", "Rejected"]
 		tax_amount: DF.Currency
 		tax_label: DF.Data | None
 		tax_percentage: DF.Percent
@@ -241,40 +243,14 @@ class EventBooking(Document):
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
 
 	@frappe.whitelist()
-	def verify_off_platform_payment(self):
-		"""Verify off-platform payment for this booking."""
+	def approve_booking(self):
+		"""Approve the booking."""
 		frappe.only_for("Event Manager")
 		
-		# Check if already verified
-		existing = frappe.db.exists("Additional Field", {
-			"parent": self.name,
-			"fieldname": "payment_verified",
-			"value": "Yes"
-		})
-		if existing:
-			frappe.msgprint("Payment is already verified!")
-			return
-		
-		# Update payment and booking status using db_set for submitted docs
-		self.db_set("payment_status", "Paid")
 		self.db_set("status", "Approved")
-		
-		# Add payment verified field using direct SQL
-		frappe.db.sql(
-			"""INSERT INTO `tabAdditional Field` 
-			   (name, parent, parenttype, parentfield, fieldname, value, label, fieldtype) 
-			   VALUES (%(name)s, %(parent)s, 'Event Booking', 'additional_fields', %(fieldname)s, %(value)s, %(label)s, %(fieldtype)s)""",
-			{
-				"name": frappe.generate_hash(length=10),
-				"parent": self.name,
-				"fieldname": "payment_verified",
-				"value": "Yes",
-				"label": "Payment Verified",
-				"fieldtype": "Data"
-			}
-		)
-		frappe.db.commit()
-		frappe.msgprint("Off-platform payment verified successfully!")
+		if self.payment_status == "Verification Pending":
+			self.db_set("payment_status", "Paid")
+		frappe.msgprint("Booking has been approved!")
 
 	@frappe.whitelist()
 	def reject_booking(self):
@@ -283,23 +259,6 @@ class EventBooking(Document):
 		
 		self.db_set("status", "Rejected")
 		frappe.msgprint("Booking has been rejected!")
-
-	@frappe.whitelist()
-	def unverify_off_platform_payment(self):
-		"""Remove off-platform payment verification."""
-		frappe.only_for("Event Manager")
-		
-		# Update payment and booking status using db_set for submitted docs
-		self.db_set("payment_status", "Verification Pending")
-		self.db_set("status", "Approval Pending")
-		
-		# Remove payment verified field using direct SQL
-		frappe.db.sql(
-			"DELETE FROM `tabAdditional Field` WHERE parent = %s AND fieldname = 'payment_verified'",
-			(self.name,)
-		)
-		frappe.db.commit()
-		frappe.msgprint("Off-platform payment marked as unverified!")
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0

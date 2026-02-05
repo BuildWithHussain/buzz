@@ -37,7 +37,6 @@
   "card_image",
   "section_break_rmtj",
   "allow_guest_booking",
-  "column_break_mijz",
   "guest_verification_method",
   "section_break_kwlt",
   "featured_speakers",
@@ -49,7 +48,7 @@
   "collect_payment_proof",
   "off_platform_payment_id",
   "off_platform_qr_code",
-  "column_break_xghf",
+  "column_break_xgh",
   "off_platform_instructions",
   "off_platform_payment_label",
   "tax_settings_section",
@@ -501,8 +500,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "column_break_mijz",
-   "fieldname": "column_break_xghf",
+   "fieldname": "column_break_xgh",
    "fieldtype": "Column Break"
   }
  ],
@@ -576,7 +574,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-03 22:32:53.974109",
+ "modified": "2026-02-05 07:58:37.306420",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
