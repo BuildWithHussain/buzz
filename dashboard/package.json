@@ -8,6 +8,7 @@
     "build": "vite build --base=/assets/buzz/dashboard/ && yarn copy-html-entry",
     "preview": "vite preview",
     "lint": "biome check --write .",
+    "type-check": "vue-tsc --noEmit",
     "copy-html-entry": "cp ../buzz/public/dashboard/index.html ../buzz/www/dashboard.html"
   },
   "dependencies": {
@@ -21,12 +22,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@types/node": "^25.2.0",
     "@vitejs/plugin-vue": "^5.1.4",
     "autoprefixer": "^10.4.2",
     "html5-qrcode": "^2.3.8",
     "postcss": "^8.4.5",
     "tailwindcss": "^3.4.15",
+    "typescript": "^5.9.3",
     "unplugin-auto-import": "0.18.6",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vue-tsc": "^3.2.4"
   }
 }
