@@ -375,7 +375,7 @@ import { formatPriceOrFree, formatCurrency } from "../utils/currency";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
-import { redirectToLogin, clearBookingCache } from "../utils/index.js";
+import { redirectToLogin, clearBookingCache } from "../utils/index";
 import LucideCheck from "~icons/lucide/check";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideX from "~icons/lucide/x";
