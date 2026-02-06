@@ -23,6 +23,8 @@ export function getFormControlType(fieldtype) {
 			return "number";
 		case "Check":
 			return "checkbox";
+		case "Small Text":
+			return "textarea";
 		default:
 			return "text";
 	}
@@ -121,8 +123,16 @@ export function getFieldPlaceholder(field) {
  * @returns {*} - Default value or empty string
  */
 export function getFieldDefaultValue(field) {
-	// Check for explicit default value
-	if (field.default_value) {
+	// For checkbox fields, handle 0/1 values explicitly
+	if (field.fieldtype === "Check") {
+		if (field.default_value === 1 || field.default_value === "1") {
+			return 1;
+		}
+		return 0; // Default to unchecked
+	}
+
+	// Check for explicit default value (use != null to allow "0" and 0)
+	if (field.default_value != null && field.default_value !== "") {
 		return field.default_value;
 	}
 

@@ -19,7 +19,9 @@ class BuzzCustomField(Document):
 		enabled: DF.Check
 		event: DF.Link
 		fieldname: DF.Data | None
-		fieldtype: DF.Literal["Data", "Phone", "Email", "Select", "Date", "Number", "Multi Select"]
+		fieldtype: DF.Literal[
+			"Data", "Check", "Small Text", "Phone", "Email", "Select", "Date", "Number", "Multi Select"
+		]
 		label: DF.Data
 		mandatory: DF.Check
 		options: DF.SmallText | None
