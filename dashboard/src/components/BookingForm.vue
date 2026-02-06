@@ -371,7 +371,7 @@ import EventDetailsHeader from "./EventDetailsHeader.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import { createResource, toast, FormControl } from "frappe-ui";
-import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
+import { formatPriceOrFree, formatCurrency } from "../utils/currency";
 import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
 import { useRouter, useRoute } from "vue-router";
 import { userResource } from "../data/user.js";
