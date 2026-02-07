@@ -2,8 +2,16 @@ import router from "@/router";
 import { createResource } from "frappe-ui";
 import { computed, reactive } from "vue";
 import { userResource } from "./user";
-import { useRoute } from "vue-router";
 import { clearBookingCache } from "@/utils";
+
+interface LoginParams {
+	email: string;
+	password: string;
+}
+
+interface LoginResponse {
+	default_route?: string;
+}
 
 export function sessionUser() {
 	const cookies = new URLSearchParams(document.cookie.split("; ").join("&"));
@@ -17,13 +25,13 @@ export function sessionUser() {
 export const session = reactive({
 	login: createResource({
 		url: "login",
-		makeParams({ email, password }) {
+		makeParams({ email, password }: LoginParams) {
 			return {
 				usr: email,
 				pwd: password,
 			};
 		},
-		onSuccess(data) {
+		onSuccess(data: LoginResponse) {
 			userResource.reload();
 			session.user = sessionUser();
 			session.login.reset();
@@ -41,5 +49,5 @@ export const session = reactive({
 		},
 	}),
 	user: sessionUser(),
-	isLoggedIn: computed(() => !!session.user),
+	isLoggedIn: computed((): boolean => !!session.user),
 });

@@ -330,7 +330,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { createResource, Spinner, Button, Badge } from "frappe-ui";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency } from "@/utils/currency";
 import { dayjsLocal } from "frappe-ui";
 import TicketTransferDialog from "../components/TicketTransferDialog.vue";
 import AddOnPreferenceDialog from "../components/AddOnPreferenceDialog.vue";

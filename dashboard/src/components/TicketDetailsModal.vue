@@ -162,7 +162,7 @@ import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideUserCheck from "~icons/lucide/user-check";
 import LucideXCircle from "~icons/lucide/x-circle";
 import { useTicketValidation } from "../composables/useTicketValidation.js";
-import { formatPriceOrFree } from "../utils/currency";
+import { formatPriceOrFree } from "@/utils/currency";
 
 const props = defineProps({
 	selectedEvent: {

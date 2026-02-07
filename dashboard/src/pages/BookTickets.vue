@@ -40,7 +40,7 @@ import { reactive, computed } from "vue";
 import BookingForm from "../components/BookingForm.vue";
 import { Spinner, createResource } from "frappe-ui";
 import { session } from "@/data/session";
-import { redirectToLogin } from "../utils/index";
+import { redirectToLogin } from "@/utils/index";
 
 const eventBookingData = reactive({
 	availableAddOns: null,

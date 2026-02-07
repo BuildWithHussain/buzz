@@ -144,7 +144,7 @@
 <script setup>
 import { ref, watch, computed } from "vue";
 import { Dialog, Button, Spinner, createResource, useList } from "frappe-ui";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency } from "@/utils/currency";
 
 const props = defineProps({
 	open: {
