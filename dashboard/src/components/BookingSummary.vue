@@ -149,7 +149,7 @@
 </template>
 
 <script setup>
-import { formatPriceOrFree } from "../utils/currency";
+import { formatPriceOrFree } from "@/utils/currency";
 
 defineProps({
 	summary: {
