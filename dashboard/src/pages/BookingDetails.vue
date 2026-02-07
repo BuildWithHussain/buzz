@@ -66,7 +66,7 @@
 import { ref, computed } from "vue";
 import { createResource, Spinner } from "frappe-ui";
 import { useRoute } from "vue-router";
-import { usePaymentSuccess } from "../composables/usePaymentSuccess.js";
+import { usePaymentSuccess } from "@/composables/usePaymentSuccess";
 import { useBookingFormStorage } from "@/composables/useBookingFormStorage.js";
 import BookingHeader from "../components/BookingHeader.vue";
 import SuccessMessage from "../components/SuccessMessage.vue";
