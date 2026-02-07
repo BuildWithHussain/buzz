@@ -126,7 +126,11 @@
 				v-if="shouldApplyTax"
 				class="flex justify-between items-center text-ink-gray-7 mb-2"
 			>
-				<span>{{ __(taxLabel) }} ({{ taxPercentage }}%)</span>
+				<span
+					>{{ __(taxLabel) }} ({{ taxPercentage }}%){{
+						taxInclusive ? ` ${__("Incl.")}` : ""
+					}}</span
+				>
 				<span class="font-medium">{{ formatPriceOrFree(taxAmount, totalCurrency) }}</span>
 			</div>
 
@@ -195,6 +199,10 @@ defineProps({
 	taxLabel: {
 		type: String,
 		default: "Tax",
+	},
+	taxInclusive: {
+		type: Boolean,
+		default: false,
 	},
 	shouldApplyTax: {
 		type: Boolean,

@@ -291,6 +291,7 @@ def get_event_booking_data(event_route: str) -> dict:
 	# Tax Settings (from Event)
 	data.tax_settings = {
 		"apply_tax": event_doc.apply_tax,
+		"tax_inclusive": event_doc.tax_inclusive,
 		"tax_label": event_doc.tax_label or "Tax",
 		"tax_percentage": event_doc.tax_percentage or 0,
 	}
