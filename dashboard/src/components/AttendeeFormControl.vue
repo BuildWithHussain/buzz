@@ -109,7 +109,7 @@
 
 <script setup>
 import { Tooltip } from "frappe-ui";
-import { formatPriceOrFree } from "../utils/currency.js";
+import { formatPriceOrFree } from "../utils/currency";
 import CustomFieldInput from "./CustomFieldInput.vue";
 import { getFieldDefaultValue } from "@/composables/useCustomFields.js";
 

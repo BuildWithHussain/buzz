@@ -7,4 +7,6 @@ declare global {
       user?: string;
     };
   }
+
+  function __(str: string, values?: any[]): string;
 }

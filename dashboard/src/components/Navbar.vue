@@ -49,7 +49,7 @@ import LanguageSwitcher from "./LanguageSwitcher.vue";
 
 import { onMounted } from "vue";
 import { useStorage } from "@vueuse/core";
-import { redirectToLogin } from "../utils/index.js";
+import { redirectToLogin } from "../utils/index";
 
 const userTheme = useStorage("user-theme", "dark");
 
