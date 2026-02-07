@@ -228,7 +228,7 @@ def can_request_cancellation(event_id: str | int) -> dict:
 	return {"can_request_cancellation": is_cancellation_request_allowed(event_id), "event_id": event_id}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})

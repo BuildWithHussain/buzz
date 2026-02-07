@@ -36,28 +36,34 @@ test.describe("Tax Inclusive Pricing", () => {
 		const summarySection = page.locator("text=Booking Summary");
 		await expect(summarySection).toBeVisible({ timeout: 10000 });
 
-		// Verify tax label shows "Incl."
-		const taxLine = page.locator("text=/GST.*18.*%.*Incl/");
-		await expect(taxLine).toBeVisible({ timeout: 5000 });
+		// Subtotal should be hidden for tax-inclusive (no discount case)
+		const subtotalLabel = page.locator("span:text-is('Subtotal')");
+		await expect(subtotalLabel).not.toBeVisible();
 
-		// Verify Total (the h3 element) equals subtotal — tax is included
+		// Tax should NOT appear as a separate line item
+		const taxLineItem = page.locator("text=/GST.*18.*%/").first();
+		// The "Inclusive of" note contains GST 18%, but there should be no standalone tax row
+		const separateTaxRow = page.locator(".flex.justify-between:has(span:text-is('GST (18%)'))");
+		await expect(separateTaxRow).not.toBeVisible();
+
+		// Verify the "Inclusive of" note appears below the total
+		const inclusiveNote = page.locator("text=/Inclusive of/");
+		await expect(inclusiveNote).toBeVisible({ timeout: 5000 });
+
+		// Verify the note contains GST and 18%
+		const noteText = await inclusiveNote.textContent();
+		expect(noteText).toContain("GST");
+		expect(noteText).toContain("18%");
+
+		// Verify the total shows the ticket price (unchanged by tax)
 		const totalHeading = page.locator("h3:has-text('Total')");
 		const totalContainer = totalHeading.locator("..");
 		const totalText = await totalContainer.textContent();
-
-		const subtotalContainer = page.locator("span:text-is('Subtotal')").locator("..");
-		const subtotalText = await subtotalContainer.textContent();
-
-		// Extract numeric values
-		const subtotalMatch = subtotalText?.match(/[\d,]+/);
 		const totalMatch = totalText?.match(/[\d,]+/);
-
-		expect(subtotalMatch).toBeTruthy();
 		expect(totalMatch).toBeTruthy();
-		// Subtotal and Total should be equal for tax-inclusive
-		expect(subtotalMatch![0]).toBe(totalMatch![0]);
+		expect(totalMatch![0]).toBe("500");
 
-		console.log(`Tax inclusive test passed: Subtotal=${subtotalMatch![0]}, Total=${totalMatch![0]}`);
+		console.log(`Tax inclusive test passed: Total=500, note="${noteText?.trim()}"`);
 	});
 
 	test("should show tax as exclusive with increased total", async ({ page, request }) => {
