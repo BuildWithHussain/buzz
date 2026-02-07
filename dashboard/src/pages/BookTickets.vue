@@ -36,11 +36,11 @@
 </template>
 
 <script setup>
-import { reactive, computed } from "vue";
-import BookingForm from "../components/BookingForm.vue";
-import { Spinner, createResource } from "frappe-ui";
 import { session } from "@/data/session";
 import { redirectToLogin } from "@/utils/index";
+import { Spinner, createResource } from "frappe-ui";
+import { computed, reactive } from "vue";
+import BookingForm from "../components/BookingForm.vue";
 
 const eventBookingData = reactive({
 	availableAddOns: null,
@@ -75,6 +75,7 @@ const eventBookingResource = createResource({
 		eventBookingData.availableTicketTypes = data.available_ticket_types || [];
 		eventBookingData.taxSettings = data.tax_settings || {
 			apply_tax: false,
+			tax_inclusive: false,
 			tax_label: "Tax",
 			tax_percentage: 0,
 		};

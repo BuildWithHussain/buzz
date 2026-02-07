@@ -102,8 +102,11 @@
 		<template v-if="total > 0 || (couponApplied && netAmount > 0)">
 			<hr class="my-4 border-t border-outline-gray-1" />
 
-			<!-- Subtotal -->
-			<div class="flex justify-between items-center text-ink-gray-7 mb-2">
+			<!-- Subtotal (hide when tax-inclusive and no discount, since it equals total) -->
+			<div
+				v-if="!taxInclusive || (couponApplied && discountAmount > 0)"
+				class="flex justify-between items-center text-ink-gray-7 mb-2"
+			>
 				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{ formatPriceOrFree(netAmount, totalCurrency) }}</span>
 			</div>
@@ -121,9 +124,9 @@
 				>
 			</div>
 
-			<!-- Tax Section -->
+			<!-- Tax Section (exclusive only — shown as line item added to total) -->
 			<div
-				v-if="shouldApplyTax"
+				v-if="shouldApplyTax && !taxInclusive"
 				class="flex justify-between items-center text-ink-gray-7 mb-2"
 			>
 				<span>{{ __(taxLabel) }} ({{ taxPercentage }}%)</span>
@@ -135,6 +138,20 @@
 			<div class="flex justify-between items-center text-xl font-bold text-ink-gray-9">
 				<h3>{{ __("Total") }}</h3>
 				<span>{{ formatPriceOrFree(total, totalCurrency) }}</span>
+			</div>
+
+			<!-- Tax-inclusive note (shown below total) -->
+			<div
+				v-if="shouldApplyTax && taxInclusive"
+				class="text-sm text-ink-gray-5 text-right mt-3"
+			>
+				{{
+					__("Inclusive of {0} {1} ({2}%)", [
+						formatPriceOrFree(taxAmount, totalCurrency),
+						__(taxLabel),
+						taxPercentage,
+					])
+				}}
 			</div>
 		</template>
 
@@ -195,6 +212,10 @@ defineProps({
 	taxLabel: {
 		type: String,
 		default: "Tax",
+	},
+	taxInclusive: {
+		type: Boolean,
+		default: false,
 	},
 	shouldApplyTax: {
 		type: Boolean,
