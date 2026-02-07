@@ -1,8 +1,15 @@
 import { createResource } from "frappe-ui";
-import { computed } from "vue";
+import { computed, type ComputedRef } from "vue";
 import { userResource } from "@/data/user";
 
-export function useLanguage() {
+interface LanguageComposable {
+  availableLanguages: any;
+  currentLanguage: ComputedRef<string>;
+  changeLanguage: (languageCode: string) => void;
+  isSwitching: ComputedRef<boolean>;
+}
+
+export function useLanguage(): LanguageComposable {
 	const availableLanguages = createResource({
 		url: "buzz.api.get_enabled_languages",
 		auto: true,
@@ -21,7 +28,7 @@ export function useLanguage() {
 		},
 	});
 
-	function changeLanguage(languageCode) {
+	function changeLanguage(languageCode: string) {
 		switchLanguage.submit({ language_code: languageCode });
 	}
 
