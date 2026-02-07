@@ -93,7 +93,7 @@ import QRScanner from "../components/QRScanner.vue";
 import TicketDetailsModal from "../components/TicketDetailsModal.vue";
 import { useTicketValidation } from "../composables/useTicketValidation.js";
 import LucideShieldX from "~icons/lucide/shield-x";
-import { userResource } from "../data/user.js";
+import { userResource } from "@/data/user";
 
 const userProfile = ref({});
 
