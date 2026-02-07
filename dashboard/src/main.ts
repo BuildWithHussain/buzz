@@ -46,8 +46,8 @@ app.use(pageMetaPlugin);
 const socket = initSocket();
 app.config.globalProperties.$socket = socket;
 
-for (const key in globalComponents) {
-	app.component(key, globalComponents[key]);
+for (const [key, component] of Object.entries(globalComponents)) {
+	app.component(key, component);
 }
 
 app.mount("#app");
