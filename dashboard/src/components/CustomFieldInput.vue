@@ -68,7 +68,7 @@ import {
 	getFieldPlaceholder,
 	isDateField,
 	isDateTimeField,
-} from "@/composables/useCustomFields.js";
+} from "@/composables/useCustomFields";
 
 const props = defineProps({
 	field: {

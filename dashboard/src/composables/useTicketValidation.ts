@@ -1,30 +1,65 @@
 import { createResource, toast } from "frappe-ui";
-import { ref } from "vue";
-import beepFailSound from "../assets/audio/beep-fail.wav";
-import beepSound from "../assets/audio/beep.wav";
+import { ref, type Ref } from "vue";
+import beepFailSound from "@/assets/audio/beep-fail.wav";
+import beepSound from "@/assets/audio/beep.wav";
+import { TicketAddOnValue } from "@/types/Ticketing/TicketAddOnValue";
 
-let ticketValidationState = null;
+interface ValidationTicket {
+    id: string;
+    attendee_name: string;
+    attendee_email: string;
+    event_title: string;
+    ticket_type: string;
+    venue: string;
+    start_date: string;
+    start_time: string;
+    end_date: string;
+    end_time: string;
+    is_checked_in: boolean;
+    check_in_time: string | null;
+	check_in_date?: string | null;
+    booking_id: string;
+    add_ons: TicketAddOnValue[];
+}
+
+interface ValidationResult {
+    message: string;
+    ticket: ValidationTicket;
+}
+
+interface TicketValidationState {
+    isProcessingTicket: Ref<boolean>;
+    isCheckingIn: Ref<boolean>;
+    validationResult: Ref<ValidationResult | null>;
+    showTicketModal: Ref<boolean>;
+    validateTicket: (ticketId: string) => void;
+    checkInTicket: () => void;
+    clearResults: () => void;
+    closeModal: () => void;
+}
+
+let ticketValidationState: TicketValidationState | null = null;
 
 const isProcessingTicket = ref(false);
 const isCheckingIn = ref(false);
-const validationResult = ref(null);
+const validationResult = ref<ValidationResult | null>(null);
 const showTicketModal = ref(false);
 
-let lastToastMessage = null;
+let lastToastMessage: string | null = null;
 let lastToastTime = 0;
 const TOAST_DEBOUNCE_MS = 500;
 
-const playSuccessSound = () => {
+const playSuccessSound = (): void => {
 	const audio = new Audio(beepSound);
 	audio.play();
 };
 
-const playErrorSound = () => {
+const playErrorSound = (): void => {
 	const audio = new Audio(beepFailSound);
 	audio.play();
 };
 
-const showDebouncedToast = (message, type = "error") => {
+const showDebouncedToast = (message: string, type: "error" | "success" = "error"): void => {
 	const now = Date.now();
 	if (lastToastMessage === message && now - lastToastTime < TOAST_DEBOUNCE_MS) {
 		return;
@@ -42,13 +77,13 @@ const showDebouncedToast = (message, type = "error") => {
 // Ticket validation resource
 const validateTicketResource = createResource({
 	url: "buzz.api.validate_ticket_for_checkin",
-	onSuccess: (data) => {
+	onSuccess: (data: ValidationResult) => {
 		validationResult.value = data;
 		showTicketModal.value = true;
 		playSuccessSound();
 		isProcessingTicket.value = false;
 	},
-	onError: (error) => {
+	onError: (error: any) => {
 		validationResult.value = null;
 		isProcessingTicket.value = false;
 		const errorData = JSON.stringify(error);
@@ -73,42 +108,42 @@ const validateTicketResource = createResource({
 // Check-in resource
 const checkInResource = createResource({
 	url: "buzz.api.checkin_ticket",
-	onSuccess: (data) => {
+	onSuccess: (data: ValidationResult) => {
 		validationResult.value = data;
 		showTicketModal.value = false;
 		isCheckingIn.value = false;
 	},
-	onError: (error) => {
+	onError: (error: any) => {
 		isCheckingIn.value = false;
 	},
 });
 
-export function useTicketValidation() {
+export function useTicketValidation(): TicketValidationState {
 	if (ticketValidationState) {
 		return ticketValidationState;
 	}
 
 	// Methods
-	const validateTicket = (ticketId) => {
+	const validateTicket = (ticketId: string): void => {
 		isProcessingTicket.value = true;
 		validateTicketResource.submit({ ticket_id: ticketId });
 	};
 
-	const checkInTicket = () => {
+	const checkInTicket = (): void => {
 		if (!validationResult.value?.ticket?.id) return;
 
 		isCheckingIn.value = true;
 		checkInResource.submit({ ticket_id: validationResult.value.ticket.id });
 	};
 
-	const clearResults = () => {
+	const clearResults = (): void => {
 		validationResult.value = null;
 		isProcessingTicket.value = false;
 		isCheckingIn.value = false;
 		showTicketModal.value = false;
 	};
 
-	const closeModal = () => {
+	const closeModal = (): void => {
 		showTicketModal.value = false;
 	};
 

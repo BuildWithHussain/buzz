@@ -91,7 +91,7 @@ import BackButton from "../components/common/BackButton.vue";
 import EventSelector from "../components/EventSelector.vue";
 import QRScanner from "../components/QRScanner.vue";
 import TicketDetailsModal from "../components/TicketDetailsModal.vue";
-import { useTicketValidation } from "../composables/useTicketValidation.js";
+import { useTicketValidation } from "@/composables/useTicketValidation";
 import LucideShieldX from "~icons/lucide/shield-x";
 import { userResource } from "@/data/user";
 

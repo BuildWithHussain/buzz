@@ -376,7 +376,7 @@ import LucideCheck from "~icons/lucide/check";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideGift from "~icons/lucide/gift";
 import LucideX from "~icons/lucide/x";
-import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
+import { useBookingFormStorage } from "@/composables/useBookingFormStorage";
 import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
