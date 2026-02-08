@@ -252,6 +252,7 @@ def create_from_template(template_name: str, options: str, additional_fields: st
 		"ticket_email_template": "ticket_email_template",
 		"ticket_print_format": "ticket_print_format",
 		"apply_tax": "apply_tax",
+		"tax_inclusive": "tax_inclusive",
 		"tax_label": "tax_label",
 		"tax_percentage": "tax_percentage",
 		"auto_send_pitch_deck": "auto_send_pitch_deck",

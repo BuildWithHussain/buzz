@@ -74,8 +74,15 @@ class EventBooking(Document):
 		self.tax_percentage = event.tax_percentage or 0
 
 		if self.tax_percentage > 0:
-			self.tax_amount = self.total_amount * (self.tax_percentage / 100)
-			self.total_amount += self.tax_amount
+			if event.tax_inclusive:
+				# Tax is included in the price — back-calculate the tax component
+				self.tax_amount = round(
+					self.total_amount * self.tax_percentage / (100 + self.tax_percentage), 2
+				)
+			else:
+				# Tax is added on top of the price
+				self.tax_amount = self.total_amount * (self.tax_percentage / 100)
+				self.total_amount += self.tax_amount
 
 	def validate_ticket_availability(self):
 		num_tickets_by_type = {}

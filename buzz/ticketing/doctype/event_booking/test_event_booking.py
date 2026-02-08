@@ -79,8 +79,9 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 	def test_total_calculation_with_taxes(self):
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 
-		# Enable tax at event level
+		# Enable tax at event level (exclusive)
 		test_event.apply_tax = True
+		test_event.tax_inclusive = False
 		test_event.tax_label = "GST"
 		test_event.tax_percentage = 18
 		test_event.save()
@@ -116,8 +117,9 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 		"""Test that custom tax labels (e.g., VAT) work correctly."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 
-		# Enable tax with custom VAT label
+		# Enable tax with custom VAT label (exclusive)
 		test_event.apply_tax = True
+		test_event.tax_inclusive = False
 		test_event.tax_label = "VAT"
 		test_event.tax_percentage = 20
 		test_event.save()
@@ -146,6 +148,119 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 		self.assertEqual(test_booking.tax_percentage, 20)
 		self.assertEqual(test_booking.tax_amount, 20)
 		self.assertEqual(test_booking.total_amount, 120)
+
+	def test_tax_inclusive_calculation(self):
+		"""Test that tax-inclusive prices back-calculate tax without increasing total."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		# Enable tax-inclusive pricing
+		test_event.apply_tax = True
+		test_event.tax_inclusive = True
+		test_event.tax_label = "GST"
+		test_event.tax_percentage = 18
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "VIP",
+				"price": TEST_VIP_TICKET_TYPE_PRICE,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+				],
+			}
+		).insert()
+
+		# net_amount = 2 * 500 = 1000
+		self.assertEqual(test_booking.net_amount, 1000)
+		self.assertEqual(test_booking.tax_label, "GST")
+		self.assertEqual(test_booking.tax_percentage, 18)
+		# tax_amount = 1000 * 18 / 118 = 152.54 (rounded to 2 decimals)
+		self.assertAlmostEqual(test_booking.tax_amount, round(1000 * 18 / 118, 2), places=2)
+		# total stays the same — tax is included in the price
+		self.assertEqual(test_booking.total_amount, 1000)
+
+	def test_tax_inclusive_with_single_ticket(self):
+		"""Test tax-inclusive with a single ticket at a round price."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_event.apply_tax = True
+		test_event.tax_inclusive = True
+		test_event.tax_label = "VAT"
+		test_event.tax_percentage = 20
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Standard",
+				"price": 120,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+				],
+			}
+		).insert()
+
+		# Price is 120 inclusive of 20% VAT
+		# tax_amount = 120 * 20 / 120 = 20
+		self.assertEqual(test_booking.net_amount, 120)
+		self.assertEqual(test_booking.tax_amount, 20)
+		self.assertEqual(test_booking.total_amount, 120)
+
+	def test_tax_exclusive_still_works(self):
+		"""Ensure that when tax_inclusive is False, tax is still added on top."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		test_event.apply_tax = True
+		test_event.tax_inclusive = False
+		test_event.tax_label = "GST"
+		test_event.tax_percentage = 18
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "VIP",
+				"price": TEST_VIP_TICKET_TYPE_PRICE,
+			}
+		).insert()
+
+		test_booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+				],
+			}
+		).insert()
+
+		# Exclusive: tax added on top
+		self.assertEqual(test_booking.net_amount, 1000)
+		self.assertEqual(test_booking.tax_amount, 180)
+		self.assertEqual(test_booking.total_amount, 1180)
 
 	def test_prevents_booking_if_tickets_unavailable(self):
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
