@@ -405,6 +405,7 @@ import BookingSummary from "./BookingSummary.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
+import OffPlatformPaymentDialog from "./OffPlatformPaymentDialog.vue";
 
 const router = useRouter();
 const route = useRoute();

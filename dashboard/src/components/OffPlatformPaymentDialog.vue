@@ -54,7 +54,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Dialog, Button, FileUploader, toast } from 'frappe-ui'
-import { formatCurrency } from '../utils/currency.js'
+import { formatCurrency } from '../utils/currency'
 import CustomFieldsSection from './CustomFieldsSection.vue'
 
 const props = defineProps({

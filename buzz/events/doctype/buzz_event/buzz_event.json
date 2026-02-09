@@ -45,9 +45,9 @@
   "payment_gateways",
   "off_platform_payment_section",
   "enable_off_platform_payment",
+  "off_platform_payment_label",
   "collect_payment_proof",
   "column_break_xgh",
-  "off_platform_payment_label",
   "off_platform_payment_details",
   "tax_settings_section",
   "apply_tax",
@@ -570,7 +570,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-05 07:58:37.306420",
+ "modified": "2026-02-10 01:06:56.465336",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
