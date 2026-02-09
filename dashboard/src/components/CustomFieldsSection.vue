@@ -18,7 +18,7 @@
 
 <script setup>
 import CustomFieldInput from "./CustomFieldInput.vue";
-import { getFieldOptions, getFieldDefaultValue } from "@/composables/useCustomFields.js";
+import { getFieldDefaultValue } from "@/composables/useCustomFields";
 
 const props = defineProps({
 	customFields: {

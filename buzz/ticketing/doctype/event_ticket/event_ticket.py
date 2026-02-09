@@ -54,14 +54,20 @@ class EventTicket(Document):
 		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 
 		if event_doc.zoom_webinar:
-			registration = frappe.get_doc(
-				{
-					"doctype": "Zoom Webinar Registration",
-					"webinar": event_doc.zoom_webinar,
-					"email": self.attendee_email,
-					"first_name": self.attendee_name,
-				}
-			).insert()
+			name_parts = (self.attendee_name or "").split(" ", 1)
+			first_name = name_parts[0]
+			last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+			doc = {
+				"doctype": "Zoom Webinar Registration",
+				"webinar": event_doc.zoom_webinar,
+				"email": self.attendee_email,
+				"first_name": first_name,
+			}
+			if last_name:
+				doc["last_name"] = last_name
+
+			registration = frappe.get_doc(doc).insert(ignore_permissions=True)
 
 			try:
 				registration.submit()

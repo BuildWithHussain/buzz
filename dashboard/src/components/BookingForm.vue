@@ -68,14 +68,26 @@
 			<div class="bg-green-50 border border-green-200 rounded-xl p-8 max-w-md mx-auto">
 				<LucideCheckCircle class="w-16 h-16 text-green-500 mx-auto mb-4" />
 				<h2 class="text-2xl font-semibold text-green-800 mb-2">
-					{{ __("Booking Confirmed!") }}
+					{{ isWebinar ? __("Registration Confirmed!") : __("Booking Confirmed!") }}
 				</h2>
 				<p class="text-green-700 mb-4">
-					{{ __("Your tickets have been sent to") }}
-					<strong>{{ guestEmail }}</strong>
+					<template v-if="isWebinar">
+						{{ __("You have been registered successfully.") }}
+					</template>
+					<template v-else>
+						{{ __("Your tickets have been sent to") }}
+						<strong>{{ guestEmail }}</strong>
+					</template>
 				</p>
 				<p class="text-sm text-green-600 mb-6">
-					{{ __("Check your email for ticket details and QR codes.") }}
+					<template v-if="isWebinar">
+						{{ __("You will receive an invite at") }}
+						<strong>{{ guestEmail }}</strong>
+						{{ __("shortly.") }}
+					</template>
+					<template v-else-if="eventDetails.send_ticket_email">
+						{{ __("Check your email for ticket details and QR codes.") }}
+					</template>
 				</p>
 				<div class="space-y-3">
 					<p class="text-xs text-ink-gray-5">
@@ -351,6 +363,7 @@
 							:tax-amount="taxAmount"
 							:tax-percentage="taxPercentage"
 							:tax-label="taxLabel"
+							:tax-inclusive="taxInclusive"
 							:should-apply-tax="shouldApplyTax"
 							:total="finalTotal"
 							:total-currency="totalCurrency"
@@ -375,24 +388,23 @@
 </template>
 
 <script setup>
-import { computed, watch, ref, onUnmounted } from "vue";
-import AttendeeFormControl from "./AttendeeFormControl.vue";
-import BookingSummary from "./BookingSummary.vue";
-import EventDetailsHeader from "./EventDetailsHeader.vue";
-import CustomFieldsSection from "./CustomFieldsSection.vue";
-import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
-import OffPlatformPaymentDialog from "./OffPlatformPaymentDialog.vue";
-import { createResource, toast, FormControl } from "frappe-ui";
-import { formatPriceOrFree, formatCurrency } from "../utils/currency.js";
-import { useBookingFormStorage } from "../composables/useBookingFormStorage.js";
-import { useRouter, useRoute } from "vue-router";
-import { userResource } from "../data/user.js";
-import { redirectToLogin, clearBookingCache } from "../utils/index.js";
+import { userResource } from "@/data/user";
+import { formatCurrency, formatPriceOrFree } from "@/utils/currency";
+import { clearBookingCache, redirectToLogin } from "@/utils/index";
+import { FormControl, createResource, toast } from "frappe-ui";
+import { computed, onUnmounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import LucideAlertCircle from "~icons/lucide/alert-circle";
 import LucideCheck from "~icons/lucide/check";
 import LucideCheckCircle from "~icons/lucide/check-circle";
-import LucideX from "~icons/lucide/x";
 import LucideGift from "~icons/lucide/gift";
-import LucideAlertCircle from "~icons/lucide/alert-circle";
+import LucideX from "~icons/lucide/x";
+import { useBookingFormStorage } from "@/composables/useBookingFormStorage";
+import AttendeeFormControl from "./AttendeeFormControl.vue";
+import BookingSummary from "./BookingSummary.vue";
+import CustomFieldsSection from "./CustomFieldsSection.vue";
+import EventDetailsHeader from "./EventDetailsHeader.vue";
+import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -423,6 +435,7 @@ const props = defineProps({
 		type: Object,
 		default: () => ({
 			apply_tax: false,
+			tax_inclusive: false,
 			tax_label: "Tax",
 			tax_percentage: 0,
 		}),
@@ -730,11 +743,29 @@ const amountAfterDiscount = computed(() => {
 	return netAmount.value - discountAmount.value;
 });
 
+const taxInclusive = computed(() => {
+	return props.taxSettings?.tax_inclusive;
+});
+
 const taxAmount = computed(() => {
-	return shouldApplyTax.value ? (amountAfterDiscount.value * taxPercentage.value) / 100 : 0;
+	if (!shouldApplyTax.value) return 0;
+	if (taxInclusive.value) {
+		// Tax is included in the price — back-calculate the tax component
+		return (
+			Math.round(
+				((amountAfterDiscount.value * taxPercentage.value) / (100 + taxPercentage.value)) *
+					100
+			) / 100
+		);
+	}
+	return (amountAfterDiscount.value * taxPercentage.value) / 100;
 });
 
 const finalTotal = computed(() => {
+	if (taxInclusive.value) {
+		// Price already includes tax — total stays the same
+		return amountAfterDiscount.value;
+	}
 	return amountAfterDiscount.value + taxAmount.value;
 });
 
@@ -1252,6 +1283,8 @@ function clearOtpState() {
 	clearInterval(resendCooldownTimer);
 }
 
+const isWebinar = computed(() => props.eventDetails.category === "Webinars");
+
 const submitButtonText = computed(() => {
 	if (processBooking.loading) {
 		return __("Processing...");
@@ -1261,7 +1294,7 @@ const submitButtonText = computed(() => {
 		return __("Pay & Book");
 	}
 
-	if (props.eventDetails.category === "Webinars") {
+	if (isWebinar.value) {
 		return __("Register");
 	}
 

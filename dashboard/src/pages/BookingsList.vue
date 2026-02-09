@@ -35,9 +35,9 @@
 <script setup>
 import { ListView, useList, Badge } from "frappe-ui";
 import { session } from "../data/session";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency } from "@/utils/currency";
 import { dayjsLocal } from "frappe-ui";
-import { pluralize } from "../utils/pluralize";
+import { pluralize } from "@/utils/pluralize";
 
 const columns = [
 	{ label: __("Event"), key: "event_title" },

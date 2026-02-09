@@ -5,11 +5,29 @@
  */
 
 /**
+ * Interface representing the structure of a Frappe Field
+ */
+export interface FrappeField {
+    fieldname: string;
+    fieldtype: string;
+    label?: string;
+    options?: string | any[];
+    placeholder?: string;
+    mandatory?: number | boolean;
+    default_value?: string | number | boolean;
+}
+
+export interface SelectOption {
+    label: string;
+    value: string;
+}
+
+/**
  * Convert Frappe field types to FormControl types
  * @param {string} fieldtype - Frappe field type
  * @returns {string} - FormControl type
  */
-export function getFormControlType(fieldtype) {
+export function getFormControlType(fieldtype: string): string {
 	switch (fieldtype) {
 		case "Phone":
 			return "text";
@@ -23,6 +41,8 @@ export function getFormControlType(fieldtype) {
 			return "number";
 		case "Check":
 			return "checkbox";
+		case "Small Text":
+			return "textarea";
 		default:
 			return "text";
 	}
@@ -33,7 +53,7 @@ export function getFormControlType(fieldtype) {
  * @param {string} fieldtype - Frappe field type
  * @returns {boolean}
  */
-export function isDateField(fieldtype) {
+export function isDateField(fieldtype: string): boolean {
 	return fieldtype === "Date";
 }
 
@@ -42,7 +62,7 @@ export function isDateField(fieldtype) {
  * @param {string} fieldtype - Frappe field type
  * @returns {boolean}
  */
-export function isDateTimeField(fieldtype) {
+export function isDateTimeField(fieldtype: string): boolean {
 	return fieldtype === "Datetime";
 }
 
@@ -51,7 +71,7 @@ export function isDateTimeField(fieldtype) {
  * @param {Object} field - Field definition object
  * @returns {Array} - Array of { label, value } objects
  */
-export function getFieldOptions(field) {
+export function getFieldOptions(field: FrappeField): SelectOption[] {
 	const isSelectType = field.fieldtype === "Select" || field.fieldtype === "Multi Select";
 	if (isSelectType && field.options) {
 		let options = [];
@@ -103,7 +123,7 @@ export function getFieldOptions(field) {
  * @param {Object} field - Field definition object
  * @returns {string} - Placeholder text
  */
-export function getFieldPlaceholder(field) {
+export function getFieldPlaceholder(field: FrappeField): string {
 	// If custom placeholder is provided, use it
 	if (field.placeholder?.trim()) {
 		const placeholder = field.placeholder.trim();
@@ -120,9 +140,17 @@ export function getFieldPlaceholder(field) {
  * @param {Function} getFieldOptionsFn - Function to get field options
  * @returns {*} - Default value or empty string
  */
-export function getFieldDefaultValue(field) {
-	// Check for explicit default value
-	if (field.default_value) {
+export function getFieldDefaultValue(field: FrappeField): string | number | boolean {
+	// For checkbox fields, handle 0/1 values explicitly
+	if (field.fieldtype === "Check") {
+		if (field.default_value === 1 || field.default_value === "1") {
+			return 1;
+		}
+		return 0; // Default to unchecked
+	}
+
+	// Check for explicit default value (use != null to allow "0" and 0)
+	if (field.default_value != null && field.default_value !== "") {
 		return field.default_value;
 	}
 

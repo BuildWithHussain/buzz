@@ -37,6 +37,15 @@
 		/>
 	</div>
 
+	<!-- Checkbox field -->
+	<FormControl
+		v-else-if="field.fieldtype === 'Check'"
+		type="checkbox"
+		:model-value="checkboxValue"
+		@update:model-value="$emit('update:modelValue', $event ? 1 : 0)"
+		:label="__(field.label)"
+	/>
+
 	<!-- All other field types -->
 	<FormControl
 		v-else
@@ -59,7 +68,7 @@ import {
 	getFieldPlaceholder,
 	isDateField,
 	isDateTimeField,
-} from "@/composables/useCustomFields.js";
+} from "@/composables/useCustomFields";
 
 const props = defineProps({
 	field: {
@@ -70,6 +79,7 @@ const props = defineProps({
 
 const model = defineModel();
 const multiSelectOptions = computed(() => getFieldOptions(props.field));
+const checkboxValue = computed(() => model.value === 1 || model.value === "1");
 
 const multiSelectProxy = computed({
 	get() {

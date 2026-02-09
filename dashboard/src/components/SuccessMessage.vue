@@ -20,9 +20,13 @@
 					</h3>
 					<p class="text-ink-green-2">
 						{{
-							__(
-								"Your booking has been confirmed. Check your email for tickets and details."
-							)
+							isWebinar
+								? __(
+										"Your registration has been confirmed. You will receive an invite shortly."
+								  )
+								: __(
+										"Your booking has been confirmed. Check your email for tickets and details."
+								  )
 						}}
 					</p>
 				</div>
@@ -34,8 +38,12 @@
 <script setup>
 import LucideCheckCircle from "~icons/lucide/check-circle";
 
-defineProps({
+const props = defineProps({
 	show: {
+		type: Boolean,
+		default: false,
+	},
+	isWebinar: {
 		type: Boolean,
 		default: false,
 	},

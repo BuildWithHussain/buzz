@@ -61,6 +61,12 @@ def get_columns(filters):
 			"options": "User",
 			"width": 150,
 		},
+		{
+			"fieldname": "booked_at",
+			"label": _("Booked At"),
+			"fieldtype": "Datetime",
+			"width": 160,
+		},
 	]
 
 	# Dynamic custom field columns
@@ -109,7 +115,7 @@ def get_data(filters, columns):
 	tickets = frappe.get_all(
 		"Event Ticket",
 		filters={"event": event, "docstatus": 1},
-		fields=["name", "attendee_name", "attendee_email", "booking", "ticket_type"],
+		fields=["name", "attendee_name", "attendee_email", "booking", "ticket_type", "creation"],
 	)
 
 	if not tickets:
@@ -156,6 +162,7 @@ def get_data(filters, columns):
 			"booking_id": ticket.booking,
 			"ticket_type": ticket_type_map.get(str(ticket.ticket_type), ticket.ticket_type),
 			"booking_user": booking_map.get(ticket.booking, {}).get("user", ""),
+			"booked_at": ticket.creation,
 		}
 
 		# Add custom field values (ticket takes priority over booking)

@@ -11,8 +11,11 @@
 		</div>
 
 		<div class="space-y-3">
-			<!-- Net Amount -->
-			<div class="flex justify-between items-center text-ink-gray-7">
+			<!-- Net Amount (hide when tax-inclusive and no discount) -->
+			<div
+				v-if="!isTaxInclusive || hasDiscount"
+				class="flex justify-between items-center text-ink-gray-7"
+			>
 				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{
 					formatPrice(booking.net_amount || 0, booking.currency || "INR")
@@ -29,18 +32,18 @@
 			</div>
 
 			<!-- Discount -->
-			<div
-				v-if="(booking.discount_amount || 0) > 0"
-				class="flex justify-between items-center text-green-600"
-			>
+			<div v-if="hasDiscount" class="flex justify-between items-center text-green-600">
 				<span>{{ __("Discount") }}</span>
 				<span class="font-medium"
 					>-{{ formatPrice(booking.discount_amount, booking.currency || "INR") }}</span
 				>
 			</div>
 
-			<!-- Tax Information -->
-			<div v-if="hasTax" class="flex justify-between items-center text-ink-gray-7">
+			<!-- Tax Information (exclusive only) -->
+			<div
+				v-if="hasTax && !isTaxInclusive"
+				class="flex justify-between items-center text-ink-gray-7"
+			>
 				<span
 					>{{ __(booking.tax_label || "Tax") }} ({{
 						booking.tax_percentage || 0
@@ -61,14 +64,25 @@
 					formatPrice(booking.total_amount || 0, booking.currency || "INR")
 				}}</span>
 			</div>
+
+			<!-- Tax-inclusive note -->
+			<div v-if="hasTax && isTaxInclusive" class="text-sm text-ink-gray-5 text-right mt-3">
+				{{
+					__("Inclusive of {0} {1} ({2}%)", [
+						formatPrice(booking.tax_amount || 0, booking.currency || "INR"),
+						__(booking.tax_label || "Tax"),
+						booking.tax_percentage || 0,
+					])
+				}}
+			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { formatPrice } from "@/utils/currency";
 import { Badge } from "frappe-ui";
-import { formatPrice } from "../utils/currency.js";
+import { computed } from "vue";
 import LucideCheck from "~icons/lucide/check";
 
 const props = defineProps({
@@ -83,5 +97,16 @@ const props = defineProps({
 
 const hasTax = computed(() => {
 	return Boolean(props.booking.tax_amount && props.booking.tax_amount > 0);
+});
+
+const hasDiscount = computed(() => {
+	return (props.booking.discount_amount || 0) > 0;
+});
+
+const isTaxInclusive = computed(() => {
+	// Tax-inclusive: total_amount equals net_amount minus discount (tax not added on top)
+	if (!hasTax.value) return false;
+	const expected = (props.booking.net_amount || 0) - (props.booking.discount_amount || 0);
+	return Math.abs(props.booking.total_amount - expected) < 0.01;
 });
 </script>

@@ -201,7 +201,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { Dialog, Button, createResource, toast } from "frappe-ui";
-import { pluralize } from "../utils/pluralize.js";
+import { pluralize } from "@/utils/pluralize";
 
 const props = defineProps({
 	modelValue: {
