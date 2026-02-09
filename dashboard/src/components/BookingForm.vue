@@ -68,14 +68,26 @@
 			<div class="bg-green-50 border border-green-200 rounded-xl p-8 max-w-md mx-auto">
 				<LucideCheckCircle class="w-16 h-16 text-green-500 mx-auto mb-4" />
 				<h2 class="text-2xl font-semibold text-green-800 mb-2">
-					{{ __("Booking Confirmed!") }}
+					{{ isWebinar ? __("Registration Confirmed!") : __("Booking Confirmed!") }}
 				</h2>
 				<p class="text-green-700 mb-4">
-					{{ __("Your tickets have been sent to") }}
-					<strong>{{ guestEmail }}</strong>
+					<template v-if="isWebinar">
+						{{ __("You have been registered successfully.") }}
+					</template>
+					<template v-else>
+						{{ __("Your tickets have been sent to") }}
+						<strong>{{ guestEmail }}</strong>
+					</template>
 				</p>
 				<p class="text-sm text-green-600 mb-6">
-					{{ __("Check your email for ticket details and QR codes.") }}
+					<template v-if="isWebinar">
+						{{ __("You will receive an invite at") }}
+						<strong>{{ guestEmail }}</strong>
+						{{ __("shortly.") }}
+					</template>
+					<template v-else-if="eventDetails.send_ticket_email">
+						{{ __("Check your email for ticket details and QR codes.") }}
+					</template>
 				</p>
 				<div class="space-y-3">
 					<p class="text-xs text-ink-gray-5">
@@ -1212,6 +1224,8 @@ function clearOtpState() {
 	clearInterval(resendCooldownTimer);
 }
 
+const isWebinar = computed(() => props.eventDetails.category === "Webinars");
+
 const submitButtonText = computed(() => {
 	if (processBooking.loading) {
 		return __("Processing...");
@@ -1221,7 +1235,7 @@ const submitButtonText = computed(() => {
 		return __("Pay & Book");
 	}
 
-	if (props.eventDetails.category === "Webinars") {
+	if (isWebinar.value) {
 		return __("Register");
 	}
 

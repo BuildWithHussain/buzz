@@ -250,6 +250,7 @@ def get_event_booking_data(event_route: str) -> dict:
 			"banner_image": event_doc.banner_image,
 			"short_description": event_doc.short_description,
 			"free_webinar": event_doc.free_webinar,
+			"send_ticket_email": event_doc.send_ticket_email,
 			"allow_guest_booking": event_doc.allow_guest_booking,
 			"guest_verification_method": event_doc.guest_verification_method,
 			"default_ticket_type": event_doc.default_ticket_type,
