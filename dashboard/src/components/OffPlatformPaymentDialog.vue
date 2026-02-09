@@ -6,10 +6,6 @@
 				<h3 class="text-lg font-semibold mb-4">
 					{{ offlineSettings.label ? offlineSettings.label : __("Off-platform Payment") }}
 				</h3>
-				<!-- Instructions -->
-				<div v-if="offlineSettings.instructions" class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
-					<p class="text-sm text-blue-800">{{ offlineSettings.instructions }}</p>
-				</div>
 
 				<div class="space-y-4">
 					<!-- Amount -->
@@ -17,21 +13,8 @@
 						<div class="text-xl font-bold">{{ formatCurrency(amount, currency) }}</div>
 					</div>
 
-					<!-- Payment Methods -->
-					<div v-if="offlineSettings.payment_id">
-						<div class="flex items-center gap-2 p-2 bg-gray-50 rounded">
-							<code class="flex-1 text-sm">{{ offlineSettings.payment_id }}</code>
-							<Button size="sm" @click="copyToClipboard(offlineSettings.payment_id)">
-								<LucideCopy class="w-4 h-4" />
-							</Button>
-						</div>
-					</div>
-
-					<div v-if="offlineSettings.qr_code" class="text-center">
-						<div class="p-4 bg-white border-2 border-gray-200 rounded-lg w-full">
-							<img :src="offlineSettings.qr_code" class="w-full h-auto object-contain" />
-						</div>
-					</div>
+					<!-- Payment Details (HTML Content) -->
+					<div v-if="offlineSettings.payment_details" class="prose max-w-none p-4 bg-blue-50 border border-blue-200 rounded" v-html="offlineSettings.payment_details"></div>
 
 					<!-- Custom Fields -->
 					<CustomFieldsSection
@@ -73,7 +56,6 @@ import { ref, computed } from 'vue'
 import { Dialog, Button, FileUploader, toast } from 'frappe-ui'
 import { formatCurrency } from '../utils/currency.js'
 import CustomFieldsSection from './CustomFieldsSection.vue'
-import LucideCopy from '~icons/lucide/copy'
 
 const props = defineProps({
 	open: {
@@ -137,15 +119,6 @@ const isSubmitDisabled = computed(() => {
 const onFileUpload = (file) => {
 	paymentProof.value = file
 	console.log('File uploaded:', file)
-}
-
-const copyToClipboard = async (text) => {
-	try {
-		await navigator.clipboard.writeText(text)
-		toast.success(__('Copied to clipboard'))
-	} catch (err) {
-		toast.error(__('Failed to copy'))
-	}
 }
 
 const submitOfflinePayment = () => {

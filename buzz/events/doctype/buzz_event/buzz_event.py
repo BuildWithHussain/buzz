@@ -47,10 +47,8 @@ class BuzzEvent(Document):
 		medium: DF.Literal["In Person", "Online"]
 		meta_image: DF.AttachImage | None
 		name: DF.Int | None
-		off_platform_instructions: DF.SmallText | None
-		off_platform_payment_id: DF.Data | None
+		off_platform_payment_details: DF.HTMLEditor | None
 		off_platform_payment_label: DF.Data | None
-		off_platform_qr_code: DF.AttachImage | None
 		payment_gateways: DF.Table[EventPaymentGateway]
 		proposal: DF.Link | None
 		registration_url: DF.Data | None

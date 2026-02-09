@@ -318,9 +318,7 @@ def get_event_booking_data(event_route: str) -> dict:
 	data.off_platform_payment_enabled = event_doc.enable_off_platform_payment
 	if event_doc.enable_off_platform_payment:
 		data.off_platform_settings = {
-			"payment_id": event_doc.off_platform_payment_id,
-			"qr_code": event_doc.off_platform_qr_code,
-			"instructions": event_doc.off_platform_instructions,
+			"payment_details": event_doc.off_platform_payment_details,
 			"collect_payment_proof": event_doc.collect_payment_proof,
 			"label": event_doc.off_platform_payment_label or "Off-platform Payment"
 		}
