@@ -30,8 +30,6 @@
 				:eventRoute="eventRoute"
 				:paymentGateways="eventBookingData.paymentGateways"
 				:isGuestMode="isGuest"
-				:upiPaymentEnabled="eventBookingData.upiPaymentEnabled"
-				:upiSettings="eventBookingData.upiSettings"
 				:offPlatformPaymentEnabled="eventBookingData.offPlatformPaymentEnabled"
 				:offPlatformSettings="eventBookingData.offPlatformSettings"
 			/>

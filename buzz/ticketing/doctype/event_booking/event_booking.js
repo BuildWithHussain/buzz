@@ -11,31 +11,31 @@ frappe.ui.form.on("Event Booking", {
 			};
 		});
 
-		// Check if this is an off-platform payment
-		let isOffPlatformPayment = false;
-		let isVerified = false;
-		
-		if (frm.doc.additional_fields) {
-			for (let field of frm.doc.additional_fields) {
-				if (field.fieldname === 'payment_method' && field.value === 'Off-platform') {
-					isOffPlatformPayment = true;
-				}
-				if (field.fieldname === 'payment_verified' && field.value === 'Yes') {
-					isVerified = true;
-				}
-			}
-		}
-		
-		// Hide both buttons first
-		frm.toggle_display('off_platform_payment_verification', false);
-		frm.toggle_display('off_platform_payment_unverify', false);
-		
-		// Show appropriate button based on status
-		if (isOffPlatformPayment && frappe.user.has_role('Event Manager')) {
-			if (isVerified) {
-				frm.toggle_display('off_platform_payment_unverify', true);
-			} else {
-				frm.toggle_display('off_platform_payment_verification', true);
+		// Add custom buttons for Event Managers
+		if (frappe.user.has_role('Event Manager')) {
+			// Show Approve/Reject buttons for pending bookings
+			if (frm.doc.status === 'Approval Pending') {
+				frm.add_custom_button(__('Approve'), function() {
+					frappe.confirm(
+						'Are you sure you want to approve this booking?',
+						function() {
+							frm.call('approve_booking').then(() => {
+								frm.refresh();
+							});
+						}
+					);
+				}, __('Actions'));
+				
+				frm.add_custom_button(__('Reject'), function() {
+					frappe.confirm(
+						'Are you sure you want to reject this booking?',
+						function() {
+							frm.call('reject_booking').then(() => {
+								frm.refresh();
+							});
+						}
+					);
+				}, __('Actions'));
 			}
 		}
 	},

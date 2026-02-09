@@ -89,22 +89,17 @@
 		</div>
 
 		<form v-else @submit.prevent="submit">
-		<!-- UPI Payment Dialog -->
-		<UPIPaymentDialog
-			v-model:open="showUPIDialog"
-		<!-- Off-platform Payment Dialog -->
-		<OffPlatformPaymentDialog
-			v-model:open="showOffPlatformDialog"
-			:amount="finalTotal"
-			:currency="totalCurrency"
-			:offline-settings="offPlatformSettings"
-			:loading="processBooking.loading"
-			:custom-fields="customFields"
-			@submit="onOffPlatformPaymentSubmit"
-			@cancel="showOffPlatformDialog = false"
-		/>
-
-		<form @submit.prevent="submit">
+			<!-- Off-platform Payment Dialog -->
+			<OffPlatformPaymentDialog
+				v-model:open="showOffPlatformDialog"
+				:amount="finalTotal"
+				:currency="totalCurrency"
+				:offline-settings="offPlatformSettings"
+				:loading="processBooking.loading"
+				:custom-fields="customFields"
+				@submit="onOffPlatformPaymentSubmit"
+				@cancel="showOffPlatformDialog = false"
+			/>
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
 				<div class="lg:col-span-2">
@@ -451,7 +446,7 @@ const props = defineProps({
 	isGuestMode: {
 		type: Boolean,
 		default: false,
-	upiPaymentEnabled: {
+	},
 	offPlatformPaymentEnabled: {
 		type: Boolean,
 		default: false
@@ -1098,23 +1093,22 @@ async function submit() {
 		}
 		pendingBookingPayload.value = final_payload;
 
-		if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
-	// Check if we need to show UPI dialog or gateway selection dialog
-	// Check if we need to show off-platform dialog or gateway selection dialog
-	if (finalTotal.value > 0) {
-		if (props.paymentGateways.length > 1) {
-			// Multiple payment options available (including off-platform if enabled)
-			pendingPayload.value = final_payload;
-			showGatewayDialog.value = true;
-			return;
-		} else if (props.paymentGateways.length === 1) {
-			// Single payment option - check if it's off-platform
-			const singleGateway = props.paymentGateways[0];
-			if (props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
-				// Single option is off-platform payment
+		// Check if we need to show off-platform dialog or gateway selection dialog
+		if (finalTotal.value > 0) {
+			if (props.paymentGateways.length > 1) {
+				// Multiple payment options available (including off-platform if enabled)
 				pendingPayload.value = final_payload;
-				showOffPlatformDialog.value = true;
+				showGatewayDialog.value = true;
 				return;
+			} else if (props.paymentGateways.length === 1) {
+				// Single payment option - check if it's off-platform
+				const singleGateway = props.paymentGateways[0];
+				if (props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+					// Single option is off-platform payment
+					pendingPayload.value = final_payload;
+					showOffPlatformDialog.value = true;
+					return;
+				}
 			}
 		}
 
@@ -1129,18 +1123,10 @@ async function submit() {
 		return;
 	}
 
-	if (finalTotal.value > 0 && props.paymentGateways.length > 1) {
-		pendingPayload.value = final_payload;
-		showGatewayDialog.value = true;
-		return;
-	}
-
-	submitBooking(final_payload, props.paymentGateways[0] || null);
 	// Single gateway or free event - submit directly
 	const singleGateway = props.paymentGateways[0] || null;
 	if (singleGateway && props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
-		// Single gateway is off-platform payment, but we already handled this above
-		// This shouldn't be reached, but just in case
+		// Single gateway is off-platform payment
 		pendingPayload.value = final_payload;
 		showOffPlatformDialog.value = true;
 	} else {
@@ -1167,9 +1153,6 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				} else if (props.isGuestMode) {
 					bookingSuccess.value = true;
 					successBookingName.value = data.booking_name;
-				} else if (data.upi_payment) {
-					// UPI payment submitted - redirect to booking details with UPI flag
-					router.replace(`/bookings/${data.booking_name}?success=true&upi=true`);
 				} else if (data.off_platform_payment) {
 					// Off-platform payment submitted - redirect to booking details with off-platform flag
 					router.replace(`/bookings/${data.booking_name}?success=true&off_platform=true`);

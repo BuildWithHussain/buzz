@@ -441,7 +441,6 @@ def process_booking(
 		return {"booking_name": booking.name}
 
 	# Check if off-platform payment is enabled and no payment gateway is provided
-	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	if event_doc.enable_off_platform_payment and not payment_gateway:
 		# For off-platform payments, submit booking directly without payment gateway
 		# Mark this as off-platform payment in additional fields
@@ -454,7 +453,6 @@ def process_booking(
 		
 		# Attach payment proof if provided
 		if payment_proof:
-			from frappe.utils.file_manager import save_file_on_filesystem
 			try:
 				# Create file attachment
 				file_doc = frappe.get_doc({

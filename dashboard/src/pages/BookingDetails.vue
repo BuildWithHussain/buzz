@@ -6,8 +6,8 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
-		<!-- Off-platform Payment Status -->
-		<div v-if="isOffPlatformPayment" class="mb-6">
+		<!-- Approval Pending Status -->
+		<div v-if="isOffPlatformPaymentPending" class="mb-6">
 			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
 				<div class="flex items-center gap-3">
 					<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -25,6 +25,25 @@
 			</div>
 		</div>
 
+		<!-- Rejected Status -->
+		<div v-if="isBookingRejected" class="mb-6">
+			<div class="p-4 rounded-lg border bg-red-50 border-red-200">
+				<div class="flex items-center gap-3">
+					<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+						<LucideXCircle class="w-4 h-4 text-red-600" />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-red-800">
+							{{ __("Booking Rejected") }}
+						</h3>
+						<p class="text-sm text-red-700">
+							{{ __("Your booking has been rejected. Please contact the event organizer for more information.") }}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Event Information and Payment Summary in two columns -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Event Information -->
@@ -36,14 +55,14 @@
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
-				v-if="!bookingDetails.data.event.free_webinar && bookingDetails.data.doc"
+				v-if="!bookingDetails.data.event.free_webinar && bookingDetails.data.doc && !isOffPlatformPaymentPending"
 				:booking="bookingDetails.data.doc"
 			/>
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
 				v-if="
-					!bookingDetails.data.event.free_webinar && bookingDetails.data.booking_summary
+					!bookingDetails.data.event.free_webinar && bookingDetails.data.booking_summary && !isOffPlatformPaymentPending
 				"
 				:summary="bookingDetails.data.booking_summary"
 			/>
@@ -58,7 +77,7 @@
 
 		<!-- Tickets Section -->
 		<TicketsSection
-			v-if="!bookingDetails.data.event.free_webinar && isOffPlatformPaymentVerified"
+			v-if="!bookingDetails.data.event.free_webinar && !isOffPlatformPaymentPending"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -71,7 +90,7 @@
 		/>
 
 		<CancellationRequestDialog
-			v-if="isOffPlatformPaymentVerified"
+			v-if="!isOffPlatformPaymentPending"
 			v-model="showCancellationDialog"
 			:tickets="bookingDetails.data.tickets"
 			:booking-id="bookingId"
@@ -96,6 +115,7 @@ import CancellationRequestDialog from "../components/CancellationRequestDialog.v
 import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
 import BookingEventInfo from "../components/BookingEventInfo.vue";
 import LucideClock from "~icons/lucide/clock";
+import LucideXCircle from "~icons/lucide/x-circle";
 
 const route = useRoute();
 
@@ -106,30 +126,13 @@ const props = defineProps({
 	},
 });
 
-// Check if this is an off-platform payment by looking at booking data
-const isOffPlatformPayment = computed(() => {
-	if (!bookingDetails.data?.doc?.additional_fields) return false;
-	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
-		field => field.fieldname === 'payment_method'
-	);
-	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
-		field => field.fieldname === 'payment_verified'
-	);
-	// Show message only if it's off-platform payment and not yet verified
-	return (paymentMethod?.value === 'Off-platform' || paymentMethod?.value === 'UPI') && paymentStatus?.value !== 'Yes';
+// Check if this is an off-platform payment that is not yet verified
+const isOffPlatformPaymentPending = computed(() => {
+	return bookingDetails.data?.doc?.status === 'Approval Pending';
 });
 
-// Check if off-platform payment is verified
-const isOffPlatformPaymentVerified = computed(() => {
-	if (!bookingDetails.data?.doc?.additional_fields) return true; // Non-off-platform payments are considered verified
-	const paymentMethod = bookingDetails.data.doc.additional_fields.find(
-		field => field.fieldname === 'payment_method'
-	);
-	const paymentStatus = bookingDetails.data.doc.additional_fields.find(
-		field => field.fieldname === 'payment_verified'
-	);
-	// If it's off-platform payment, check if verified; otherwise return true
-	return (paymentMethod?.value !== 'Off-platform' && paymentMethod?.value !== 'UPI') || paymentStatus?.value === 'Yes';
+const isBookingRejected = computed(() => {
+	return bookingDetails.data?.doc?.status === 'Rejected';
 });
 
 // Check if this is a successful payment redirect (check URL immediately)
