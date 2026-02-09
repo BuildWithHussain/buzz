@@ -61,7 +61,7 @@ class EventTicket(Document):
 					"email": self.attendee_email,
 					"first_name": self.attendee_name,
 				}
-			).insert()
+			).insert(ignore_permissions=True)
 
 			try:
 				registration.submit()
