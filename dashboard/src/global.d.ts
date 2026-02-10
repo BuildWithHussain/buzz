@@ -6,6 +6,7 @@ declare global {
       system?: string;
       user?: string;
     };
+    site_name?: string;
   }
 
   function __(str: string, values?: any[]): string;

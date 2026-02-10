@@ -1,8 +1,8 @@
 import { userResource } from "@/data/user";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { session } from "./data/session";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
 	{
 		path: "/",
 		name: "dashboard",
@@ -37,7 +37,6 @@ const routes = [
 			name: "booking-details",
 			params: { bookingId: to.params.bookingId },
 		}),
-		props: true,
 	},
 	{
 		path: "/tickets",
@@ -49,7 +48,6 @@ const routes = [
 			name: "ticket-details",
 			params: { ticketId: to.params.ticketId },
 		}),
-		props: true,
 	},
 	{
 		path: "/account",
@@ -60,7 +58,6 @@ const routes = [
 				path: "bookings",
 				name: "bookings-list",
 				component: () => import("@/pages/BookingsList.vue"),
-				default: true,
 			},
 			{
 				path: "bookings/:bookingId",
