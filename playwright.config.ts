@@ -75,6 +75,23 @@ export default defineConfig({
 			},
 			dependencies: ["guest-event-setup"],
 		},
+		{
+			name: "off-platform-setup",
+			testMatch: /off-platform-payment\.setup\.ts/,
+			use: {
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
+		},
+		{
+			name: "off-platform-chromium",
+			testMatch: /off-platform-payment\.spec\.ts/,
+			use: {
+				...devices["Desktop Chrome"],
+				storageState: authFile,
+			},
+			dependencies: ["off-platform-setup"],
+		},
 
 		// {
 		// 	name: "firefox",
