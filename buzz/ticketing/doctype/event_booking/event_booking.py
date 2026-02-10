@@ -258,7 +258,7 @@ class EventBooking(Document):
 		self.db_set("status", "Approved")
 		if self.payment_status == "Verification Pending":
 			self.db_set("payment_status", "Paid")
-		frappe.msgprint("Booking has been approved!")
+		frappe.msgprint(_("Booking has been approved!"))
 
 	@frappe.whitelist()
 	def reject_booking(self):
@@ -266,7 +266,7 @@ class EventBooking(Document):
 		frappe.only_for("Event Manager")
 
 		self.db_set("status", "Rejected")
-		frappe.msgprint("Booking has been rejected!")
+		frappe.msgprint(_("Booking has been rejected!"))
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0
