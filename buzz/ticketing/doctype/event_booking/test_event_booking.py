@@ -701,23 +701,23 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.tax_amount, 90)
 		self.assertEqual(booking.total_amount, 590)
 
-	def test_off_platform_payment_proof_attachment(self):
-		"""Test that payment proof can be attached to off-platform booking."""
+	def test_off_platform_booking_requires_payment_method_field(self):
+		"""Test that off-platform booking requires payment_method in additional_fields."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 		test_event.enable_off_platform_payment = True
-		test_event.collect_payment_proof = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
 			{
 				"doctype": "Event Ticket Type",
 				"event": test_event.name,
-				"title": "Proof Test Ticket",
+				"title": "Payment Method Test",
 				"price": 500,
 			}
 		).insert()
 
-		booking = frappe.get_doc(
+		# Booking without payment_method field should default to normal flow
+		booking_without_method = frappe.get_doc(
 			{
 				"doctype": "Event Booking",
 				"event": test_event.name,
@@ -725,26 +725,28 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
+			}
+		).insert()
+
+		booking_without_method.submit()
+		# Without payment_method field, it should go to normal payment flow
+		self.assertEqual(booking_without_method.payment_status, "Unpaid")
+
+		# Booking with payment_method = "Off-platform" should trigger verification flow
+		booking_with_method = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
+				],
 				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
 			}
 		).insert()
 
-		file_doc = frappe.get_doc(
-			{
-				"doctype": "File",
-				"file_name": "payment_proof.jpg",
-				"attached_to_doctype": "Event Booking",
-				"attached_to_name": booking.name,
-				"file_url": "/files/payment_proof.jpg",
-			}
-		).insert()
-
-		attachments = frappe.get_all(
-			"File", filters={"attached_to_doctype": "Event Booking", "attached_to_name": booking.name}
-		)
-		self.assertEqual(len(attachments), 1)
-
-		frappe.delete_doc("File", file_doc.name, force=True)
+		booking_with_method.submit()
+		self.assertEqual(booking_with_method.payment_status, "Verification Pending")
 
 	def test_process_booking_without_utm_parameters(self):
 		"""Test that process_booking API works without UTM parameters."""

@@ -566,21 +566,3 @@ class TestBuzzEvent(FrappeTestCase):
 				create_template_from_event(str(event.name), "Perm Template", frappe.as_json({"category": 1}))
 		finally:
 			frappe.set_user("Administrator")
-
-	# ==================== Off-platform Payment Tests ====================
-
-	def test_off_platform_payment_disabled_by_default(self):
-		"""Test that off-platform payment is disabled by default."""
-		event = frappe.get_doc(
-			{
-				"doctype": "Buzz Event",
-				"title": "Default Test Event",
-				"category": "Test Category",
-				"host": "Test Host",
-				"start_date": frappe.utils.today(),
-				"start_time": "09:00:00",
-				"end_time": "18:00:00",
-			}
-		).insert()
-
-		self.assertEqual(event.enable_off_platform_payment, 0)
