@@ -16,10 +16,11 @@ class EventBooking(Document):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
+		from frappe.types import DF
+
 		from buzz.events.doctype.utm_parameter.utm_parameter import UTMParameter
 		from buzz.ticketing.doctype.additional_field.additional_field import AdditionalField
 		from buzz.ticketing.doctype.event_booking_attendee.event_booking_attendee import EventBookingAttendee
-		from frappe.types import DF
 
 		additional_fields: DF.Table[AdditionalField]
 		amended_from: DF.Link | None
@@ -55,13 +56,13 @@ class EventBooking(Document):
 			if field.fieldname == "payment_method":
 				payment_method = field.value
 				break
-		
+
 		if payment_method == "Off-platform":
 			self.payment_status = "Verification Pending"
 			self.status = "Approval Pending"
 		else:
 			# Payment gateway mode - check if payment was already authorized
-			if not hasattr(self, 'payment_status') or self.payment_status != "Paid":
+			if not hasattr(self, "payment_status") or self.payment_status != "Paid":
 				self.payment_status = "Unpaid"
 				self.status = "Approval Pending"
 
@@ -253,7 +254,7 @@ class EventBooking(Document):
 	def approve_booking(self):
 		"""Approve the booking."""
 		frappe.only_for("Event Manager")
-		
+
 		self.db_set("status", "Approved")
 		if self.payment_status == "Verification Pending":
 			self.db_set("payment_status", "Paid")
@@ -263,7 +264,7 @@ class EventBooking(Document):
 	def reject_booking(self):
 		"""Reject the booking."""
 		frappe.only_for("Event Manager")
-		
+
 		self.db_set("status", "Rejected")
 		frappe.msgprint("Booking has been rejected!")
 

@@ -463,11 +463,11 @@ const props = defineProps({
 	},
 	offPlatformPaymentEnabled: {
 		type: Boolean,
-		default: false
+		default: false,
 	},
 	offPlatformSettings: {
 		type: Object,
-		default: () => ({})
+		default: () => ({}),
 	},
 });
 
@@ -1135,7 +1135,10 @@ async function submit() {
 			} else if (props.paymentGateways.length === 1) {
 				// Single payment option - check if it's off-platform
 				const singleGateway = props.paymentGateways[0];
-				if (props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+				if (
+					props.offPlatformPaymentEnabled &&
+					singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
+				) {
 					// Single option is off-platform payment
 					pendingPayload.value = final_payload;
 					showOffPlatformDialog.value = true;
@@ -1157,7 +1160,11 @@ async function submit() {
 
 	// Single gateway or free event - submit directly
 	const singleGateway = props.paymentGateways[0] || null;
-	if (singleGateway && props.offPlatformPaymentEnabled && singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+	if (
+		singleGateway &&
+		props.offPlatformPaymentEnabled &&
+		singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
+	) {
 		// Single gateway is off-platform payment
 		pendingPayload.value = final_payload;
 		showOffPlatformDialog.value = true;
@@ -1187,7 +1194,9 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 					successBookingName.value = data.booking_name;
 				} else if (data.off_platform_payment) {
 					// Off-platform payment submitted - redirect to booking details with off-platform flag
-					router.replace(`/bookings/${data.booking_name}?success=true&off_platform=true`);
+					router.replace(
+						`/bookings/${data.booking_name}?success=true&off_platform=true`
+					);
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -1219,7 +1228,7 @@ function onOffPlatformPaymentSubmit(data) {
 		const payloadWithProof = {
 			...pendingPayload.value,
 			payment_proof: data?.payment_proof?.file_url || null,
-			off_platform_custom_fields: data?.custom_fields || null
+			off_platform_custom_fields: data?.custom_fields || null,
 		};
 		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
@@ -1243,7 +1252,10 @@ function onGatewaySelected(gateway) {
 
 	if (pendingPayload.value) {
 		// Check if the selected gateway is off-platform payment
-		if (props.offPlatformPaymentEnabled && gateway === (props.offPlatformSettings?.label || "Off-platform Payment")) {
+		if (
+			props.offPlatformPaymentEnabled &&
+			gateway === (props.offPlatformSettings?.label || "Off-platform Payment")
+		) {
 			// Show off-platform payment dialog
 			showOffPlatformDialog.value = true;
 		} else {

@@ -4,7 +4,9 @@
 			<div class="p-4">
 				<!-- Title (shows custom label if set, otherwise default) -->
 				<h3 class="text-lg font-semibold mb-4">
-					{{ offlineSettings.label ? offlineSettings.label : __("Off-platform Payment") }}
+					{{
+						offlineSettings.label ? offlineSettings.label : __("Off-platform Payment")
+					}}
 				</h3>
 
 				<div class="space-y-4">
@@ -14,7 +16,11 @@
 					</div>
 
 					<!-- Payment Details (HTML Content) -->
-					<div v-if="offlineSettings.payment_details" class="prose max-w-none p-4 bg-blue-50 border border-blue-200 rounded" v-html="offlineSettings.payment_details"></div>
+					<div
+						v-if="offlineSettings.payment_details"
+						class="prose max-w-none p-4 bg-blue-50 border border-blue-200 rounded"
+						v-html="offlineSettings.payment_details"
+					></div>
 
 					<!-- Custom Fields -->
 					<CustomFieldsSection
@@ -27,13 +33,13 @@
 					<!-- Upload Proof -->
 					<div v-if="offlineSettings.collect_payment_proof">
 						<label class="text-sm font-medium">{{ __("Payment Proof") }} *</label>
-						<FileUploader 
-							v-model="paymentProof" 
+						<FileUploader
+							v-model="paymentProof"
 							:file-types="['image/*']"
 							@success="onFileUpload"
 						/>
 						<div v-if="paymentProof" class="mt-2 text-sm text-green-600">
-							✓ File uploaded: {{ paymentProof.name || 'Payment Proof' }}
+							✓ File uploaded: {{ paymentProof.name || "Payment Proof" }}
 						</div>
 					</div>
 				</div>
@@ -42,7 +48,13 @@
 					<Button variant="outline" class="flex-1" @click="$emit('cancel')">
 						{{ __("Cancel") }}
 					</Button>
-					<Button variant="solid" class="flex-1" @click="submitOfflinePayment" :loading="loading" :disabled="isSubmitDisabled">
+					<Button
+						variant="solid"
+						class="flex-1"
+						@click="submitOfflinePayment"
+						:loading="loading"
+						:disabled="isSubmitDisabled"
+					>
 						{{ __("Submit") }}
 					</Button>
 				</div>
@@ -52,84 +64,88 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { Dialog, Button, FileUploader, toast } from 'frappe-ui'
-import { formatCurrency } from '../utils/currency'
-import CustomFieldsSection from './CustomFieldsSection.vue'
+import { ref, computed } from "vue";
+import { Dialog, Button, FileUploader, toast } from "frappe-ui";
+import { formatCurrency } from "../utils/currency";
+import CustomFieldsSection from "./CustomFieldsSection.vue";
 
 const props = defineProps({
 	open: {
 		type: Boolean,
-		default: false
+		default: false,
 	},
 	amount: {
 		type: Number,
-		required: true
+		required: true,
 	},
 	currency: {
 		type: String,
-		default: 'INR'
+		default: "INR",
 	},
 	offlineSettings: {
 		type: Object,
-		required: true
+		required: true,
 	},
 	loading: {
 		type: Boolean,
-		default: false
+		default: false,
 	},
 	customFields: {
 		type: Array,
-		default: () => []
-	}
-})
+		default: () => [],
+	},
+});
 
-const emit = defineEmits(['update:open', 'submit', 'cancel'])
+const emit = defineEmits(["update:open", "submit", "cancel"]);
 
 const isOpen = computed({
 	get: () => props.open,
-	set: (value) => emit('update:open', value)
-})
+	set: (value) => emit("update:open", value),
+});
 
-const paymentProof = ref(null)
-const customFieldsData = ref({})
+const paymentProof = ref(null);
+const customFieldsData = ref({});
 
 // Filter custom fields for off-platform payment
-const offPlatformCustomFields = computed(() => 
-	props.customFields.filter(field => field.applied_to === 'Off-platform Payment')
-)
+const offPlatformCustomFields = computed(() =>
+	props.customFields.filter((field) => field.applied_to === "Off-platform Payment")
+);
 
 // Check if submit should be disabled
 const isSubmitDisabled = computed(() => {
 	// Check payment proof requirement
 	if (props.offlineSettings.collect_payment_proof && !paymentProof.value) {
-		return true
+		return true;
 	}
-	
+
 	// Check mandatory custom fields
 	for (const field of offPlatformCustomFields.value) {
-		if (field.mandatory && (!customFieldsData.value[field.fieldname] || customFieldsData.value[field.fieldname] === '')) {
-			return true
+		if (
+			field.mandatory &&
+			(!customFieldsData.value[field.fieldname] ||
+				customFieldsData.value[field.fieldname] === "")
+		) {
+			return true;
 		}
 	}
-	
-	return false
-})
+
+	return false;
+});
 
 const onFileUpload = (file) => {
-	paymentProof.value = file
-	console.log('File uploaded:', file)
-}
+	paymentProof.value = file;
+	console.log("File uploaded:", file);
+};
 
 const submitOfflinePayment = () => {
 	if (isSubmitDisabled.value) {
-		toast.error(__('Please fill all required fields'))
-		return
+		toast.error(__("Please fill all required fields"));
+		return;
 	}
-	
-	emit('submit', {
+
+	emit("submit", {
 		payment_proof: paymentProof.value,
-		custom_fields: customFieldsData.value
-	})
-}
+		custom_fields: customFieldsData.value,
+	});
+};
 </script>

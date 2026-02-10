@@ -458,6 +458,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 		self.assertIsNotNone(custom_param)
 		self.assertEqual(custom_param.value, "special_offer")
 
+
 class TestProcessBookingAPI(IntegrationTestCase):
 	"""Test the process_booking API endpoint for UTM parameter handling."""
 

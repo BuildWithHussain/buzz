@@ -20,7 +20,13 @@
 			<template #cell="{ item, row, column }">
 				<Badge
 					v-if="column.key === 'status'"
-					:theme="row.status === 'Approved' || row.status === 'Confirmed' ? 'green' : row.status === 'Approval Pending' ? 'yellow' : 'red'"
+					:theme="
+						row.status === 'Approved' || row.status === 'Confirmed'
+							? 'green'
+							: row.status === 'Approval Pending'
+							? 'yellow'
+							: 'red'
+					"
 					variant="subtle"
 					size="sm"
 				>

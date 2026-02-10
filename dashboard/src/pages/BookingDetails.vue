@@ -10,7 +10,9 @@
 		<div v-if="isOffPlatformPaymentPending" class="mb-6">
 			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
 				<div class="flex items-center gap-3">
-					<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
+					<div
+						class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center"
+					>
 						<LucideClock class="w-4 h-4 text-yellow-600" />
 					</div>
 					<div class="flex-1">
@@ -18,7 +20,11 @@
 							{{ __("Payment Confirmation Pending") }}
 						</h3>
 						<p class="text-sm text-yellow-700">
-							{{ __("Your booking is confirmed subject to verifying the off-platform payment details. You will be notified once payment is verified.") }}
+							{{
+								__(
+									"Your booking is confirmed subject to verifying the off-platform payment details. You will be notified once payment is verified."
+								)
+							}}
 						</p>
 					</div>
 				</div>
@@ -37,7 +43,11 @@
 							{{ __("Booking Rejected") }}
 						</h3>
 						<p class="text-sm text-red-700">
-							{{ __("Your booking has been rejected. Please contact the event organizer for more information.") }}
+							{{
+								__(
+									"Your booking has been rejected. Please contact the event organizer for more information."
+								)
+							}}
 						</p>
 					</div>
 				</div>
@@ -55,14 +65,20 @@
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
-				v-if="!bookingDetails.data.event.free_webinar && bookingDetails.data.doc && !isOffPlatformPaymentPending"
+				v-if="
+					!bookingDetails.data.event.free_webinar &&
+					bookingDetails.data.doc &&
+					!isOffPlatformPaymentPending
+				"
 				:booking="bookingDetails.data.doc"
 			/>
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
 				v-if="
-					!bookingDetails.data.event.free_webinar && bookingDetails.data.booking_summary && !isOffPlatformPaymentPending
+					!bookingDetails.data.event.free_webinar &&
+					bookingDetails.data.booking_summary &&
+					!isOffPlatformPaymentPending
 				"
 				:summary="bookingDetails.data.booking_summary"
 			/>
@@ -128,11 +144,11 @@ const props = defineProps({
 
 // Check if this is an off-platform payment that is not yet verified
 const isOffPlatformPaymentPending = computed(() => {
-	return bookingDetails.data?.doc?.status === 'Approval Pending';
+	return bookingDetails.data?.doc?.status === "Approval Pending";
 });
 
 const isBookingRejected = computed(() => {
-	return bookingDetails.data?.doc?.status === 'Rejected';
+	return bookingDetails.data?.doc?.status === "Rejected";
 });
 
 // Check if this is a successful payment redirect (check URL immediately)
