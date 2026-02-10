@@ -35,17 +35,16 @@
 	</Transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import LucideCheckCircle from "~icons/lucide/check-circle";
 
-const props = defineProps({
-	show: {
-		type: Boolean,
-		default: false,
-	},
-	isWebinar: {
-		type: Boolean,
-		default: false,
-	},
+interface Props {
+	show?: boolean;
+	isWebinar?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	show: false,
+	isWebinar: false,
 });
 </script>
