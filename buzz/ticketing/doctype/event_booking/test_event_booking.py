@@ -458,7 +458,6 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 		self.assertIsNotNone(custom_param)
 		self.assertEqual(custom_param.value, "special_offer")
 
-
 class TestProcessBookingAPI(IntegrationTestCase):
 	"""Test the process_booking API endpoint for UTM parameter handling."""
 
@@ -519,6 +518,233 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(utm_dict["utm_campaign"], "winter_promo")
 		self.assertEqual(utm_dict["utm_content"], "banner_ad")
 		self.assertEqual(utm_dict["utm_term"], "event tickets")
+
+	# ==================== Off-platform Payment Tests ====================
+
+	def test_off_platform_booking_sets_verification_pending(self):
+		"""Test that off-platform booking sets payment status to Verification Pending."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Off-platform Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		booking.submit()
+
+		self.assertEqual(booking.payment_status, "Verification Pending")
+		self.assertEqual(booking.status, "Approval Pending")
+
+	def test_approve_off_platform_booking(self):
+		"""Test approving an off-platform booking."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Approval Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		booking.submit()
+		booking.approve_booking()
+		booking.reload()
+
+		self.assertEqual(booking.status, "Approved")
+		self.assertEqual(booking.payment_status, "Paid")
+
+	def test_reject_off_platform_booking(self):
+		"""Test rejecting an off-platform booking."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Rejection Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		booking.submit()
+		booking.reject_booking()
+		booking.reload()
+
+		self.assertEqual(booking.status, "Rejected")
+
+	def test_off_platform_with_coupon_code(self):
+		"""Test off-platform payment with coupon code discount."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Coupon Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": "OFFPLAT10",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.discount_amount, 50)
+		self.assertEqual(booking.total_amount, 450)
+
+		booking.submit()
+		self.assertEqual(booking.payment_status, "Verification Pending")
+
+	def test_off_platform_with_tax(self):
+		"""Test off-platform payment with tax calculation."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.apply_tax = True
+		test_event.tax_percentage = 18
+		test_event.tax_label = "GST"
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Tax Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.tax_percentage, 18)
+		self.assertEqual(booking.tax_amount, 90)
+		self.assertEqual(booking.total_amount, 590)
+
+	def test_off_platform_payment_proof_attachment(self):
+		"""Test that payment proof can be attached to off-platform booking."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_off_platform_payment = True
+		test_event.collect_payment_proof = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Proof Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+			}
+		).insert()
+
+		file_doc = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_name": "payment_proof.jpg",
+				"attached_to_doctype": "Event Booking",
+				"attached_to_name": booking.name,
+				"file_url": "/files/payment_proof.jpg",
+			}
+		).insert()
+
+		attachments = frappe.get_all(
+			"File", filters={"attached_to_doctype": "Event Booking", "attached_to_name": booking.name}
+		)
+		self.assertEqual(len(attachments), 1)
+
+		frappe.delete_doc("File", file_doc.name, force=True)
 
 	def test_process_booking_without_utm_parameters(self):
 		"""Test that process_booking API works without UTM parameters."""
