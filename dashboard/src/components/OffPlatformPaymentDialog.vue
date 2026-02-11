@@ -18,7 +18,7 @@
 					<!-- Payment Details (HTML Content) -->
 					<div
 						v-if="offlineSettings.payment_details"
-						class="prose-sm bg-surface-gray-1 border border-outline-gray-1 rounded p-3 text-ink-gray-9"
+						class="prose-sm [&>:first-child]:mt-0 bg-surface-gray-1 border border-outline-gray-1 rounded p-3 text-ink-gray-9"
 						v-html="offlineSettings.payment_details"
 					></div>
 
@@ -40,8 +40,12 @@
 							:file-types="['image/*']"
 							@success="onFileUpload"
 						/>
-						<div v-if="paymentProof" class="mt-2 text-sm text-ink-green-2">
-							✓ File uploaded: {{ paymentProof.file_name || paymentProof.name }}
+						<div
+							v-if="paymentProof"
+							class="mt-2 flex items-center gap-1.5 text-sm text-ink-green-2"
+						>
+							<LucideCheckCircle class="h-4 w-4" />
+							File uploaded: {{ paymentProof.file_name || paymentProof.name }}
 						</div>
 					</div>
 				</div>
@@ -70,6 +74,7 @@ import { ref, computed } from "vue";
 import { Dialog, Button, FileUploader, toast } from "frappe-ui";
 import { formatCurrency } from "../utils/currency";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
+import LucideCheckCircle from "~icons/lucide/check-circle";
 
 const props = defineProps({
 	open: {
