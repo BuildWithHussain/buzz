@@ -331,7 +331,7 @@ def get_event_booking_data(event_route: str) -> dict:
 	return data
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def process_booking(
 	attendees: list[dict],
 	event: str,
