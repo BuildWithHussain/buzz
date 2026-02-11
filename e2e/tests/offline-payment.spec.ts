@@ -3,12 +3,12 @@ import { BookingPage } from "../pages";
 
 const uid = Date.now();
 
-test.describe("Off-platform Payment Flow", () => {
-	test("complete booking with off-platform payment", async ({ page }) => {
-		const email = `offplatform-${uid}@test.com`;
+test.describe("Offline Payment Flow", () => {
+	test("complete booking with offline payment", async ({ page }) => {
+		const email = `offline-${uid}@test.com`;
 		const bookingPage = new BookingPage(page);
-		
-		await bookingPage.goto("off-platform-payment-e2e");
+
+		await bookingPage.goto("offline-payment-e2e");
 		await bookingPage.waitForFormLoad();
 
 		// Fill attendee details
@@ -18,11 +18,11 @@ test.describe("Off-platform Payment Flow", () => {
 		// Submit booking form
 		await bookingPage.submit();
 
-		// Wait for off-platform payment dialog
+		// Wait for offline payment dialog
 		await expect(page.getByText("Bank Transfer")).toBeVisible({ timeout: 10000 });
 		await expect(page.getByText("Transfer to Account: 123456789")).toBeVisible();
 
-		// Submit off-platform payment (no file upload required in test setup)
+		// Submit offline payment (no file upload required in test setup)
 		const submitButton = page.getByRole("button", { name: "Submit" });
 		await submitButton.click();
 
@@ -30,10 +30,10 @@ test.describe("Off-platform Payment Flow", () => {
 		await expect(page.getByText("Payment Confirmation Pending")).toBeVisible({ timeout: 30000 });
 	});
 
-	test("off-platform payment dialog shows amount", async ({ page }) => {
+	test("offline payment dialog shows amount", async ({ page }) => {
 		const bookingPage = new BookingPage(page);
-		
-		await bookingPage.goto("off-platform-payment-e2e");
+
+		await bookingPage.goto("offline-payment-e2e");
 		await bookingPage.waitForFormLoad();
 
 		await page.locator('input[placeholder="Enter full name"]').first().fill("Amount Test");
@@ -46,10 +46,10 @@ test.describe("Off-platform Payment Flow", () => {
 		await expect(dialog.getByText("₹500.00", { exact: true })).toBeVisible({ timeout: 10000 });
 	});
 
-	test("can cancel off-platform payment dialog", async ({ page }) => {
+	test("can cancel offline payment dialog", async ({ page }) => {
 		const bookingPage = new BookingPage(page);
-		
-		await bookingPage.goto("off-platform-payment-e2e");
+
+		await bookingPage.goto("offline-payment-e2e");
 		await bookingPage.waitForFormLoad();
 
 		await page.locator('input[placeholder="Enter full name"]').first().fill("Cancel Test");
@@ -67,7 +67,7 @@ test.describe("Off-platform Payment Flow", () => {
 	});
 });
 
-test.describe("Booking Details - Off-platform Payment", () => {
+test.describe("Booking Details - Offline Payment", () => {
 	test("shows verification pending status", async ({ page }) => {
 		// This test assumes a booking already exists
 		// Navigate to bookings list

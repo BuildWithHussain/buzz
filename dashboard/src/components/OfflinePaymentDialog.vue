@@ -24,8 +24,8 @@
 
 					<!-- Custom Fields -->
 					<CustomFieldsSection
-						v-if="offPlatformCustomFields.length > 0"
-						:custom-fields="offPlatformCustomFields"
+						v-if="offlineCustomFields.length > 0"
+						:custom-fields="offlineCustomFields"
 						v-model="customFieldsData"
 						:show-title="false"
 					/>
@@ -113,9 +113,9 @@ const isOpen = computed({
 const paymentProof = ref(null);
 const customFieldsData = ref({});
 
-// Filter custom fields for off-platform payment
-const offPlatformCustomFields = computed(() =>
-	props.customFields.filter((field) => field.applied_to === "Off-platform Payment")
+// Filter custom fields for offline payment form
+const offlineCustomFields = computed(() =>
+	props.customFields.filter((field) => field.applied_to === "Offline Payment Form")
 );
 
 // Check if submit should be disabled
@@ -126,7 +126,7 @@ const isSubmitDisabled = computed(() => {
 	}
 
 	// Check mandatory custom fields
-	for (const field of offPlatformCustomFields.value) {
+	for (const field of offlineCustomFields.value) {
 		if (
 			field.mandatory &&
 			(!customFieldsData.value[field.fieldname] ||

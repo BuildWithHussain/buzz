@@ -12,8 +12,8 @@ from frappe.utils import days_diff, format_date, format_time, today, validate_em
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
 from buzz.utils import is_app_installed
 
-OFF_PLATFORM_PAYMENT_METHOD = "Off-platform"
-OFF_PLATFORM_DEFAULT_LABEL = "Off-platform Payment"
+OFFLINE_PAYMENT_METHOD = "Offline"
+OFFLINE_PAYMENT_DEFAULT_LABEL = "Offline Payment"
 
 
 @frappe.whitelist(allow_guest=True)
@@ -312,20 +312,20 @@ def get_event_booking_data(event_route: str) -> dict:
 	# Payment Gateways
 	payment_gateways = get_payment_gateways_for_event(event_doc.name)
 
-	# If off-platform payment is enabled, add it to the payment gateways list
-	if event_doc.enable_off_platform_payment:
-		off_platform_label = event_doc.off_platform_payment_label or OFF_PLATFORM_DEFAULT_LABEL
-		payment_gateways.append(off_platform_label)
+	# If offline payment is enabled, add it to the payment gateways list
+	if event_doc.enable_offline_payments:
+		offline_label = event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL
+		payment_gateways.append(offline_label)
 
 	data.payment_gateways = payment_gateways
 
-	# Off-platform Payment Settings
-	data.off_platform_payment_enabled = event_doc.enable_off_platform_payment
-	if event_doc.enable_off_platform_payment:
-		data.off_platform_settings = {
-			"payment_details": event_doc.off_platform_payment_details,
+	# Offline Payment Settings
+	data.offline_payment_enabled = event_doc.enable_offline_payments
+	if event_doc.enable_offline_payments:
+		data.offline_settings = {
+			"payment_details": event_doc.offline_payment_details,
 			"collect_payment_proof": event_doc.collect_payment_proof,
-			"label": event_doc.off_platform_payment_label or OFF_PLATFORM_DEFAULT_LABEL,
+			"label": event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL,
 		}
 
 	return data
@@ -344,7 +344,7 @@ def process_booking(
 	otp: str | None = None,
 	guest_phone: str | None = None,
 	payment_proof: str | None = None,
-	is_off_platform: bool = False,
+	is_offline: bool = False,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
@@ -444,16 +444,16 @@ def process_booking(
 		booking.submit()
 		return {"booking_name": booking.name}
 
-	# Check if off-platform payment is explicitly requested and enabled
-	if is_off_platform:
-		if not event_doc.enable_off_platform_payment:
-			frappe.throw(_("Off-platform payment is not enabled for this event"))
+	# Check if offline payment is explicitly requested and enabled
+	if is_offline:
+		if not event_doc.enable_offline_payments:
+			frappe.throw(_("Offline payment is not enabled for this event"))
 
 		booking.append(
 			"additional_fields",
 			{
 				"fieldname": "payment_method",
-				"value": OFF_PLATFORM_PAYMENT_METHOD,
+				"value": OFFLINE_PAYMENT_METHOD,
 				"label": "Payment Method",
 				"fieldtype": "Data",
 			},
@@ -477,7 +477,7 @@ def process_booking(
 
 		booking.flags.ignore_permissions = True
 		booking.submit()
-		return {"booking_name": booking.name, "off_platform_payment": True}
+		return {"booking_name": booking.name, "offline_payment": True}
 
 	return {
 		"payment_link": get_payment_link_for_booking(

@@ -92,7 +92,7 @@
    "fieldname": "applied_to",
    "fieldtype": "Select",
    "label": "Applied To",
-   "options": "Booking\nTicket\nOff-platform Payment"
+   "options": "Booking\nTicket\nOffline Payment Form"
   }
  ],
  "grid_page_length": 50,

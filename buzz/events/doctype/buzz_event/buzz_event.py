@@ -36,7 +36,7 @@ class BuzzEvent(Document):
 		category: DF.Link
 		collect_payment_proof: DF.Check
 		default_ticket_type: DF.Link | None
-		enable_off_platform_payment: DF.Check
+		enable_offline_payments: DF.Check
 		end_date: DF.Date | None
 		end_time: DF.Time
 		external_registration_page: DF.Check
@@ -48,8 +48,8 @@ class BuzzEvent(Document):
 		medium: DF.Literal["In Person", "Online"]
 		meta_image: DF.AttachImage | None
 		name: DF.Int | None
-		off_platform_payment_details: DF.TextEditor | None
-		off_platform_payment_label: DF.Data | None
+		offline_payment_details: DF.TextEditor | None
+		offline_payment_label: DF.Data | None
 		payment_gateways: DF.Table[EventPaymentGateway]
 		proposal: DF.Link | None
 		registration_url: DF.Data | None

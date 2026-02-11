@@ -43,12 +43,12 @@
   "payments_tab",
   "section_break_owtc",
   "payment_gateways",
-  "off_platform_payment_section",
-  "enable_off_platform_payment",
-  "off_platform_payment_label",
+  "offline_payment_section",
+  "enable_offline_payments",
+  "offline_payment_label",
   "collect_payment_proof",
   "column_break_xgh",
-  "off_platform_payment_details",
+  "offline_payment_details",
   "tax_settings_section",
   "apply_tax",
   "tax_inclusive",
@@ -384,34 +384,34 @@
   },
   {
    "description": "Copy payment details or scan QR and upload proof for verification",
-   "fieldname": "off_platform_payment_section",
+   "fieldname": "offline_payment_section",
    "fieldtype": "Section Break",
-   "label": "Off-platform Payment Settings"
+   "label": "Offline Payment Settings"
   },
   {
    "default": "0",
-   "fieldname": "enable_off_platform_payment",
+   "fieldname": "enable_offline_payments",
    "fieldtype": "Check",
-   "label": "Enable Off-platform Payments"
+   "label": "Enable Offline Payments"
   },
   {
-   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "depends_on": "eval:doc.enable_offline_payments==1",
    "description": "Add payment details, instructions, QR codes, bank details, etc. Users can paste images and format content as needed.",
-   "fieldname": "off_platform_payment_details",
+   "fieldname": "offline_payment_details",
    "fieldtype": "Text Editor",
    "label": "Payment Details"
   },
   {
-   "default": "Off-platform Payment",
-   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "default": "Offline Payment",
+   "depends_on": "eval:doc.enable_offline_payments==1",
    "description": "Label displayed to users when selecting payment method (e.g., UPI Payment, Bank Transfer, etc.)",
-   "fieldname": "off_platform_payment_label",
+   "fieldname": "offline_payment_label",
    "fieldtype": "Data",
    "label": "Payment Method Label"
   },
   {
    "default": "0",
-   "depends_on": "eval:doc.enable_off_platform_payment==1",
+   "depends_on": "eval:doc.enable_offline_payments==1",
    "fieldname": "collect_payment_proof",
    "fieldtype": "Check",
    "label": "Collect Proof of Payment"

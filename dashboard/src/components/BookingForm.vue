@@ -101,16 +101,16 @@
 		</div>
 
 		<form v-else @submit.prevent="submit">
-			<!-- Off-platform Payment Dialog -->
-			<OffPlatformPaymentDialog
-				v-model:open="showOffPlatformDialog"
+			<!-- Offline Payment Dialog -->
+			<OfflinePaymentDialog
+				v-model:open="showOfflineDialog"
 				:amount="finalTotal"
 				:currency="totalCurrency"
-				:offline-settings="offPlatformSettings"
+				:offline-settings="offlineSettings"
 				:loading="processBooking.loading"
 				:custom-fields="customFields"
-				@submit="onOffPlatformPaymentSubmit"
-				@cancel="showOffPlatformDialog = false"
+				@submit="onOfflinePaymentSubmit"
+				@cancel="showOfflineDialog = false"
 			/>
 			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 				<!-- Left Side: Form Inputs -->
@@ -405,7 +405,7 @@ import BookingSummary from "./BookingSummary.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
 import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
-import OffPlatformPaymentDialog from "./OffPlatformPaymentDialog.vue";
+import OfflinePaymentDialog from "./OfflinePaymentDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -461,11 +461,11 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	offPlatformPaymentEnabled: {
+	offlinePaymentEnabled: {
 		type: Boolean,
 		default: false,
 	},
-	offPlatformSettings: {
+	offlineSettings: {
 		type: Object,
 		default: () => ({}),
 	},
@@ -487,12 +487,12 @@ const bookingCustomFieldsData = storedBookingCustomFields;
 
 // Payment gateway dialog state
 const showGatewayDialog = ref(false);
-const showOffPlatformDialog = ref(false);
+const showOfflineDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
-const isOffPlatformGateway = (gateway) =>
-	props.offPlatformPaymentEnabled && gateway === props.offPlatformSettings?.label;
+const isOfflineGateway = (gateway) =>
+	props.offlinePaymentEnabled && gateway === props.offlineSettings?.label;
 
 // Coupon state
 const couponCode = ref("");
@@ -1142,9 +1142,9 @@ async function submit() {
 				return;
 			} else if (props.paymentGateways.length === 1) {
 				const singleGateway = props.paymentGateways[0];
-				if (isOffPlatformGateway(singleGateway)) {
+				if (isOfflineGateway(singleGateway)) {
 					pendingPayload.value = final_payload;
-					showOffPlatformDialog.value = true;
+					showOfflineDialog.value = true;
 					return;
 				}
 			}
@@ -1162,9 +1162,9 @@ async function submit() {
 			return;
 		} else if (props.paymentGateways.length === 1) {
 			const singleGateway = props.paymentGateways[0];
-			if (isOffPlatformGateway(singleGateway)) {
+			if (isOfflineGateway(singleGateway)) {
 				pendingPayload.value = final_payload;
-				showOffPlatformDialog.value = true;
+				showOfflineDialog.value = true;
 				return;
 			}
 		}
@@ -1192,11 +1192,9 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 				} else if (props.isGuestMode) {
 					bookingSuccess.value = true;
 					successBookingName.value = data.booking_name;
-				} else if (data.off_platform_payment) {
-					// Off-platform payment submitted - redirect to booking details with off-platform flag
-					router.replace(
-						`/bookings/${data.booking_name}?success=true&off_platform=true`
-					);
+				} else if (data.offline_payment) {
+					// Offline payment submitted - redirect to booking details
+					router.replace(`/bookings/${data.booking_name}?success=true&offline=true`);
 				} else {
 					// free event
 					router.replace(`/bookings/${data.booking_name}?success=true`);
@@ -1222,16 +1220,16 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 	);
 }
 
-function onOffPlatformPaymentSubmit(data) {
+function onOfflinePaymentSubmit(data) {
 	if (pendingPayload.value) {
 		const payloadWithProof = {
 			...pendingPayload.value,
 			payment_proof: data?.payment_proof?.file_url || null,
-			is_off_platform: true,
+			is_offline: true,
 		};
 		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
-		showOffPlatformDialog.value = false;
+		showOfflineDialog.value = false;
 	}
 }
 
@@ -1240,8 +1238,8 @@ function onGatewaySelected(gateway) {
 	selectedGateway.value = gateway;
 
 	if (pendingPayload.value) {
-		if (isOffPlatformGateway(gateway)) {
-			showOffPlatformDialog.value = true;
+		if (isOfflineGateway(gateway)) {
+			showOfflineDialog.value = true;
 		} else {
 			submitBooking(pendingPayload.value, gateway);
 			pendingPayload.value = null;
@@ -1269,10 +1267,10 @@ function submitWithOtp() {
 			return;
 		} else if (props.paymentGateways.length === 1) {
 			const singleGateway = props.paymentGateways[0];
-			if (isOffPlatformGateway(singleGateway)) {
+			if (isOfflineGateway(singleGateway)) {
 				pendingPayload.value = payloadWithOtp;
 				showOtpModal.value = false;
-				showOffPlatformDialog.value = true;
+				showOfflineDialog.value = true;
 				return;
 			}
 			selectedGateway.value = singleGateway;

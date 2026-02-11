@@ -7,7 +7,7 @@
 
 	<div v-else-if="bookingDetails.data">
 		<!-- Approval Pending Status -->
-		<div v-if="isOffPlatformPaymentPending" class="mb-6">
+		<div v-if="isOfflinePaymentPending" class="mb-6">
 			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
 				<div class="flex items-center gap-3">
 					<div
@@ -22,7 +22,7 @@
 						<p class="text-sm text-yellow-700">
 							{{
 								__(
-									"Your booking is confirmed subject to verifying the off-platform payment details. You will be notified once payment is verified."
+									"Your booking is confirmed subject to verifying the offline payment details. You will be notified once payment is verified."
 								)
 							}}
 						</p>
@@ -68,7 +68,7 @@
 				v-if="
 					!bookingDetails.data.event.free_webinar &&
 					bookingDetails.data.doc &&
-					!isOffPlatformPaymentPending
+					!isOfflinePaymentPending
 				"
 				:booking="bookingDetails.data.doc"
 			/>
@@ -78,7 +78,7 @@
 				v-if="
 					!bookingDetails.data.event.free_webinar &&
 					bookingDetails.data.booking_summary &&
-					!isOffPlatformPaymentPending
+					!isOfflinePaymentPending
 				"
 				:summary="bookingDetails.data.booking_summary"
 			/>
@@ -93,7 +93,7 @@
 
 		<!-- Tickets Section -->
 		<TicketsSection
-			v-if="!bookingDetails.data.event.free_webinar && !isOffPlatformPaymentPending"
+			v-if="!bookingDetails.data.event.free_webinar && !isOfflinePaymentPending"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -106,7 +106,7 @@
 		/>
 
 		<CancellationRequestDialog
-			v-if="!isOffPlatformPaymentPending"
+			v-if="!isOfflinePaymentPending"
 			v-model="showCancellationDialog"
 			:tickets="bookingDetails.data.tickets"
 			:booking-id="bookingId"
@@ -142,8 +142,8 @@ const props = defineProps({
 	},
 });
 
-// Check if this is an off-platform payment that is not yet verified
-const isOffPlatformPaymentPending = computed(() => {
+// Check if this is an offline payment that is not yet verified
+const isOfflinePaymentPending = computed(() => {
 	return bookingDetails.data?.doc?.status === "Approval Pending";
 });
 

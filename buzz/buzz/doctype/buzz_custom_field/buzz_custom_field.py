@@ -14,7 +14,7 @@ class BuzzCustomField(Document):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		applied_to: DF.Literal["Booking", "Ticket", "Off-platform Payment"]
+		applied_to: DF.Literal["Booking", "Ticket", "Offline Payment Form"]
 		default_value: DF.Data | None
 		enabled: DF.Check
 		event: DF.Link

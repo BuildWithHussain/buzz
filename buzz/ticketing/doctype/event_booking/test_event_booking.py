@@ -520,19 +520,19 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(utm_dict["utm_content"], "banner_ad")
 		self.assertEqual(utm_dict["utm_term"], "event tickets")
 
-	# ==================== Off-platform Payment Tests ====================
+	# ==================== Offline Payment Tests ====================
 
-	def test_off_platform_booking_sets_verification_pending(self):
-		"""Test that off-platform booking sets payment status to Verification Pending."""
+	def test_offline_booking_sets_verification_pending(self):
+		"""Test that offline booking sets payment status to Verification Pending."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
 			{
 				"doctype": "Event Ticket Type",
 				"event": test_event.name,
-				"title": "Off-platform Ticket",
+				"title": "Offline Ticket",
 				"price": 500,
 			}
 		).insert()
@@ -545,7 +545,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 
@@ -554,10 +554,10 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.payment_status, "Verification Pending")
 		self.assertEqual(booking.status, "Approval Pending")
 
-	def test_approve_off_platform_booking(self):
-		"""Test approving an off-platform booking."""
+	def test_approve_offline_booking(self):
+		"""Test approving an offline booking."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
@@ -577,7 +577,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 
@@ -588,10 +588,10 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.status, "Approved")
 		self.assertEqual(booking.payment_status, "Paid")
 
-	def test_reject_off_platform_booking(self):
-		"""Test rejecting an off-platform booking."""
+	def test_reject_offline_booking(self):
+		"""Test rejecting an offline booking."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
@@ -611,7 +611,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 
@@ -621,10 +621,10 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		self.assertEqual(booking.status, "Rejected")
 
-	def test_off_platform_with_coupon_code(self):
-		"""Test off-platform payment with coupon code discount."""
+	def test_offline_with_coupon_code(self):
+		"""Test offline payment with coupon code discount."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
@@ -639,7 +639,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		coupon = frappe.get_doc(
 			{
 				"doctype": "Buzz Coupon Code",
-				"code": "OFFPLAT10",
+				"code": "OFFLINE10",
 				"coupon_type": "Discount",
 				"discount_type": "Percentage",
 				"discount_value": 10,
@@ -656,7 +656,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 
@@ -667,10 +667,10 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		booking.submit()
 		self.assertEqual(booking.payment_status, "Verification Pending")
 
-	def test_off_platform_with_tax(self):
-		"""Test off-platform payment with tax calculation."""
+	def test_offline_with_tax(self):
+		"""Test offline payment with tax calculation."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.apply_tax = True
 		test_event.tax_percentage = 18
 		test_event.tax_label = "GST"
@@ -693,7 +693,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 
@@ -702,10 +702,10 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.tax_amount, 90)
 		self.assertEqual(booking.total_amount, 590)
 
-	def test_off_platform_booking_requires_payment_method_field(self):
-		"""Test that off-platform booking requires payment_method in additional_fields."""
+	def test_offline_booking_requires_payment_method_field(self):
+		"""Test that offline booking requires payment_method in additional_fields."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_off_platform_payment = True
+		test_event.enable_offline_payments = True
 		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
@@ -733,7 +733,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		# Without payment_method field, it should go to normal payment flow
 		self.assertEqual(booking_without_method.payment_status, "Unpaid")
 
-		# Booking with payment_method = "Off-platform" should trigger verification flow
+		# Booking with payment_method = "Offline" should trigger verification flow
 		booking_with_method = frappe.get_doc(
 			{
 				"doctype": "Event Booking",
@@ -742,7 +742,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Off-platform"}],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
 			}
 		).insert()
 

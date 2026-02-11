@@ -8,9 +8,9 @@ interface NamedDoc {
 const testCategoryName = "E2E Test Category";
 const testHostName = "E2E Test Host";
 
-const offPlatformEvent = {
-	title: "E2E Off-platform Payment",
-	route: "off-platform-payment-e2e",
+const offlinePaymentEvent = {
+	title: "E2E Offline Payment",
+	route: "offline-payment-e2e",
 };
 
 async function forceCleanup(
@@ -26,12 +26,12 @@ async function forceCleanup(
 	await callMethod(request, "frappe.client.delete", { doctype, name });
 }
 
-setup("create off-platform payment test event", async ({ request }) => {
+setup("create offline payment test event", async ({ request }) => {
 	// Clean up existing test event - retry if needed
 	for (let attempt = 0; attempt < 2; attempt++) {
 		try {
 			const events = await getList<NamedDoc>(request, "Buzz Event", {
-				filters: { route: offPlatformEvent.route },
+				filters: { route: offlinePaymentEvent.route },
 			});
 
 			if (events.length === 0) break;
@@ -91,20 +91,20 @@ setup("create off-platform payment test event", async ({ request }) => {
 	futureDate.setMonth(futureDate.getMonth() + 1);
 	const startDate = futureDate.toISOString().split("T")[0];
 
-	// Create event with off-platform payment enabled
+	// Create event with offline payment enabled
 	const event = await createDoc<NamedDoc>(request, "Buzz Event", {
-		title: offPlatformEvent.title,
+		title: offlinePaymentEvent.title,
 		category: testCategoryName,
 		host: testHostName,
 		start_date: startDate,
 		start_time: "09:00:00",
 		end_time: "17:00:00",
-		route: offPlatformEvent.route,
+		route: offlinePaymentEvent.route,
 		is_published: 1,
 		medium: "In Person",
-		enable_off_platform_payment: 1,
-		off_platform_payment_label: "Bank Transfer",
-		off_platform_payment_details: "<p>Transfer to Account: 123456789</p>",
+		enable_offline_payments: 1,
+		offline_payment_label: "Bank Transfer",
+		offline_payment_details: "<p>Transfer to Account: 123456789</p>",
 	});
 
 	// Create paid ticket type
@@ -116,6 +116,6 @@ setup("create off-platform payment test event", async ({ request }) => {
 		is_published: 1,
 	});
 
-	console.log(`Created: ${offPlatformEvent.title} (route: ${offPlatformEvent.route})`);
-	console.log("Off-platform payment event setup complete!");
+	console.log(`Created: ${offlinePaymentEvent.title} (route: ${offlinePaymentEvent.route})`);
+	console.log("Offline payment event setup complete!");
 });
