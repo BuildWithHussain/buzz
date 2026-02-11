@@ -522,8 +522,8 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 	# ==================== Offline Payment Tests ====================
 
-	def test_offline_booking_sets_verification_pending(self):
-		"""Test that offline booking sets payment status to Verification Pending."""
+	def test_offline_booking_cannot_be_submitted_directly(self):
+		"""Test that offline bookings cannot be submitted directly — must use approve/reject."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 		test_event.enable_offline_payments = True
 		test_event.save()
@@ -549,10 +549,8 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			}
 		).insert()
 
-		booking.submit()
-
-		self.assertEqual(booking.payment_status, "Verification Pending")
-		self.assertEqual(booking.status, "Approval Pending")
+		with self.assertRaises(frappe.ValidationError):
+			booking.submit()
 
 	def test_approve_offline_booking(self):
 		"""Test approving an offline booking submits it and generates tickets."""
@@ -683,9 +681,6 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.discount_amount, 50)
 		self.assertEqual(booking.total_amount, 450)
 
-		booking.submit()
-		self.assertEqual(booking.payment_status, "Verification Pending")
-
 	def test_offline_with_tax(self):
 		"""Test offline payment with tax calculation."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
@@ -752,7 +747,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		# Without payment_method field, it should go to normal payment flow
 		self.assertEqual(booking_without_method.payment_status, "Unpaid")
 
-		# Booking with payment_method = "Offline" should trigger verification flow
+		# Booking with payment_method = "Offline" should block direct submission
 		booking_with_method = frappe.get_doc(
 			{
 				"doctype": "Event Booking",
@@ -765,8 +760,8 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			}
 		).insert()
 
-		booking_with_method.submit()
-		self.assertEqual(booking_with_method.payment_status, "Verification Pending")
+		with self.assertRaises(frappe.ValidationError):
+			booking_with_method.submit()
 
 	def test_process_booking_offline_stays_in_draft(self):
 		"""Test that offline bookings via process_booking stay in draft with no tickets."""

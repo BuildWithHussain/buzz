@@ -63,8 +63,11 @@ class EventBooking(Document):
 				break
 
 		if payment_method == OFFLINE_PAYMENT_METHOD:
-			self.payment_status = "Verification Pending"
-			self.status = "Approval Pending"
+			frappe.throw(
+				_(
+					"This booking requires offline payment verification. Please use the Approve or Reject button instead."
+				)
+			)
 		elif self.payment_status != "Paid":
 			self.payment_status = "Unpaid"
 			self.status = "Approval Pending"
