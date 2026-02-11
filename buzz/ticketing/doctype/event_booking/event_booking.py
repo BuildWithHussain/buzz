@@ -271,9 +271,11 @@ class EventBooking(Document):
 
 	@frappe.whitelist()
 	def reject_booking(self):
-		"""Reject the booking."""
+		"""Reject and discard the booking."""
 		frappe.only_for("Event Manager")
 
+		self.flags.ignore_permissions = True
+		self.discard()
 		self.db_set("status", "Rejected")
 		frappe.msgprint(_("Booking has been rejected!"))
 

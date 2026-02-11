@@ -631,7 +631,8 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		booking.reject_booking()
 		booking.reload()
 
-		self.assertEqual(booking.docstatus, 0)
+		# Discarded (docstatus=2) and marked as Rejected
+		self.assertEqual(booking.docstatus, 2)
 		self.assertEqual(booking.status, "Rejected")
 
 		# No tickets should be generated
