@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from buzz.api import OFF_PLATFORM_PAYMENT_METHOD
 from buzz.payments import mark_payment_as_received
 
 
@@ -57,14 +58,12 @@ class EventBooking(Document):
 				payment_method = field.value
 				break
 
-		if payment_method == "Off-platform":
+		if payment_method == OFF_PLATFORM_PAYMENT_METHOD:
 			self.payment_status = "Verification Pending"
 			self.status = "Approval Pending"
-		else:
-			# Payment gateway mode - check if payment was already authorized
-			if not hasattr(self, "payment_status") or self.payment_status != "Paid":
-				self.payment_status = "Unpaid"
-				self.status = "Approval Pending"
+		elif self.payment_status != "Paid":
+			self.payment_status = "Unpaid"
+			self.status = "Approval Pending"
 
 	def set_currency(self):
 		self.currency = self.attendees[0].currency

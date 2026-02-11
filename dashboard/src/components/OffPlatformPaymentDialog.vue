@@ -4,21 +4,21 @@
 			<div class="p-4">
 				<!-- Title (shows custom label if set, otherwise default) -->
 				<h3 class="text-lg font-semibold mb-4 text-ink-gray-9">
-					{{
-						offlineSettings.label ? offlineSettings.label : __("Off-platform Payment")
-					}}
+					{{ offlineSettings.label }}
 				</h3>
 
 				<div class="space-y-4">
 					<!-- Amount -->
 					<div class="text-center p-3 bg-surface-gray-1 rounded">
-						<div class="text-xl font-bold text-ink-gray-9">{{ formatCurrency(amount, currency) }}</div>
+						<div class="text-xl font-bold text-ink-gray-9">
+							{{ formatCurrency(amount, currency) }}
+						</div>
 					</div>
 
 					<!-- Payment Details (HTML Content) -->
 					<div
 						v-if="offlineSettings.payment_details"
-						class="p-4 bg-surface-gray-1 border border-outline-gray-1 rounded text-ink-gray-9"
+						class="prose-sm p-4 bg-surface-gray-1 border border-outline-gray-1 rounded text-ink-gray-9"
 						v-html="offlineSettings.payment_details"
 					></div>
 
@@ -32,7 +32,9 @@
 
 					<!-- Upload Proof -->
 					<div v-if="offlineSettings.collect_payment_proof">
-						<label class="text-sm font-medium text-ink-gray-8">{{ __("Payment Proof") }} *</label>
+						<label class="text-sm font-medium text-ink-gray-8"
+							>{{ __("Payment Proof") }} *</label
+						>
 						<FileUploader
 							v-model="paymentProof"
 							:file-types="['image/*']"
@@ -134,7 +136,6 @@ const isSubmitDisabled = computed(() => {
 
 const onFileUpload = (file) => {
 	paymentProof.value = file;
-	console.log("File uploaded:", file);
 };
 
 const submitOfflinePayment = () => {

@@ -491,6 +491,9 @@ const showOffPlatformDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
+const isOffPlatformGateway = (gateway) =>
+	props.offPlatformPaymentEnabled && gateway === props.offPlatformSettings?.label;
+
 // Coupon state
 const couponCode = ref("");
 const couponApplied = ref(false);
@@ -1139,10 +1142,7 @@ async function submit() {
 				return;
 			} else if (props.paymentGateways.length === 1) {
 				const singleGateway = props.paymentGateways[0];
-				if (
-					props.offPlatformPaymentEnabled &&
-					singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
-				) {
+				if (isOffPlatformGateway(singleGateway)) {
 					pendingPayload.value = final_payload;
 					showOffPlatformDialog.value = true;
 					return;
@@ -1157,12 +1157,7 @@ async function submit() {
 
 	// Single gateway or free event - submit directly
 	const singleGateway = props.paymentGateways[0] || null;
-	if (
-		singleGateway &&
-		props.offPlatformPaymentEnabled &&
-		singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
-	) {
-		// Single gateway is off-platform payment
+	if (isOffPlatformGateway(singleGateway)) {
 		pendingPayload.value = final_payload;
 		showOffPlatformDialog.value = true;
 	} else {
@@ -1221,11 +1216,10 @@ function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
 
 function onOffPlatformPaymentSubmit(data) {
 	if (pendingPayload.value) {
-		// For off-platform payments, submit without payment gateway but include payment proof and custom fields
 		const payloadWithProof = {
 			...pendingPayload.value,
 			payment_proof: data?.payment_proof?.file_url || null,
-			off_platform_custom_fields: data?.custom_fields || null,
+			is_off_platform: true,
 		};
 		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
@@ -1238,10 +1232,7 @@ function onGatewaySelected(gateway) {
 	selectedGateway.value = gateway;
 
 	if (pendingPayload.value) {
-		if (
-			props.offPlatformPaymentEnabled &&
-			gateway === (props.offPlatformSettings?.label || "Off-platform Payment")
-		) {
+		if (isOffPlatformGateway(gateway)) {
 			showOffPlatformDialog.value = true;
 		} else {
 			submitBooking(pendingPayload.value, gateway);
@@ -1270,10 +1261,7 @@ function submitWithOtp() {
 			return;
 		} else if (props.paymentGateways.length === 1) {
 			const singleGateway = props.paymentGateways[0];
-			if (
-				props.offPlatformPaymentEnabled &&
-				singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
-			) {
+			if (isOffPlatformGateway(singleGateway)) {
 				pendingPayload.value = payloadWithOtp;
 				showOtpModal.value = false;
 				showOffPlatformDialog.value = true;
