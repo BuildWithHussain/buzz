@@ -39,7 +39,23 @@
 							v-model="paymentProof"
 							:file-types="['image/*']"
 							@success="onFileUpload"
-						/>
+						>
+							<template #default="{ openFileSelector, uploading, progress }">
+								<Button
+									@click="openFileSelector"
+									:loading="uploading"
+									variant="outline"
+								>
+									{{
+										uploading
+											? __("Uploading {0}%", [progress])
+											: paymentProof
+											? __("Replace")
+											: __("Upload File")
+									}}
+								</Button>
+							</template>
+						</FileUploader>
 						<div
 							v-if="paymentProof"
 							class="mt-2 flex items-center gap-1.5 text-sm text-ink-green-2"

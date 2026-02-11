@@ -383,7 +383,7 @@
    "label": "Tax Settings"
   },
   {
-   "description": "Copy payment details or scan QR and upload proof for verification",
+   "description": "Allow attendees to pay offline (e.g. bank transfer, UPI) and submit proof for verification",
    "fieldname": "offline_payment_section",
    "fieldtype": "Section Break",
    "label": "Offline Payment Settings"
