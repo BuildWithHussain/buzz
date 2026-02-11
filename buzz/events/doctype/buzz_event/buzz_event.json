@@ -397,7 +397,7 @@
    "depends_on": "eval:doc.enable_off_platform_payment==1",
    "description": "Add payment details, instructions, QR codes, bank details, etc. Users can paste images and format content as needed.",
    "fieldname": "off_platform_payment_details",
-   "fieldtype": "HTML Editor",
+   "fieldtype": "Text Editor",
    "label": "Payment Details"
   },
   {

@@ -3,7 +3,7 @@
 		<template #body>
 			<div class="p-4">
 				<!-- Title (shows custom label if set, otherwise default) -->
-				<h3 class="text-lg font-semibold mb-4">
+				<h3 class="text-lg font-semibold mb-4 text-ink-gray-9">
 					{{
 						offlineSettings.label ? offlineSettings.label : __("Off-platform Payment")
 					}}
@@ -11,14 +11,14 @@
 
 				<div class="space-y-4">
 					<!-- Amount -->
-					<div class="text-center p-3 bg-gray-50 rounded">
-						<div class="text-xl font-bold">{{ formatCurrency(amount, currency) }}</div>
+					<div class="text-center p-3 bg-surface-gray-1 rounded">
+						<div class="text-xl font-bold text-ink-gray-9">{{ formatCurrency(amount, currency) }}</div>
 					</div>
 
 					<!-- Payment Details (HTML Content) -->
 					<div
 						v-if="offlineSettings.payment_details"
-						class="prose max-w-none p-4 bg-blue-50 border border-blue-200 rounded"
+						class="p-4 bg-surface-gray-1 border border-outline-gray-1 rounded text-ink-gray-9"
 						v-html="offlineSettings.payment_details"
 					></div>
 
@@ -32,13 +32,13 @@
 
 					<!-- Upload Proof -->
 					<div v-if="offlineSettings.collect_payment_proof">
-						<label class="text-sm font-medium">{{ __("Payment Proof") }} *</label>
+						<label class="text-sm font-medium text-ink-gray-8">{{ __("Payment Proof") }} *</label>
 						<FileUploader
 							v-model="paymentProof"
 							:file-types="['image/*']"
 							@success="onFileUpload"
 						/>
-						<div v-if="paymentProof" class="mt-2 text-sm text-green-600">
+						<div v-if="paymentProof" class="mt-2 text-sm text-ink-green-2">
 							✓ File uploaded: {{ paymentProof.name || "Payment Proof" }}
 						</div>
 					</div>
