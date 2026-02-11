@@ -52,6 +52,10 @@ class EventBooking(Document):
 
 	def before_submit(self):
 		"""Set status before submit based on payment method."""
+		# Skip if already approved (submission triggered by approve_booking)
+		if self.status == "Approved":
+			return
+
 		payment_method = None
 		for field in self.additional_fields or []:
 			if field.fieldname == "payment_method":
@@ -251,12 +255,15 @@ class EventBooking(Document):
 
 	@frappe.whitelist()
 	def approve_booking(self):
-		"""Approve the booking."""
+		"""Approve the booking and submit it to generate tickets."""
 		frappe.only_for("Event Manager")
 
-		self.db_set("status", "Approved")
+		self.status = "Approved"
 		if self.payment_status == "Verification Pending":
-			self.db_set("payment_status", "Paid")
+			self.payment_status = "Paid"
+
+		self.flags.ignore_permissions = True
+		self.submit()
 		frappe.msgprint(_("Booking has been approved!"))
 
 	@frappe.whitelist()

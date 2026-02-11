@@ -459,6 +459,12 @@ def process_booking(
 			},
 		)
 
+		# Keep booking in draft until approved — don't submit
+		booking.status = "Approval Pending"
+		booking.payment_status = "Verification Pending"
+		booking.flags.ignore_permissions = True
+		booking.save()
+
 		# Attach payment proof if provided
 		if payment_proof:
 			try:
@@ -475,8 +481,6 @@ def process_booking(
 			except Exception as e:
 				frappe.log_error(f"Failed to attach payment proof: {e}")
 
-		booking.flags.ignore_permissions = True
-		booking.submit()
 		return {"booking_name": booking.name, "offline_payment": True}
 
 	return {
