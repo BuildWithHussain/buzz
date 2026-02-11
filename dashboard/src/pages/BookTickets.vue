@@ -50,6 +50,8 @@
 				:eventRoute="eventRoute"
 				:paymentGateways="eventBookingData.paymentGateways"
 				:isGuestMode="isGuest"
+				:offlinePaymentEnabled="eventBookingData.offlinePaymentEnabled"
+				:offlineSettings="eventBookingData.offlineSettings"
 			/>
 		</div>
 	</div>
@@ -69,6 +71,8 @@ const eventBookingData = reactive({
 	eventDetails: null,
 	customFields: null,
 	paymentGateways: [],
+	offlinePaymentEnabled: false,
+	offlineSettings: {},
 });
 
 const eventNotFound = ref(false);
@@ -104,6 +108,8 @@ const eventBookingResource = createResource({
 		eventBookingData.eventDetails = data.event_details || {};
 		eventBookingData.customFields = data.custom_fields || [];
 		eventBookingData.paymentGateways = data.payment_gateways || [];
+		eventBookingData.offlinePaymentEnabled = data.offline_payment_enabled || false;
+		eventBookingData.offlineSettings = data.offline_settings || {};
 	},
 	onError: (error) => {
 		if (error.message?.includes("DoesNotExistError")) {

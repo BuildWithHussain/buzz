@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from buzz.api import OFFLINE_PAYMENT_METHOD
 from buzz.payments import mark_payment_as_received
 
 
@@ -31,6 +32,8 @@ class EventBooking(Document):
 		event: DF.Link
 		naming_series: DF.Literal["B.###"]
 		net_amount: DF.Currency
+		payment_status: DF.Literal["Unpaid", "Paid", "Verification Pending"]
+		status: DF.Literal["Confirmed", "Approval Pending", "Approved", "Rejected"]
 		tax_amount: DF.Currency
 		tax_label: DF.Data | None
 		tax_percentage: DF.Percent
@@ -46,6 +49,28 @@ class EventBooking(Document):
 		self.set_total()
 		self.apply_coupon_if_applicable()
 		self.apply_taxes_if_applicable()
+
+	def before_submit(self):
+		"""Set status before submit based on payment method."""
+		# Skip if already approved (submission triggered by approve_booking)
+		if self.status == "Approved":
+			return
+
+		payment_method = None
+		for field in self.additional_fields or []:
+			if field.fieldname == "payment_method":
+				payment_method = field.value
+				break
+
+		if payment_method == OFFLINE_PAYMENT_METHOD:
+			frappe.throw(
+				_(
+					"This booking requires offline payment verification. Please use the Approve or Reject button instead."
+				)
+			)
+		elif self.payment_status != "Paid":
+			self.payment_status = "Unpaid"
+			self.status = "Approval Pending"
 
 	def set_currency(self):
 		self.currency = self.attendees[0].currency
@@ -209,6 +234,8 @@ class EventBooking(Document):
 	def on_payment_authorized(self, payment_status: str):
 		if payment_status in ("Authorized", "Completed"):
 			# payment success, submit the booking
+			self.payment_status = "Paid"
+			self.status = "Confirmed"
 			self.update_payment_record()
 
 	def update_payment_record(self):
@@ -228,6 +255,29 @@ class EventBooking(Document):
 		tickets = frappe.db.get_all("Event Ticket", filters={"booking": self.name}, pluck="name")
 		for ticket in tickets:
 			frappe.get_cached_doc("Event Ticket", ticket).cancel()
+
+	@frappe.whitelist()
+	def approve_booking(self):
+		"""Approve the booking and submit it to generate tickets."""
+		frappe.only_for("Event Manager")
+
+		self.status = "Approved"
+		if self.payment_status == "Verification Pending":
+			self.payment_status = "Paid"
+
+		self.flags.ignore_permissions = True
+		self.submit()
+		frappe.msgprint(_("Booking has been approved!"))
+
+	@frappe.whitelist()
+	def reject_booking(self):
+		"""Reject and discard the booking."""
+		frappe.only_for("Event Manager")
+
+		self.flags.ignore_permissions = True
+		self.discard()
+		self.db_set("status", "Rejected")
+		frappe.msgprint(_("Booking has been rejected!"))
 
 	def apply_coupon_if_applicable(self):
 		self.discount_amount = 0

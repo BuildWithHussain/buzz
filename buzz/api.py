@@ -12,6 +12,9 @@ from frappe.utils import days_diff, format_date, format_time, today, validate_em
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
 from buzz.utils import is_app_installed
 
+OFFLINE_PAYMENT_METHOD = "Offline"
+OFFLINE_PAYMENT_DEFAULT_LABEL = "Offline Payment"
+
 
 @frappe.whitelist(allow_guest=True)
 @rate_limit(key="identifier", limit=5, seconds=3600)
@@ -307,12 +310,28 @@ def get_event_booking_data(event_route: str) -> dict:
 	data.custom_fields = custom_fields
 
 	# Payment Gateways
-	data.payment_gateways = get_payment_gateways_for_event(event_doc.name)
+	payment_gateways = get_payment_gateways_for_event(event_doc.name)
+
+	# If offline payment is enabled, add it to the payment gateways list
+	if event_doc.enable_offline_payments:
+		offline_label = event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL
+		payment_gateways.append(offline_label)
+
+	data.payment_gateways = payment_gateways
+
+	# Offline Payment Settings
+	data.offline_payment_enabled = event_doc.enable_offline_payments
+	if event_doc.enable_offline_payments:
+		data.offline_settings = {
+			"payment_details": event_doc.offline_payment_details,
+			"collect_payment_proof": event_doc.collect_payment_proof,
+			"label": event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL,
+		}
 
 	return data
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def process_booking(
 	attendees: list[dict],
 	event: str,
@@ -324,6 +343,8 @@ def process_booking(
 	guest_full_name: str | None = None,
 	otp: str | None = None,
 	guest_phone: str | None = None,
+	payment_proof: str | None = None,
+	is_offline: bool = False,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
@@ -422,6 +443,45 @@ def process_booking(
 		booking.flags.ignore_permissions = True
 		booking.submit()
 		return {"booking_name": booking.name}
+
+	# Check if offline payment is explicitly requested and enabled
+	if is_offline:
+		if not event_doc.enable_offline_payments:
+			frappe.throw(_("Offline payment is not enabled for this event"))
+
+		booking.append(
+			"additional_fields",
+			{
+				"fieldname": "payment_method",
+				"value": OFFLINE_PAYMENT_METHOD,
+				"label": "Payment Method",
+				"fieldtype": "Data",
+			},
+		)
+
+		# Keep booking in draft until approved — don't submit
+		booking.status = "Approval Pending"
+		booking.payment_status = "Verification Pending"
+		booking.flags.ignore_permissions = True
+		booking.save()
+
+		# Attach payment proof if provided
+		if payment_proof:
+			try:
+				file_doc = frappe.get_doc(
+					{
+						"doctype": "File",
+						"file_url": payment_proof,
+						"attached_to_doctype": "Event Booking",
+						"attached_to_name": booking.name,
+						"is_private": 1,
+					}
+				)
+				file_doc.insert(ignore_permissions=True)
+			except Exception as e:
+				frappe.log_error(f"Failed to attach payment proof: {e}")
+
+		return {"booking_name": booking.name, "offline_payment": True}
 
 	return {
 		"payment_link": get_payment_link_for_booking(

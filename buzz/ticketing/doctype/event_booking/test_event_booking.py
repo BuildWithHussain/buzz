@@ -520,6 +520,346 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(utm_dict["utm_content"], "banner_ad")
 		self.assertEqual(utm_dict["utm_term"], "event tickets")
 
+	# ==================== Offline Payment Tests ====================
+
+	def test_offline_booking_cannot_be_submitted_directly(self):
+		"""Test that offline bookings cannot be submitted directly — must use approve/reject."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Offline Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+			}
+		).insert()
+
+		with self.assertRaises(frappe.ValidationError):
+			booking.submit()
+
+	def test_approve_offline_booking(self):
+		"""Test approving an offline booking submits it and generates tickets."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Approval Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"status": "Approval Pending",
+				"payment_status": "Verification Pending",
+			}
+		).insert()
+
+		# Booking should be in draft with no tickets
+		self.assertEqual(booking.docstatus, 0)
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 0)
+
+		booking.approve_booking()
+		booking.reload()
+
+		# After approval, booking should be submitted with tickets generated
+		self.assertEqual(booking.docstatus, 1)
+		self.assertEqual(booking.status, "Approved")
+		self.assertEqual(booking.payment_status, "Paid")
+
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 1)
+
+	def test_reject_offline_booking(self):
+		"""Test rejecting an offline booking keeps it in draft with no tickets."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Rejection Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"status": "Approval Pending",
+				"payment_status": "Verification Pending",
+			}
+		).insert()
+
+		self.assertEqual(booking.docstatus, 0)
+
+		booking.reject_booking()
+		booking.reload()
+
+		# Discarded (docstatus=2) and marked as Rejected
+		self.assertEqual(booking.docstatus, 2)
+		self.assertEqual(booking.status, "Rejected")
+
+		# No tickets should be generated
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 0)
+
+	def test_offline_with_coupon_code(self):
+		"""Test offline payment with coupon code discount."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Coupon Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		coupon = frappe.get_doc(
+			{
+				"doctype": "Buzz Coupon Code",
+				"code": f"OFFLINE10-{frappe.generate_hash(length=4)}",
+				"coupon_type": "Discount",
+				"discount_type": "Percentage",
+				"discount_value": 10,
+				"is_active": True,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"coupon_code": coupon.name,
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+			}
+		).insert()
+
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.discount_amount, 50)
+		self.assertEqual(booking.total_amount, 450)
+
+	def test_offline_with_tax(self):
+		"""Test offline payment with tax calculation."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.apply_tax = True
+		test_event.tax_percentage = 18
+		test_event.tax_label = "GST"
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Tax Test Ticket",
+				"price": 500,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+			}
+		).insert()
+
+		self.assertEqual(booking.net_amount, 500)
+		self.assertEqual(booking.tax_percentage, 18)
+		self.assertEqual(booking.tax_amount, 90)
+		self.assertEqual(booking.total_amount, 590)
+
+	def test_offline_booking_requires_payment_method_field(self):
+		"""Test that offline booking requires payment_method in additional_fields."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Payment Method Test",
+				"price": 500,
+			}
+		).insert()
+
+		# Booking without payment_method field should default to normal flow
+		booking_without_method = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+				],
+			}
+		).insert()
+
+		booking_without_method.submit()
+		# Without payment_method field, it should go to normal payment flow
+		self.assertEqual(booking_without_method.payment_status, "Unpaid")
+
+		# Booking with payment_method = "Offline" should block direct submission
+		booking_with_method = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": "Administrator",
+				"attendees": [
+					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
+				],
+				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+			}
+		).insert()
+
+		with self.assertRaises(frappe.ValidationError):
+			booking_with_method.submit()
+
+	def test_process_booking_offline_stays_in_draft(self):
+		"""Test that offline bookings via process_booking stay in draft with no tickets."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.apply_tax = False
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Offline Draft Test",
+				"price": 500,
+				"is_published": True,
+			}
+		).insert()
+
+		result = process_booking(
+			attendees=[
+				{
+					"full_name": "Offline User",
+					"email": "offline@email.com",
+					"ticket_type": str(test_ticket_type.name),
+					"add_ons": [],
+				}
+			],
+			event=str(test_event.name),
+			is_offline=True,
+		)
+
+		self.assertIn("booking_name", result)
+		self.assertTrue(result.get("offline_payment"))
+
+		booking = frappe.get_doc("Event Booking", result["booking_name"])
+
+		# Booking must be in draft (not submitted)
+		self.assertEqual(booking.docstatus, 0)
+		self.assertEqual(booking.status, "Approval Pending")
+		self.assertEqual(booking.payment_status, "Verification Pending")
+
+		# No tickets should exist
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 0)
+
+	def test_process_booking_offline_generates_tickets_on_approval(self):
+		"""Test that approving an offline booking created via API generates tickets."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.enable_offline_payments = True
+		test_event.apply_tax = False
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Offline Approval Test",
+				"price": 500,
+				"is_published": True,
+			}
+		).insert()
+
+		result = process_booking(
+			attendees=[
+				{
+					"full_name": "Approval User",
+					"email": "approval@email.com",
+					"ticket_type": str(test_ticket_type.name),
+					"add_ons": [],
+				}
+			],
+			event=str(test_event.name),
+			is_offline=True,
+		)
+
+		booking = frappe.get_doc("Event Booking", result["booking_name"])
+
+		# No tickets before approval
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 0)
+
+		# Approve the booking
+		booking.approve_booking()
+		booking.reload()
+
+		# After approval: submitted, approved, tickets generated
+		self.assertEqual(booking.docstatus, 1)
+		self.assertEqual(booking.status, "Approved")
+		self.assertEqual(booking.payment_status, "Paid")
+
+		tickets = frappe.db.get_all("Event Ticket", filters={"booking": booking.name})
+		self.assertEqual(len(tickets), 1)
+
 	def test_process_booking_without_utm_parameters(self):
 		"""Test that process_booking API works without UTM parameters."""
 		from buzz.api import process_booking

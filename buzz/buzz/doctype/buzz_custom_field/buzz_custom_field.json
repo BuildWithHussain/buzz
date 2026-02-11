@@ -33,13 +33,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Booking",
-   "fieldname": "applied_to",
-   "fieldtype": "Select",
-   "label": "Applied To",
-   "options": "Booking\nTicket"
-  },
-  {
    "fieldname": "label",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -93,6 +86,13 @@
    "fieldname": "default_value",
    "fieldtype": "Data",
    "label": "Default Value"
+  },
+  {
+   "default": "Booking",
+   "fieldname": "applied_to",
+   "fieldtype": "Select",
+   "label": "Applied To",
+   "options": "Booking\nTicket\nOffline Payment Form"
   }
  ],
  "grid_page_length": 50,

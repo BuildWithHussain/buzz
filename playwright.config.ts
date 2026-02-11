@@ -75,6 +75,23 @@ export default defineConfig({
 			},
 			dependencies: ["guest-event-setup"],
 		},
+		{
+			name: "offline-payment-setup",
+			testMatch: /offline-payment\.setup\.ts/,
+			use: {
+				storageState: authFile,
+			},
+			dependencies: ["setup"],
+		},
+		{
+			name: "offline-payment-chromium",
+			testMatch: /offline-payment\.spec\.ts/,
+			use: {
+				...devices["Desktop Chrome"],
+				storageState: authFile,
+			},
+			dependencies: ["offline-payment-setup"],
+		},
 
 		// {
 		// 	name: "firefox",

@@ -20,7 +20,13 @@
 			<template #cell="{ item, row, column }">
 				<Badge
 					v-if="column.key === 'status'"
-					:theme="row.status === 'Confirmed' ? 'green' : 'red'"
+					:theme="
+						row.status === 'Approved' || row.status === 'Confirmed'
+							? 'green'
+							: row.status === 'Approval Pending'
+							? 'yellow'
+							: 'red'
+					"
 					variant="subtle"
 					size="sm"
 				>
@@ -60,6 +66,7 @@ const bookings = useList({
 		"total_amount",
 		"currency",
 		"creation",
+		"status",
 		{ attendees: ["ticket_type"] },
 	],
 	filters: { user: session.user, docstatus: ["!=", "0"] },
@@ -75,7 +82,7 @@ const bookings = useList({
 				booking.total_amount !== 0
 					? formatCurrency(booking.total_amount, booking.currency)
 					: __("FREE"),
-			status: booking.docstatus === 1 ? __("Confirmed") : __("Cancelled"),
+			status: booking.status || __("Pending"),
 			start_date: dayjsLocal(booking.start_date).format("MMM DD, YYYY"),
 			ticket_count: pluralize(
 				booking.attendees ? booking.attendees.length : 0,

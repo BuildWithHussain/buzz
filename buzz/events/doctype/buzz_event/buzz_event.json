@@ -37,13 +37,18 @@
   "card_image",
   "section_break_rmtj",
   "allow_guest_booking",
-  "column_break_mijz",
   "guest_verification_method",
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
   "section_break_owtc",
   "payment_gateways",
+  "offline_payment_section",
+  "enable_offline_payments",
+  "offline_payment_label",
+  "collect_payment_proof",
+  "column_break_xgh",
+  "offline_payment_details",
   "tax_settings_section",
   "apply_tax",
   "tax_inclusive",
@@ -378,6 +383,40 @@
    "label": "Tax Settings"
   },
   {
+   "description": "Allow attendees to pay offline (e.g. bank transfer, UPI) and submit proof for verification",
+   "fieldname": "offline_payment_section",
+   "fieldtype": "Section Break",
+   "label": "Offline Payment Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_offline_payments",
+   "fieldtype": "Check",
+   "label": "Enable Offline Payments"
+  },
+  {
+   "depends_on": "eval:doc.enable_offline_payments==1",
+   "description": "Add payment details, instructions, QR codes, bank details, etc. Users can paste images and format content as needed.",
+   "fieldname": "offline_payment_details",
+   "fieldtype": "Text Editor",
+   "label": "Payment Details"
+  },
+  {
+   "default": "Offline Payment",
+   "depends_on": "eval:doc.enable_offline_payments==1",
+   "description": "Label displayed to users when selecting payment method (e.g., UPI Payment, Bank Transfer, etc.)",
+   "fieldname": "offline_payment_label",
+   "fieldtype": "Data",
+   "label": "Payment Method Label"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_offline_payments==1",
+   "fieldname": "collect_payment_proof",
+   "fieldtype": "Check",
+   "label": "Collect Proof of Payment"
+  },
+  {
    "default": "0",
    "fieldname": "apply_tax",
    "fieldtype": "Check",
@@ -458,7 +497,7 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "column_break_mijz",
+   "fieldname": "column_break_xgh",
    "fieldtype": "Column Break"
   }
  ],

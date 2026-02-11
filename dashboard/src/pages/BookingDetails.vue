@@ -6,6 +6,54 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
+		<!-- Approval Pending Status -->
+		<div v-if="isOfflinePaymentPending" class="mb-6">
+			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
+				<div class="flex items-center gap-3">
+					<div
+						class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center"
+					>
+						<LucideClock class="w-4 h-4 text-yellow-600" />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-yellow-800">
+							{{ __("Payment Confirmation Pending") }}
+						</h3>
+						<p class="text-sm text-yellow-700">
+							{{
+								__(
+									"Your booking is confirmed subject to verifying the offline payment details. You will be notified once payment is verified."
+								)
+							}}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Rejected Status -->
+		<div v-if="isBookingRejected" class="mb-6">
+			<div class="p-4 rounded-lg border bg-red-50 border-red-200">
+				<div class="flex items-center gap-3">
+					<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+						<LucideXCircle class="w-4 h-4 text-red-600" />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-red-800">
+							{{ __("Booking Rejected") }}
+						</h3>
+						<p class="text-sm text-red-700">
+							{{
+								__(
+									"Your booking has been rejected. Please contact the event organizer for more information."
+								)
+							}}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Event Information and Payment Summary in two columns -->
 		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 			<!-- Event Information -->
@@ -24,7 +72,9 @@
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
 				v-if="
-					!bookingDetails.data.event.free_webinar && bookingDetails.data.booking_summary
+					!bookingDetails.data.event.free_webinar &&
+					bookingDetails.data.booking_summary &&
+					!isOfflinePaymentPending
 				"
 				:summary="bookingDetails.data.booking_summary"
 			/>
@@ -39,7 +89,7 @@
 
 		<!-- Tickets Section -->
 		<TicketsSection
-			v-if="!bookingDetails.data.event.free_webinar"
+			v-if="!bookingDetails.data.event.free_webinar && !isOfflinePaymentPending"
 			:tickets="bookingDetails.data.tickets"
 			:can-request-cancellation="canRequestCancellation"
 			:can-transfer-tickets="canTransferTickets"
@@ -52,6 +102,7 @@
 		/>
 
 		<CancellationRequestDialog
+			v-if="!isOfflinePaymentPending"
 			v-model="showCancellationDialog"
 			:tickets="bookingDetails.data.tickets"
 			:booking-id="bookingId"
@@ -75,6 +126,8 @@ import TicketsSection from "../components/TicketsSection.vue";
 import CancellationRequestDialog from "../components/CancellationRequestDialog.vue";
 import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
 import BookingEventInfo from "../components/BookingEventInfo.vue";
+import LucideClock from "~icons/lucide/clock";
+import LucideXCircle from "~icons/lucide/x-circle";
 
 const route = useRoute();
 
@@ -85,11 +138,24 @@ const props = defineProps({
 	},
 });
 
+// Check if this is an offline payment that is not yet verified
+const isOfflinePaymentPending = computed(() => {
+	return bookingDetails.data?.doc?.status === "Approval Pending";
+});
+
+const isBookingRejected = computed(() => {
+	return bookingDetails.data?.doc?.status === "Rejected";
+});
+
 // Check if this is a successful payment redirect (check URL immediately)
 const isPaymentSuccess = route.query.success === "true";
+const isConfirmationPending = route.query.offline === "true";
 
 // Use payment success composable for UI effects (confetti, message, URL cleanup)
-const { showSuccessMessage } = usePaymentSuccess();
+// Disable confetti when booking is pending approval (e.g. offline payments)
+const { showSuccessMessage } = usePaymentSuccess({
+	enableConfetti: !isConfirmationPending,
+});
 
 const showCancellationDialog = ref(false);
 
