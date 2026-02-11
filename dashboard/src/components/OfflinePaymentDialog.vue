@@ -36,12 +36,31 @@
 							>{{ __("Proof of Payment") }} *</label
 						>
 						<FileUploader
+							ref="fileUploaderRef"
 							v-model="paymentProof"
 							:file-types="['image/*']"
 							@success="onFileUpload"
 						>
 							<template #default="{ openFileSelector, uploading, progress }">
+								<div
+									v-if="paymentProof"
+									class="flex items-center gap-1.5 text-sm text-ink-green-2"
+								>
+									<LucideCheckCircle class="h-4 w-4 flex-shrink-0" />
+									<span class="truncate">{{
+										paymentProof.file_name || paymentProof.name
+									}}</span>
+									<button
+										type="button"
+										class="ml-auto p-1 rounded hover:bg-surface-gray-2 text-ink-gray-5 hover:text-ink-gray-8"
+										:title="__('Replace')"
+										@click="openFileSelector"
+									>
+										<LucideRefreshCw class="h-3.5 w-3.5" />
+									</button>
+								</div>
 								<Button
+									v-else
 									@click="openFileSelector"
 									:loading="uploading"
 									variant="outline"
@@ -49,20 +68,11 @@
 									{{
 										uploading
 											? __("Uploading {0}%", [progress])
-											: paymentProof
-											? __("Replace")
 											: __("Upload File")
 									}}
 								</Button>
 							</template>
 						</FileUploader>
-						<div
-							v-if="paymentProof"
-							class="mt-2 flex items-center gap-1.5 text-sm text-ink-green-2"
-						>
-							<LucideCheckCircle class="h-4 w-4" />
-							File uploaded: {{ paymentProof.file_name || paymentProof.name }}
-						</div>
 					</div>
 				</div>
 
@@ -91,6 +101,7 @@ import { Dialog, Button, FileUploader, toast } from "frappe-ui";
 import { formatCurrency } from "../utils/currency";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import LucideCheckCircle from "~icons/lucide/check-circle";
+import LucideRefreshCw from "~icons/lucide/refresh-cw";
 
 const props = defineProps({
 	open: {
