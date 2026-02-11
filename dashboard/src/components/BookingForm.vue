@@ -1125,21 +1125,24 @@ async function submit() {
 		}
 		pendingBookingPayload.value = final_payload;
 
-		// Check if we need to show off-platform dialog or gateway selection dialog
+		// OTP verification must happen before payment gateway selection
+		if (props.eventDetails.guest_verification_method !== "None") {
+			sendOtpForVerification();
+			return;
+		}
+
+		// No OTP required - proceed with payment gateway selection
 		if (finalTotal.value > 0) {
 			if (props.paymentGateways.length > 1) {
-				// Multiple payment options available (including off-platform if enabled)
 				pendingPayload.value = final_payload;
 				showGatewayDialog.value = true;
 				return;
 			} else if (props.paymentGateways.length === 1) {
-				// Single payment option - check if it's off-platform
 				const singleGateway = props.paymentGateways[0];
 				if (
 					props.offPlatformPaymentEnabled &&
 					singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
 				) {
-					// Single option is off-platform payment
 					pendingPayload.value = final_payload;
 					showOffPlatformDialog.value = true;
 					return;
@@ -1148,13 +1151,7 @@ async function submit() {
 		}
 
 		selectedGateway.value = props.paymentGateways[0] || null;
-
-		if (props.eventDetails.guest_verification_method === "None") {
-			submitBooking(final_payload, selectedGateway.value);
-			return;
-		}
-
-		sendOtpForVerification();
+		submitBooking(final_payload, selectedGateway.value);
 		return;
 	}
 
@@ -1237,29 +1234,16 @@ function onOffPlatformPaymentSubmit(data) {
 }
 
 function onGatewaySelected(gateway) {
-	if (props.isGuestMode) {
-		selectedGateway.value = gateway;
-		showGatewayDialog.value = false;
-
-		if (props.eventDetails.guest_verification_method === "None") {
-			submitBooking(pendingBookingPayload.value, gateway);
-			return;
-		}
-
-		sendOtpForVerification();
-		return;
-	}
+	showGatewayDialog.value = false;
+	selectedGateway.value = gateway;
 
 	if (pendingPayload.value) {
-		// Check if the selected gateway is off-platform payment
 		if (
 			props.offPlatformPaymentEnabled &&
 			gateway === (props.offPlatformSettings?.label || "Off-platform Payment")
 		) {
-			// Show off-platform payment dialog
 			showOffPlatformDialog.value = true;
 		} else {
-			// Regular payment gateway
 			submitBooking(pendingPayload.value, gateway);
 			pendingPayload.value = null;
 		}
@@ -1277,7 +1261,29 @@ function submitWithOtp() {
 		otp: otpCode.value.trim(),
 	};
 
-	submitBooking(payloadWithOtp, selectedGateway.value, { isOtpFlow: true });
+	// After OTP verification, check payment gateway selection
+	if (finalTotal.value > 0) {
+		if (props.paymentGateways.length > 1) {
+			pendingPayload.value = payloadWithOtp;
+			showOtpModal.value = false;
+			showGatewayDialog.value = true;
+			return;
+		} else if (props.paymentGateways.length === 1) {
+			const singleGateway = props.paymentGateways[0];
+			if (
+				props.offPlatformPaymentEnabled &&
+				singleGateway === (props.offPlatformSettings?.label || "Off-platform Payment")
+			) {
+				pendingPayload.value = payloadWithOtp;
+				showOtpModal.value = false;
+				showOffPlatformDialog.value = true;
+				return;
+			}
+			selectedGateway.value = singleGateway;
+		}
+	}
+
+	submitBooking(payloadWithOtp, selectedGateway.value || null, { isOtpFlow: true });
 }
 
 function resendOtp() {
