@@ -153,9 +153,13 @@ const isBookingRejected = computed(() => {
 
 // Check if this is a successful payment redirect (check URL immediately)
 const isPaymentSuccess = route.query.success === "true";
+const isConfirmationPending = route.query.offline === "true";
 
 // Use payment success composable for UI effects (confetti, message, URL cleanup)
-const { showSuccessMessage } = usePaymentSuccess();
+// Disable confetti when booking is pending approval (e.g. offline payments)
+const { showSuccessMessage } = usePaymentSuccess({
+	enableConfetti: !isConfirmationPending,
+});
 
 const showCancellationDialog = ref(false);
 
