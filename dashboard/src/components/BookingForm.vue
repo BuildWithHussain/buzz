@@ -1155,14 +1155,22 @@ async function submit() {
 		return;
 	}
 
-	// Single gateway or free event - submit directly
-	const singleGateway = props.paymentGateways[0] || null;
-	if (isOffPlatformGateway(singleGateway)) {
-		pendingPayload.value = final_payload;
-		showOffPlatformDialog.value = true;
-	} else {
-		submitBooking(final_payload, singleGateway);
+	if (finalTotal.value > 0) {
+		if (props.paymentGateways.length > 1) {
+			pendingPayload.value = final_payload;
+			showGatewayDialog.value = true;
+			return;
+		} else if (props.paymentGateways.length === 1) {
+			const singleGateway = props.paymentGateways[0];
+			if (isOffPlatformGateway(singleGateway)) {
+				pendingPayload.value = final_payload;
+				showOffPlatformDialog.value = true;
+				return;
+			}
+		}
 	}
+
+	submitBooking(final_payload, props.paymentGateways[0] || null);
 }
 
 function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
