@@ -65,11 +65,7 @@
 
 			<!-- Booking Financial Summary -->
 			<BookingFinancialSummary
-				v-if="
-					!bookingDetails.data.event.free_webinar &&
-					bookingDetails.data.doc &&
-					!isOfflinePaymentPending
-				"
+				v-if="!bookingDetails.data.event.free_webinar && bookingDetails.data.doc"
 				:booking="bookingDetails.data.doc"
 			/>
 

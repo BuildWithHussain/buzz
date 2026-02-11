@@ -2,11 +2,16 @@
 	<div class="bg-surface-cards border border-outline-gray-1 rounded-lg p-6">
 		<div class="flex items-center justify-between mb-4">
 			<h3 class="text-lg font-semibold text-ink-gray-9">{{ __("Payment Summary") }}</h3>
-			<Badge v-if="(booking.total_amount || 0) > 0" variant="subtle" theme="green" size="sm">
+			<Badge
+				v-if="(booking.total_amount || 0) > 0"
+				variant="subtle"
+				:theme="paymentBadge.theme"
+				size="sm"
+			>
 				<template #prefix>
-					<LucideCheck class="w-3 h-3" />
+					<component :is="paymentBadge.icon" class="w-3 h-3" />
 				</template>
-				{{ __("Paid") }}
+				{{ paymentBadge.label }}
 			</Badge>
 		</div>
 
@@ -59,8 +64,8 @@
 
 			<!-- Total Amount -->
 			<div class="flex justify-between items-center text-lg font-semibold text-ink-gray-9">
-				<span>{{ __("Total Paid") }}</span>
-				<span class="text-ink-green-2">{{
+				<span>{{ isPaid ? __("Total Paid") : __("Total") }}</span>
+				<span :class="isPaid ? 'text-ink-green-2' : 'text-ink-gray-9'">{{
 					formatPrice(booking.total_amount || 0, booking.currency || "INR")
 				}}</span>
 			</div>
@@ -84,6 +89,8 @@ import { formatPrice } from "@/utils/currency";
 import { Badge } from "frappe-ui";
 import { computed } from "vue";
 import LucideCheck from "~icons/lucide/check";
+import LucideClock from "~icons/lucide/clock";
+import LucideX from "~icons/lucide/x";
 
 const props = defineProps({
 	booking: {
@@ -101,6 +108,18 @@ const hasTax = computed(() => {
 
 const hasDiscount = computed(() => {
 	return (props.booking.discount_amount || 0) > 0;
+});
+
+const isPaid = computed(() => props.booking.payment_status === "Paid");
+
+const paymentBadge = computed(() => {
+	const status = props.booking.payment_status;
+	if (status === "Paid") {
+		return { label: __("Paid"), theme: "green", icon: LucideCheck };
+	} else if (status === "Verification Pending") {
+		return { label: __("Verification Pending"), theme: "orange", icon: LucideClock };
+	}
+	return { label: __(status || "Unpaid"), theme: "red", icon: LucideX };
 });
 
 const isTaxInclusive = computed(() => {
