@@ -9,3 +9,4 @@ buzz.patches.migrate_to_multi_payment_gateway
 # Patches added in this section will be executed after doctypes are migrated
 buzz.patches.populate_slug_in_event_category
 buzz.patches.set_applies_to_for_existing_coupons
+buzz.patches.set_payment_status_for_existing_bookings
