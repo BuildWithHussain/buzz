@@ -18,7 +18,7 @@
 					<!-- Payment Details (HTML Content) -->
 					<div
 						v-if="offlineSettings.payment_details"
-						class="prose-sm p-4 bg-surface-gray-1 border border-outline-gray-1 rounded text-ink-gray-9"
+						class="prose-sm bg-surface-gray-1 border border-outline-gray-1 rounded p-3 text-ink-gray-9"
 						v-html="offlineSettings.payment_details"
 					></div>
 
@@ -32,8 +32,8 @@
 
 					<!-- Upload Proof -->
 					<div v-if="offlineSettings.collect_payment_proof">
-						<label class="text-sm font-medium text-ink-gray-8"
-							>{{ __("Payment Proof") }} *</label
+						<label class="block text-sm font-medium text-ink-gray-8 mb-2"
+							>{{ __("Proof of Payment") }} *</label
 						>
 						<FileUploader
 							v-model="paymentProof"
@@ -41,7 +41,7 @@
 							@success="onFileUpload"
 						/>
 						<div v-if="paymentProof" class="mt-2 text-sm text-ink-green-2">
-							✓ File uploaded: {{ paymentProof.name || "Payment Proof" }}
+							✓ File uploaded: {{ paymentProof.name || "Proof of Payment" }}
 						</div>
 					</div>
 				</div>
