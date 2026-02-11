@@ -4,6 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.model.naming import append_number_if_name_exists
 from frappe.utils.data import time_diff_in_seconds
 
 from buzz.utils import only_if_app_installed
@@ -59,6 +60,7 @@ class BuzzEvent(Document):
 		sponsor_deck_reply_to: DF.Data | None
 		start_date: DF.Date
 		start_time: DF.Time
+		tax_inclusive: DF.Check
 		tax_label: DF.Data | None
 		tax_percentage: DF.Percent
 		ticket_email_template: DF.Link | None
@@ -126,7 +128,8 @@ class BuzzEvent(Document):
 
 	def validate_route(self):
 		if self.is_published and not self.route:
-			self.route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
+			route = frappe.website.utils.cleanup_page_name(self.title).replace("_", "-")
+			self.route = append_number_if_name_exists("Buzz Event", route, fieldname="route")
 
 	def validate_guest_verification_config(self):
 		"""Ensure email/SMS is configured when OTP verification is enabled."""

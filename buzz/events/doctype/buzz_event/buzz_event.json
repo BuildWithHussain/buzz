@@ -198,6 +198,7 @@
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route",
+   "no_copy": 1,
    "unique": 1
   },
   {
@@ -531,7 +532,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-02 12:39:20.030745",
+ "modified": "2026-02-11 19:31:31.774522",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
