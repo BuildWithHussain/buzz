@@ -13,14 +13,13 @@ frappe.ui.form.on("Event Booking", {
 
 		// Add Approve/Reject buttons for pending bookings
 		if (frappe.user.has_role("Event Manager") && frm.doc.status === "Approval Pending") {
-			frm.add_custom_button(__("Approve"), function () {
+			frm.add_custom_button(__("Approve and Submit"), function () {
 				frappe.confirm("Are you sure you want to approve this booking?", function () {
 					frm.call("approve_booking").then(() => {
 						frm.refresh();
 					});
 				});
 			});
-			frm.$custom_buttons[__("Approve")].addClass("btn-primary");
 
 			frm.add_custom_button(__("Reject"), function () {
 				frappe.confirm("Are you sure you want to reject this booking?", function () {
@@ -29,7 +28,6 @@ frappe.ui.form.on("Event Booking", {
 					});
 				});
 			});
-			frm.$custom_buttons[__("Reject")].addClass("btn-danger");
 		}
 	},
 });
