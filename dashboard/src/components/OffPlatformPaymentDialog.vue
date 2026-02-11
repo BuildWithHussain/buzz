@@ -41,7 +41,7 @@
 							@success="onFileUpload"
 						/>
 						<div v-if="paymentProof" class="mt-2 text-sm text-ink-green-2">
-							✓ File uploaded: {{ paymentProof.name || "Proof of Payment" }}
+							✓ File uploaded: {{ paymentProof.file_name || paymentProof.name }}
 						</div>
 					</div>
 				</div>
