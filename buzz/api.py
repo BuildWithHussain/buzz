@@ -15,7 +15,7 @@ from buzz.utils import is_app_installed
 OFFLINE_PAYMENT_METHOD = "Offline"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(key="identifier", limit=5, seconds=3600)
 def send_guest_booking_otp(event: int, identifier: str) -> dict:
 	"""Send OTP via email or SMS for guest booking verification."""
