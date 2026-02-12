@@ -43,6 +43,7 @@ setup("create offline payment test event", async ({ request }) => {
 					{ doctype: "Sponsorship Tier", submittable: false },
 					{ doctype: "Event Ticket Type", submittable: false },
 					{ doctype: "Ticket Add-on", submittable: false },
+					{ doctype: "Offline Payment Method", submittable: false },
 				];
 
 				for (const { doctype, submittable } of linkedDoctypes) {
@@ -91,7 +92,7 @@ setup("create offline payment test event", async ({ request }) => {
 	futureDate.setMonth(futureDate.getMonth() + 1);
 	const startDate = futureDate.toISOString().split("T")[0];
 
-	// Create event with offline payment enabled
+	// Create event
 	const event = await createDoc<NamedDoc>(request, "Buzz Event", {
 		title: offlinePaymentEvent.title,
 		category: testCategoryName,
@@ -102,9 +103,14 @@ setup("create offline payment test event", async ({ request }) => {
 		route: offlinePaymentEvent.route,
 		is_published: 1,
 		medium: "In Person",
-		enable_offline_payments: 1,
-		offline_payment_label: "Bank Transfer",
-		offline_payment_details: "<p>Transfer to Account: 123456789</p>",
+	});
+
+	// Create offline payment method
+	await createDoc<NamedDoc>(request, "Offline Payment Method", {
+		event: event.name,
+		title: "Bank Transfer",
+		enabled: 1,
+		description: "<p>Transfer to Account: 123456789</p>",
 	});
 
 	// Create paid ticket type
