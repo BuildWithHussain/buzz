@@ -13,10 +13,9 @@ from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_b
 from buzz.utils import is_app_installed
 
 OFFLINE_PAYMENT_METHOD = "Offline"
-OFFLINE_PAYMENT_DEFAULT_LABEL = "Offline Payment"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(key="identifier", limit=5, seconds=3600)
 def send_guest_booking_otp(event: int, identifier: str) -> dict:
 	"""Send OTP via email or SMS for guest booking verification."""
@@ -54,7 +53,7 @@ def send_guest_booking_otp(event: int, identifier: str) -> dict:
 				recipients=[identifier],
 				subject=_("Your Booking Verification Code"),
 				message=_(
-					"Your verification code is: <b>{0}</b><br><br>" "This code expires in 10 minutes."
+					"Your verification code is: <b>{0}</b><br><br>This code expires in 10 minutes."
 				).format(otp_code),
 				now=True,
 			)
@@ -312,21 +311,42 @@ def get_event_booking_data(event_route: str) -> dict:
 	# Payment Gateways
 	payment_gateways = get_payment_gateways_for_event(event_doc.name)
 
-	# If offline payment is enabled, add it to the payment gateways list
-	if event_doc.enable_offline_payments:
-		offline_label = event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL
-		payment_gateways.append(offline_label)
+	# Offline Payment Methods
+	offline_methods_raw = frappe.get_all(
+		"Offline Payment Method",
+		filters={"event": event_doc.name, "enabled": 1},
+		fields=["name", "title", "description", "collect_payment_proof"],
+		order_by="creation",
+	)
+
+	offline_methods = []
+	for method in offline_methods_raw:
+		# Fetch custom fields scoped to this offline payment method
+		method_custom_fields = frappe.get_all(
+			"Buzz Custom Field",
+			filters={
+				"event": event_doc.name,
+				"enabled": 1,
+				"applied_to": "Offline Payment Form",
+				"offline_payment_method": method.name,
+			},
+			fields=["*"],
+			order_by="order",
+		)
+		offline_methods.append(
+			{
+				"name": method.name,
+				"title": method.title,
+				"description": method.description,
+				"collect_payment_proof": method.collect_payment_proof,
+				"custom_fields": method_custom_fields,
+			}
+		)
+		payment_gateways.append(method.title)
 
 	data.payment_gateways = payment_gateways
-
-	# Offline Payment Settings
-	data.offline_payment_enabled = event_doc.enable_offline_payments
-	if event_doc.enable_offline_payments:
-		data.offline_settings = {
-			"payment_details": event_doc.offline_payment_details,
-			"collect_payment_proof": event_doc.collect_payment_proof,
-			"label": event_doc.offline_payment_label or OFFLINE_PAYMENT_DEFAULT_LABEL,
-		}
+	data.offline_payment_enabled = len(offline_methods) > 0
+	data.offline_methods = offline_methods
 
 	return data
 
@@ -345,6 +365,7 @@ def process_booking(
 	guest_phone: str | None = None,
 	payment_proof: str | None = None,
 	is_offline: bool = False,
+	offline_payment_method: str | None = None,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	is_guest = frappe.session.user == "Guest"
@@ -446,18 +467,18 @@ def process_booking(
 
 	# Check if offline payment is explicitly requested and enabled
 	if is_offline:
-		if not event_doc.enable_offline_payments:
+		# Validate offline payment method exists and is enabled for this event
+		method_filters = {"event": event, "enabled": 1}
+		if offline_payment_method:
+			method_filters["name"] = offline_payment_method
+		method_doc = frappe.db.get_value(
+			"Offline Payment Method", method_filters, ["name", "title"], as_dict=True
+		)
+		if not method_doc:
 			frappe.throw(_("Offline payment is not enabled for this event"))
 
-		booking.append(
-			"additional_fields",
-			{
-				"fieldname": "payment_method",
-				"value": OFFLINE_PAYMENT_METHOD,
-				"label": "Payment Method",
-				"fieldtype": "Data",
-			},
-		)
+		booking.payment_method = OFFLINE_PAYMENT_METHOD
+		booking.offline_payment_method = method_doc.title
 
 		# Keep booking in draft until approved — don't submit
 		booking.status = "Approval Pending"
@@ -578,8 +599,8 @@ def send_ticket_transfer_emails(ticket_id: str, old_name: str, old_email: str, n
 		<ul>
 			<li><strong>Event:</strong> {event.title}</li>
 			<li><strong>Date:</strong> {format_date(event.start_date)}</li>
-			<li><strong>Time:</strong> {format_time(event.start_time) if event.start_time else 'TBA'}</li>
-			<li><strong>Venue:</strong> {event.venue or 'TBA'}</li>
+			<li><strong>Time:</strong> {format_time(event.start_time) if event.start_time else "TBA"}</li>
+			<li><strong>Venue:</strong> {event.venue or "TBA"}</li>
 			<li><strong>Ticket Type:</strong> {ticket.ticket_type}</li>
 			<li><strong>Booking ID:</strong> {booking.name}</li>
 		</ul>

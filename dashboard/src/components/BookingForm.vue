@@ -106,9 +106,9 @@
 				v-model:open="showOfflineDialog"
 				:amount="finalTotal"
 				:currency="totalCurrency"
-				:offline-settings="offlineSettings"
+				:offline-settings="activeOfflineSettings"
 				:loading="processBooking.loading"
-				:custom-fields="customFields"
+				:custom-fields="activeOfflineCustomFields"
 				@submit="onOfflinePaymentSubmit"
 				@cancel="showOfflineDialog = false"
 			/>
@@ -388,6 +388,7 @@
 </template>
 
 <script setup>
+import { useBookingFormStorage } from "@/composables/useBookingFormStorage";
 import { userResource } from "@/data/user";
 import { formatCurrency, formatPriceOrFree } from "@/utils/currency";
 import { clearBookingCache, redirectToLogin } from "@/utils/index";
@@ -399,13 +400,12 @@ import LucideCheck from "~icons/lucide/check";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideGift from "~icons/lucide/gift";
 import LucideX from "~icons/lucide/x";
-import { useBookingFormStorage } from "@/composables/useBookingFormStorage";
 import AttendeeFormControl from "./AttendeeFormControl.vue";
 import BookingSummary from "./BookingSummary.vue";
 import CustomFieldsSection from "./CustomFieldsSection.vue";
 import EventDetailsHeader from "./EventDetailsHeader.vue";
-import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 import OfflinePaymentDialog from "./OfflinePaymentDialog.vue";
+import PaymentGatewayDialog from "./PaymentGatewayDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -461,13 +461,9 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	offlinePaymentEnabled: {
-		type: Boolean,
-		default: false,
-	},
-	offlineSettings: {
-		type: Object,
-		default: () => ({}),
+	offlineMethods: {
+		type: Array,
+		default: () => [],
 	},
 });
 
@@ -491,8 +487,23 @@ const showOfflineDialog = ref(false);
 const pendingPayload = ref(null);
 const selectedGateway = ref(null);
 
-const isOfflineGateway = (gateway) =>
-	props.offlinePaymentEnabled && gateway === props.offlineSettings?.label;
+const isOfflineGateway = (gateway) => props.offlineMethods.some((m) => m.title === gateway);
+
+const selectedOfflineMethod = ref(null);
+
+const activeOfflineSettings = computed(() => {
+	if (!selectedOfflineMethod.value) return {};
+	return {
+		label: selectedOfflineMethod.value.title,
+		payment_details: selectedOfflineMethod.value.description,
+		collect_payment_proof: selectedOfflineMethod.value.collect_payment_proof,
+	};
+});
+
+const activeOfflineCustomFields = computed(() => {
+	if (!selectedOfflineMethod.value) return [];
+	return selectedOfflineMethod.value.custom_fields || [];
+});
 
 // Coupon state
 const couponCode = ref("");
@@ -1144,6 +1155,8 @@ async function submit() {
 				const singleGateway = props.paymentGateways[0];
 				if (isOfflineGateway(singleGateway)) {
 					pendingPayload.value = final_payload;
+					selectedOfflineMethod.value =
+						props.offlineMethods.find((m) => m.title === singleGateway) || null;
 					showOfflineDialog.value = true;
 					return;
 				}
@@ -1164,6 +1177,8 @@ async function submit() {
 			const singleGateway = props.paymentGateways[0];
 			if (isOfflineGateway(singleGateway)) {
 				pendingPayload.value = final_payload;
+				selectedOfflineMethod.value =
+					props.offlineMethods.find((m) => m.title === singleGateway) || null;
 				showOfflineDialog.value = true;
 				return;
 			}
@@ -1226,6 +1241,9 @@ function onOfflinePaymentSubmit(data) {
 			...pendingPayload.value,
 			payment_proof: data?.payment_proof?.file_url || null,
 			is_offline: true,
+			offline_payment_method: selectedOfflineMethod.value?.name
+				? String(selectedOfflineMethod.value.name)
+				: null,
 		};
 		submitBooking(payloadWithProof, null);
 		pendingPayload.value = null;
@@ -1239,6 +1257,8 @@ function onGatewaySelected(gateway) {
 
 	if (pendingPayload.value) {
 		if (isOfflineGateway(gateway)) {
+			selectedOfflineMethod.value =
+				props.offlineMethods.find((m) => m.title === gateway) || null;
 			showOfflineDialog.value = true;
 		} else {
 			submitBooking(pendingPayload.value, gateway);
@@ -1269,6 +1289,8 @@ function submitWithOtp() {
 			const singleGateway = props.paymentGateways[0];
 			if (isOfflineGateway(singleGateway)) {
 				pendingPayload.value = payloadWithOtp;
+				selectedOfflineMethod.value =
+					props.offlineMethods.find((m) => m.title === singleGateway) || null;
 				showOtpModal.value = false;
 				showOfflineDialog.value = true;
 				return;
@@ -1277,7 +1299,9 @@ function submitWithOtp() {
 		}
 	}
 
-	submitBooking(payloadWithOtp, selectedGateway.value || null, { isOtpFlow: true });
+	submitBooking(payloadWithOtp, selectedGateway.value || null, {
+		isOtpFlow: true,
+	});
 }
 
 function resendOtp() {

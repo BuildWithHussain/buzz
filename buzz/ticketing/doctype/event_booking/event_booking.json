@@ -14,6 +14,10 @@
   "payment_status",
   "column_break_status",
   "status",
+  "payment_method_section",
+  "payment_method",
+  "column_break_payment_method",
+  "offline_payment_method",
   "section_break_xvkp",
   "attendees",
   "section_break_suav",
@@ -197,6 +201,28 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Confirmed\nApproval Pending\nApproved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_method_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Method"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Data",
+   "label": "Payment Method",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment_method",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.payment_method === 'Offline'",
+   "fieldname": "offline_payment_method",
+   "fieldtype": "Data",
+   "label": "Offline Payment Method",
    "read_only": 1
   }
  ],

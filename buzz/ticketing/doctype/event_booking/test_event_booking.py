@@ -522,11 +522,23 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 	# ==================== Offline Payment Tests ====================
 
+	def _cleanup_offline_methods(self, event_name):
+		"""Remove all Offline Payment Method records for the given event."""
+		frappe.db.delete("Offline Payment Method", {"event": event_name})
+
 	def test_offline_booking_cannot_be_submitted_directly(self):
 		"""Test that offline bookings cannot be submitted directly — must use approve/reject."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
-		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -545,7 +557,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -555,8 +567,16 @@ class TestProcessBookingAPI(IntegrationTestCase):
 	def test_approve_offline_booking(self):
 		"""Test approving an offline booking submits it and generates tickets."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
-		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -575,7 +595,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 				"status": "Approval Pending",
 				"payment_status": "Verification Pending",
 			}
@@ -600,8 +620,16 @@ class TestProcessBookingAPI(IntegrationTestCase):
 	def test_reject_offline_booking(self):
 		"""Test rejecting an offline booking keeps it in draft with no tickets."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
-		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -620,7 +648,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 				"status": "Approval Pending",
 				"payment_status": "Verification Pending",
 			}
@@ -642,8 +670,16 @@ class TestProcessBookingAPI(IntegrationTestCase):
 	def test_offline_with_coupon_code(self):
 		"""Test offline payment with coupon code discount."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
-		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -674,7 +710,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -685,11 +721,20 @@ class TestProcessBookingAPI(IntegrationTestCase):
 	def test_offline_with_tax(self):
 		"""Test offline payment with tax calculation."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
 		test_event.apply_tax = True
 		test_event.tax_percentage = 18
 		test_event.tax_label = "GST"
 		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -708,7 +753,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -718,10 +763,18 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.total_amount, 590)
 
 	def test_offline_booking_requires_payment_method_field(self):
-		"""Test that offline booking requires payment_method in additional_fields."""
+		"""Test that offline booking requires payment_method field."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
-		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -757,7 +810,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -769,9 +822,18 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		from buzz.api import process_booking
 
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
 		test_event.apply_tax = False
 		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		offline_method = frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -794,6 +856,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			],
 			event=str(test_event.name),
 			is_offline=True,
+			offline_payment_method=str(offline_method.name),
 		)
 
 		self.assertIn("booking_name", result)
@@ -815,9 +878,18 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		from buzz.api import process_booking
 
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
-		test_event.enable_offline_payments = True
 		test_event.apply_tax = False
 		test_event.save()
+		self._cleanup_offline_methods(test_event.name)
+
+		offline_method = frappe.get_doc(
+			{
+				"doctype": "Offline Payment Method",
+				"title": "Bank Transfer",
+				"event": test_event.name,
+				"enabled": 1,
+			}
+		).insert()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -840,6 +912,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			],
 			event=str(test_event.name),
 			is_offline=True,
+			offline_payment_method=str(offline_method.name),
 		)
 
 		booking = frappe.get_doc("Event Booking", result["booking_name"])

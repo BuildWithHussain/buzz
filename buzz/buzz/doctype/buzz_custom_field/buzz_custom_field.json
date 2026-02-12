@@ -14,6 +14,7 @@
   "default_value",
   "column_break_fpgn",
   "applied_to",
+  "offline_payment_method",
   "fieldtype",
   "options",
   "order"
@@ -93,6 +94,14 @@
    "fieldtype": "Select",
    "label": "Applied To",
    "options": "Booking\nTicket\nOffline Payment Form"
+  },
+  {
+   "depends_on": "eval:doc.applied_to === 'Offline Payment Form'",
+   "fieldname": "offline_payment_method",
+   "fieldtype": "Link",
+   "label": "Offline Payment Method",
+   "mandatory_depends_on": "eval:doc.applied_to === 'Offline Payment Form'",
+   "options": "Offline Payment Method"
   }
  ],
  "grid_page_length": 50,

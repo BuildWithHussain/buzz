@@ -96,12 +96,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { Dialog, Button, FileUploader, toast } from "frappe-ui";
-import { formatCurrency } from "../utils/currency";
-import CustomFieldsSection from "./CustomFieldsSection.vue";
+import { Button, Dialog, FileUploader, toast } from "frappe-ui";
+import { computed, ref } from "vue";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideRefreshCw from "~icons/lucide/refresh-cw";
+import { formatCurrency } from "../utils/currency";
+import CustomFieldsSection from "./CustomFieldsSection.vue";
 
 const props = defineProps({
 	open: {
@@ -140,10 +140,8 @@ const isOpen = computed({
 const paymentProof = ref(null);
 const customFieldsData = ref({});
 
-// Filter custom fields for offline payment form
-const offlineCustomFields = computed(() =>
-	props.customFields.filter((field) => field.applied_to === "Offline Payment Form")
-);
+// Custom fields are now pre-filtered by method in BookingForm
+const offlineCustomFields = computed(() => props.customFields);
 
 // Check if submit should be disabled
 const isSubmitDisabled = computed(() => {
