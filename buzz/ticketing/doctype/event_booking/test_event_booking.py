@@ -557,7 +557,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -595,7 +595,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 				"status": "Approval Pending",
 				"payment_status": "Verification Pending",
 			}
@@ -648,7 +648,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 				"status": "Approval Pending",
 				"payment_status": "Verification Pending",
 			}
@@ -710,7 +710,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -753,7 +753,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 
@@ -763,7 +763,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		self.assertEqual(booking.total_amount, 590)
 
 	def test_offline_booking_requires_payment_method_field(self):
-		"""Test that offline booking requires payment_method in additional_fields."""
+		"""Test that offline booking requires payment_method field."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 		self._cleanup_offline_methods(test_event.name)
 
@@ -810,7 +810,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"attendees": [
 					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
 				],
-				"additional_fields": [{"fieldname": "payment_method", "value": "Offline"}],
+				"payment_method": "Offline",
 			}
 		).insert()
 

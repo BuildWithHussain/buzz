@@ -477,25 +477,8 @@ def process_booking(
 		if not method_doc:
 			frappe.throw(_("Offline payment is not enabled for this event"))
 
-		booking.append(
-			"additional_fields",
-			{
-				"fieldname": "payment_method",
-				"value": OFFLINE_PAYMENT_METHOD,
-				"label": "Payment Method",
-				"fieldtype": "Data",
-			},
-		)
-
-		booking.append(
-			"additional_fields",
-			{
-				"fieldname": "offline_payment_method",
-				"value": method_doc.title,
-				"label": "Offline Payment Method",
-				"fieldtype": "Data",
-			},
-		)
+		booking.payment_method = OFFLINE_PAYMENT_METHOD
+		booking.offline_payment_method = method_doc.title
 
 		# Keep booking in draft until approved — don't submit
 		booking.status = "Approval Pending"

@@ -56,13 +56,7 @@ class EventBooking(Document):
 		if self.status == "Approved":
 			return
 
-		payment_method = None
-		for field in self.additional_fields or []:
-			if field.fieldname == "payment_method":
-				payment_method = field.value
-				break
-
-		if payment_method == OFFLINE_PAYMENT_METHOD:
+		if self.payment_method == OFFLINE_PAYMENT_METHOD:
 			frappe.throw(
 				_(
 					"This booking requires offline payment verification. Please use the Approve or Reject button instead."
