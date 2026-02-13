@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+// @ts-ignore
 import { socketio_port } from "../../../../sites/common_site_config.json";
 
 let socket: Socket | null = null;
