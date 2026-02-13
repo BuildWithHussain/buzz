@@ -1,0 +1,41 @@
+name: Dashboard TypeScript
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "dashboard/**"
+      - ".github/workflows/typecheck.yml"
+  pull_request:
+    paths:
+      - "dashboard/**"
+      - ".github/workflows/typecheck.yml"
+
+concurrency:
+  group: typecheck-buzz-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: TypeScript
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
+          cache-dependency-path: dashboard/yarn.lock
+
+      - name: Install dependencies
+        working-directory: dashboard
+        run: yarn install --frozen-lockfile
+
+      - name: Type check
+        working-directory: dashboard
+        run: yarn typecheck
