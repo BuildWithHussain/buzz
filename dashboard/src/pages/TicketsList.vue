@@ -20,7 +20,7 @@
 			row-key="name"
 			:options="{
 				selectable: false,
-				getRowRoute: (row) => ({
+				getRowRoute: (row: ExtendedEventTicket) => ({
 					name: 'ticket-details',
 					params: { ticketId: row.name },
 				}),
@@ -37,10 +37,11 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ListView, useList } from "frappe-ui";
 import { session } from "../data/session";
 import { dayjsLocal } from "frappe-ui";
+import { EventTicket } from "@/types/Ticketing/EventTicket";
 
 const columns = [
 	{ label: __("Attendee Name"), key: "attendee_name" },
@@ -49,7 +50,13 @@ const columns = [
 	{ label: __("Start Date"), key: "start_date" },
 ];
 
-const tickets = useList({
+interface ExtendedEventTicket extends EventTicket {
+	start_date?: string;
+	event_title?: string;
+	ticket_type_title?: string;
+}
+
+const tickets = useList<ExtendedEventTicket>({
 	doctype: "Event Ticket",
 	fields: [
 		"name",
@@ -63,12 +70,11 @@ const tickets = useList({
 		"creation",
 	],
 	filters: {
-		attendee_email: session.user,
+		attendee_email: session.user ?? undefined,
 		docstatus: ["!=", 0],
 	},
 	orderBy: "creation desc",
-	realtime: true,
-	auto: true,
+	immediate: true,
 	cacheKey: "tickets-list",
 	onError: console.error,
 	transform(data) {
