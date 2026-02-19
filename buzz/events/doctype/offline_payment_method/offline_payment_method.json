@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "autoincrement",
- "creation": "2026-02-12 10:00:00.000000",
+ "creation": "2026-02-12 10:00:00",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -55,7 +55,8 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-12 10:00:00.000000",
+ "make_attachments_public": 1,
+ "modified": "2026-02-19 13:27:02.702742",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Offline Payment Method",
