@@ -43,39 +43,46 @@
 	</Dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { Dialog, Button, FormControl, createResource, toast } from "frappe-ui";
+import type { EventTicket } from "@/types/Ticketing/EventTicket";
+import type { TicketDetailsAddOn } from "@/pages/TicketDetails.vue";
+import type { FrappeError } from "@/types/Frappe/FrappeError";
 
-const props = defineProps({
-	modelValue: {
-		type: Boolean,
-		default: false,
-	},
-	ticket: {
-		type: Object,
-		required: true,
-	},
-});
+type TicketWithAddOns = EventTicket & { add_ons: TicketDetailsAddOn[] };
 
-const emit = defineEmits(["update:modelValue", "success"]);
+const props = withDefaults(
+	defineProps<{
+		modelValue?: boolean;
+		ticket: TicketWithAddOns;
+	}>(),
+	{
+		modelValue: false,
+	}
+);
+
+const emit = defineEmits<{
+	"update:modelValue": [value: boolean];
+	success: [];
+}>();
 
 const show = computed({
 	get: () => props.modelValue,
-	set: (value) => emit("update:modelValue", value),
+	set: (value: boolean) => emit("update:modelValue", value),
 });
 
-const preferences = ref({});
+const preferences = ref<Record<string, string>>({});
 
 // Filter add-ons that have selectable options
 const addOnsWithOptions = computed(() => {
 	if (!props.ticket?.add_ons) return [];
 
 	return props.ticket.add_ons
-		.filter((addon) => addon.options && addon.options.length > 0)
-		.map((addon) => ({
+		.filter((addon: TicketDetailsAddOn) => addon.options && addon.options.length > 0)
+		.map((addon: TicketDetailsAddOn) => ({
 			...addon,
-			selectOptions: addon.options.map((option) => ({
+			selectOptions: addon.options.map((option: string) => ({
 				label: __(option),
 				value: option,
 			})),
@@ -93,12 +100,12 @@ const hasChanges = computed(() => {
 const dialogOptions = {
 	title: "Update Add-on Preferences",
 	size: "lg",
-};
+} as const;
 
 // Initialize preferences when dialog opens
 watch(
 	() => props.modelValue,
-	(newValue) => {
+	(newValue: boolean) => {
 		if (newValue && addOnsWithOptions.value.length > 0) {
 			preferences.value = {};
 			for (const addon of addOnsWithOptions.value) {
@@ -116,7 +123,7 @@ const savePreferences = createResource({
 		emit("success");
 		show.value = false;
 	},
-	onError: (error) => {
+	onError: (error: FrappeError) => {
 		// Check if this is the specific error about change window closing
 		if (error?.message?.includes("change window has closed")) {
 			toast.error(
