@@ -6,6 +6,10 @@ from frappe.tests import IntegrationTestCase
 
 
 class TestOfflinePaymentMethod(IntegrationTestCase):
+	def setUp(self):
+		# Clean up any leftover Offline Payment Method records from previous tests
+		frappe.db.delete("Offline Payment Method")
+
 	def test_unique_title_per_event(self):
 		"""Test that two methods with the same title cannot exist for the same event."""
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
