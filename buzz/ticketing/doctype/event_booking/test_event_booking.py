@@ -1017,3 +1017,38 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		booking = frappe.get_doc("Event Booking", result["booking_name"])
 		self.assertEqual(len(booking.utm_parameters), 0)
+
+	def test_process_booking_failed_for_unpublished_event(self):
+		"""Booking must fail when Buzz Event is not published."""
+		from buzz.api import process_booking
+
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.is_published = 0
+		test_event.save()
+
+		test_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Unpublished Test Ticket",
+				"price": 0,
+				"is_published": True,
+			}
+		).insert()
+
+		attendees = [
+			{
+				"full_name": "Failed User",
+				"email": "failed@email.com",
+				"ticket_type": str(test_ticket_type.name),
+				"add_ons": [],
+			}
+		]
+
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			process_booking(
+				attendees=attendees,
+				event=str(test_event.name),
+			)
+
+		self.assertIn("Event is not live", str(ctx.exception))
