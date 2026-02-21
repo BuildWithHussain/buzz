@@ -368,6 +368,9 @@ def process_booking(
 	offline_payment_method: str | None = None,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
+	if not event_doc.is_published:
+		frappe.throw(_("Event is not live"))
+
 	is_guest = frappe.session.user == "Guest"
 
 	if is_guest:
