@@ -20,6 +20,7 @@ class TestGuestBooking(IntegrationTestCase):
 		self.original_verification = self.test_event.guest_verification_method
 		self.test_event.allow_guest_booking = True
 		self.test_event.guest_verification_method = "None"
+		self.test_event.is_published = True
 		self.test_event.save()
 		self.ticket_type = str(self._get_or_create_free_ticket_type())
 
@@ -28,6 +29,7 @@ class TestGuestBooking(IntegrationTestCase):
 		self.test_event.reload()
 		self.test_event.allow_guest_booking = self.original_allow_guest
 		self.test_event.guest_verification_method = self.original_verification
+		self.test_event.is_published = False
 		self.test_event.save()
 
 	# --- helpers ---

@@ -823,6 +823,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 		test_event.apply_tax = False
+		test_event.is_published = True
 		test_event.save()
 		self._cleanup_offline_methods(test_event.name)
 
@@ -879,6 +880,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
 		test_event.apply_tax = False
+		test_event.is_published = True
 		test_event.save()
 		self._cleanup_offline_methods(test_event.name)
 
@@ -938,6 +940,8 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		from buzz.api import process_booking
 
 		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+		test_event.is_published = True
+		test_event.save()
 
 		test_ticket_type = frappe.get_doc(
 			{
@@ -991,6 +995,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		# Disable tax at event level
 		test_event.apply_tax = False
+		test_event.is_published = True
 		test_event.save()
 
 		attendees = [
