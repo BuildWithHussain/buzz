@@ -24,6 +24,22 @@
 			</div>
 		</div>
 		<div
+			v-else-if="isEventUnpublished && !eventBookingResource.loading"
+			class="flex flex-col items-center justify-center py-16 px-4"
+		>
+			<div class="text-center max-w-md">
+				<h2 class="text-xl font-semibold text-ink-gray-8 mb-2">
+					{{ __("Event Booking Closed") }}
+				</h2>
+				<p class="text-ink-gray-6 mb-6">
+					{{ __("Booking for this event is closed.") }}
+				</p>
+				<Button variant="solid" size="lg" @click="$router.push('/')">{{
+					__("Go to Home")
+				}}</Button>
+			</div>
+		</div>
+		<div
 			v-else-if="!canAccessBookingPage && !eventBookingResource.loading"
 			class="flex flex-col items-center justify-center py-16 px-4"
 		>
@@ -86,6 +102,10 @@ const isGuest = computed(() => !session.isLoggedIn);
 
 const canAccessBookingPage = computed(() => {
 	return session.isLoggedIn || eventBookingData.eventDetails?.allow_guest_booking;
+});
+
+const isEventUnpublished = computed(() => {
+	return eventBookingData.eventDetails && !eventBookingData.eventDetails.is_published;
 });
 
 const eventBookingResource = createResource({
