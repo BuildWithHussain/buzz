@@ -256,6 +256,7 @@ def get_event_booking_data(event_route: str) -> dict:
 			"allow_guest_booking": event_doc.allow_guest_booking,
 			"guest_verification_method": event_doc.guest_verification_method,
 			"default_ticket_type": event_doc.default_ticket_type,
+			"is_published": event_doc.is_published,
 		}
 	else:
 		data.event_details = event_doc
