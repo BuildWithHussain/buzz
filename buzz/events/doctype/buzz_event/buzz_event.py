@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.naming import append_number_if_name_exists
-from frappe.utils.data import time_diff_in_seconds
+from frappe.utils.data import get_time, time_diff_in_seconds
 
 from buzz.utils import only_if_app_installed
 
@@ -94,14 +94,18 @@ class BuzzEvent(Document):
 					).format(item.idx)
 				)
 
-			if item.date == self.start_date and self.start_time and item.start_time < self.start_time:
+			if (
+				item.date == self.start_date
+				and self.start_time
+				and get_time(item.start_time) < get_time(self.start_time)
+			):
 				frappe.throw(
 					frappe._(
 						"<b>Schedule</b> row #{0}: <b>Start Time</b> cannot be before event start time"
 					).format(item.idx)
 				)
 
-			if item.date == end_date and self.end_time and item.end_time > self.end_time:
+			if item.date == end_date and self.end_time and get_time(item.end_time) > get_time(self.end_time):
 				frappe.throw(
 					frappe._(
 						"<b>Schedule</b> row #{0}: <b>End Time</b> cannot be after event end time"

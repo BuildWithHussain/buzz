@@ -29,6 +29,61 @@ class TestBuzzEvent(FrappeTestCase):
 	def tearDown(self):
 		frappe.db.rollback()
 
+	# ==================== Schedule Validation Tests ====================
+
+	def _make_event_with_schedule(self, schedule_overrides, **event_overrides):
+		"""Helper to create a Buzz Event with a single schedule item for validation tests."""
+		event_defaults = {
+			"doctype": "Buzz Event",
+			"title": "Schedule Test Event",
+			"category": "Test Category",
+			"host": "Test Host",
+			"start_date": "2026-03-05",
+			"end_date": "2026-03-06",
+			"start_time": "9:00:00",
+			"end_time": "18:00:00",
+		}
+		event_defaults.update(event_overrides)
+		event = frappe.get_doc(event_defaults)
+
+		# Directly call validate_schedule instead of insert to avoid
+		# needing linked Event Track records in the test database
+		for row in schedule_overrides:
+			event.append("schedule", row)
+		return event
+
+	def test_schedule_start_time_after_event_start_is_valid(self):
+		"""Schedule at 11:00 should be valid when event starts at 9:00 (regression: string comparison bug)"""
+		event = self._make_event_with_schedule(
+			[{"date": "2026-03-05", "start_time": "11:00:00", "end_time": "12:00:00"}]
+		)
+		# Should not raise
+		event.validate_schedule()
+
+	def test_schedule_start_time_before_event_start_is_rejected(self):
+		"""Schedule at 08:00 should be rejected when event starts at 9:00"""
+		event = self._make_event_with_schedule(
+			[{"date": "2026-03-05", "start_time": "08:00:00", "end_time": "08:30:00"}]
+		)
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			event.validate_schedule()
+
+	def test_schedule_end_time_after_event_end_is_rejected(self):
+		"""Schedule ending at 19:00 should be rejected when event ends at 18:00"""
+		event = self._make_event_with_schedule(
+			[{"date": "2026-03-06", "start_time": "17:00:00", "end_time": "19:00:00"}]
+		)
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			event.validate_schedule()
+
+	def test_schedule_end_time_before_event_end_is_valid(self):
+		"""Schedule ending at 16:30 should be valid when event ends at 18:00"""
+		event = self._make_event_with_schedule(
+			[{"date": "2026-03-06", "start_time": "16:00:00", "end_time": "16:30:00"}]
+		)
+		# Should not raise
+		event.validate_schedule()
+
 	# ==================== Create from Template Tests ====================
 
 	def test_create_from_template_copies_direct_fields(self):
