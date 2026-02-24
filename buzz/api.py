@@ -235,6 +235,9 @@ def get_event_booking_data(event_route: str) -> dict:
 	data = frappe._dict()
 	event_doc = frappe.get_cached_doc("Buzz Event", {"route": event_route})
 
+	if not event_doc.is_published:
+		frappe.throw(_("Event not found"), frappe.DoesNotExistError)
+
 	is_guest = frappe.session.user == "Guest"
 	if is_guest:
 		data.event_details = {
