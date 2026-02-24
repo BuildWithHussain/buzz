@@ -104,6 +104,9 @@ const eventBookingResource = createResource({
 			tax_percentage: 0,
 		};
 		eventBookingData.eventDetails = data.event_details || {};
+		if (!eventBookingData.eventDetails.is_published) {
+			eventNotFound.value = true;
+		}
 		eventBookingData.customFields = data.custom_fields || [];
 		eventBookingData.paymentGateways = data.payment_gateways || [];
 		eventBookingData.offlineMethods = data.offline_methods || [];
