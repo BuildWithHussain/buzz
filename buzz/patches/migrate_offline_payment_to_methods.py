@@ -4,6 +4,10 @@ import frappe
 def execute():
 	frappe.reload_doc("events", "doctype", "offline_payment_method")
 
+	# Skip if the old columns don't exist (fresh install or already migrated)
+	if not frappe.db.has_column("Buzz Event", "enable_offline_payments"):
+		return
+
 	events_with_offline = frappe.get_all(
 		"Buzz Event",
 		filters={"enable_offline_payments": 1},
