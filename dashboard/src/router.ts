@@ -9,8 +9,9 @@ const routes: RouteRecordRaw[] = [
 		redirect: { name: "bookings-tab" },
 	},
 	{
-		path: "/check-in",
+		path: "/check-in/:eventName?",
 		name: "check-in",
+		props: true,
 		component: () => import("@/pages/CheckInScanner.vue"),
 	},
 	{

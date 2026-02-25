@@ -303,6 +303,10 @@ frappe.ui.form.on("Buzz Event", {
 			frm.add_web_link(`/dashboard/book-tickets/${frm.doc.route}`, "View Registration Page");
 		}
 
+		if (!frm.is_new()) {
+			frm.add_web_link(`/dashboard/check-in/${frm.doc.name}`, __("Open Check-in"));
+		}
+
 		const button_label = frm.doc.is_published ? __("Unpublish") : __("Publish");
 		frm.add_custom_button(button_label, () => {
 			frm.set_value("is_published", !frm.doc.is_published);
