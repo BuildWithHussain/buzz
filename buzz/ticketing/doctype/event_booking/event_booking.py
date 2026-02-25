@@ -113,12 +113,12 @@ class EventBooking(Document):
 		for ticket_type, num_tickets in num_tickets_by_type.items():
 			ticket_type_doc = frappe.get_cached_doc("Event Ticket Type", ticket_type)
 			if not ticket_type_doc.is_published:
-				frappe.throw(frappe._(f"{ticket_type} tickets no longer available!"))
+				frappe.throw(frappe._(f"{ticket_type_doc.title} tickets no longer available!"))
 
 			if not ticket_type_doc.are_tickets_available(num_tickets):
 				frappe.throw(
 					frappe._(
-						f"Only {ticket_type_doc.remaining_tickets} tickets available for {ticket_type}, you are trying to book {num_tickets}!"
+						f"Only {ticket_type_doc.remaining_tickets} tickets available for {ticket_type_doc.title}, you are trying to book {num_tickets}!"
 					)
 				)
 
