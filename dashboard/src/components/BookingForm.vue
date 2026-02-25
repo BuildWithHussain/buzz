@@ -835,13 +835,19 @@ watch(
 );
 
 // Auto-select ticket type based on event's default or if there's only one available
+// Also revalidate stored ticket types (from localStorage) against currently available ones
 watch(
 	() => props.availableTicketTypes,
 	(newTicketTypes) => {
 		if (newTicketTypes && newTicketTypes.length > 0) {
 			const defaultTicketType = getDefaultTicketType();
+			const availableIds = new Set(newTicketTypes.map((tt) => String(tt.name)));
 			for (const attendee of attendees.value) {
-				if (!attendee.ticket_type || attendee.ticket_type === "") {
+				if (
+					!attendee.ticket_type ||
+					attendee.ticket_type === "" ||
+					!availableIds.has(String(attendee.ticket_type))
+				) {
 					attendee.ticket_type = defaultTicketType;
 				}
 			}
