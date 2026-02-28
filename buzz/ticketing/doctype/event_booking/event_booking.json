@@ -182,7 +182,7 @@
    "label": "Status"
   },
   {
-   "default": "Unpaid",
+   "default": "Paid",
    "fieldname": "payment_status",
    "fieldtype": "Select",
    "in_list_view": 1,
