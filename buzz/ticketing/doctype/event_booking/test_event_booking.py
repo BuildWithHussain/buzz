@@ -1052,3 +1052,37 @@ class TestProcessBookingAPI(IntegrationTestCase):
 			)
 
 		self.assertIn("Event is not live", str(ctx.exception))
+
+	def test_free_event_booking_auto_confirms(self):
+		"""Test that free event bookings (total_amount = 0) automatically confirm on submit."""
+		test_event = frappe.get_doc("Buzz Event", {"route": "test-route"})
+
+		free_ticket_type = frappe.get_doc(
+			{
+				"doctype": "Event Ticket Type",
+				"event": test_event.name,
+				"title": "Free Ticket",
+				"price": 0,
+			}
+		).insert()
+
+		booking = frappe.get_doc(
+			{
+				"doctype": "Event Booking",
+				"event": test_event.name,
+				"user": frappe.session.user,
+				"attendees": [
+					{
+						"full_name": "Free User",
+						"email": "free@email.com",
+						"ticket_type": free_ticket_type.name,
+					}
+				],
+			}
+		).insert()
+
+		booking.submit()
+
+		self.assertEqual(booking.status, "Confirmed", "Free booking should auto-confirm")
+		self.assertEqual(booking.payment_status, "Paid", "Free booking should be marked as Paid")
+		self.assertEqual(booking.total_amount, 0, "Free booking should have zero total")

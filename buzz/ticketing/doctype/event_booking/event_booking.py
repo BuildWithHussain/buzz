@@ -56,6 +56,11 @@ class EventBooking(Document):
 		if self.status == "Approved":
 			return
 
+		if self.total_amount == 0:
+			self.payment_status = "Paid"
+			self.status = "Confirmed"
+			return
+
 		if self.payment_method == OFFLINE_PAYMENT_METHOD:
 			frappe.throw(
 				_(
