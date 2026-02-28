@@ -56,7 +56,7 @@ class EventBooking(Document):
 		if self.status == "Approved":
 			return
 
-		if not self.payment_method:
+		if self.total_amount == 0:
 			self.payment_status = "Paid"
 			self.status = "Confirmed"
 			return
