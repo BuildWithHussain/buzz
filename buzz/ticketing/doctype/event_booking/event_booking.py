@@ -56,7 +56,6 @@ class EventBooking(Document):
 		if self.status == "Approved":
 			return
 
-		# Free bookings auto-confirm
 		if self.total_amount == 0:
 			self.payment_status = "Paid"
 			self.status = "Confirmed"
