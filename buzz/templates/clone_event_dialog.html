@@ -1,0 +1,47 @@
+<div class="buzz-clone-header" style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+	<span style="display:inline-flex;align-items:center;justify-content:center;
+		width:38px;height:38px;border-radius:50%;background:var(--control-bg);
+		border:1px solid var(--border-color);flex-shrink:0;">
+		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+			viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+			<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+			<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+		</svg>
+	</span>
+	<div>
+		<div style="font-size:15px;font-weight:600;">{{ title }}</div>
+		<div style="font-size:12px;color:var(--text-muted);">
+			{{ _("Everything except bookings, tickets, and check-ins will be copied over.") }}
+		</div>
+	</div>
+</div>
+
+<div style="font-size:13px;font-weight:600;margin:14px 0 6px;">
+	{{ _("New Times") }}
+</div>
+
+<div id="clone-dates-list" style="margin-bottom:8px;"></div>
+
+<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+	<button class="btn btn-default btn-sm" id="clone-add-time-btn"
+		style="display:flex;align-items:center;gap:5px;">
+		<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+			viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+			<line x1="12" y1="5" x2="12" y2="19"></line>
+			<line x1="5" y1="12" x2="19" y2="12"></line>
+		</svg>
+		{{ _("Add Time") }}
+	</button>
+	<button class="btn btn-default btn-sm" id="clone-recurrence-btn"
+		style="display:flex;align-items:center;gap:4px;">
+		<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+			viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+			style="flex-shrink:0;">
+			<polyline points="17 1 21 5 17 9"></polyline>
+			<path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+			<polyline points="7 23 3 19 7 15"></polyline>
+			<path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+		</svg>
+		{{ _("Recurrence") }}
+	</button>
+</div>

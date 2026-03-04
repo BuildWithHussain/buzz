@@ -117,3 +117,85 @@ class BuzzEvent(Document):
 				}
 			)
 			webinar.save()
+
+
+@frappe.whitelist()
+def get_clone_dialog_html(template_name, context=None):
+	"""Render a Jinja template from buzz/templates/ and return the HTML string."""
+	import json
+	import os
+
+	template_path = os.path.join(frappe.get_app_path("buzz"), "templates", f"{template_name}.html")
+	if not os.path.exists(template_path):
+		frappe.throw(frappe._("Template {0} not found").format(template_name))
+
+	with open(template_path) as f:
+		template_str = f.read()
+
+	ctx = {}
+	if context:
+		ctx = json.loads(context) if isinstance(context, str) else context
+
+	return frappe.render_template(template_str, ctx)
+
+
+@frappe.whitelist()
+def clone_buzz_event(name, dates, host=None):
+	"""
+	Clone a Buzz Event for each entry in `dates`.
+
+	Args:
+		name    : name of the source Buzz Event
+		dates   : JSON list of {"start_date": "YYYY-MM-DD", "start_time": "HH:MM:SS"}
+		host    : optional Event Host to override on clones
+
+	Returns:
+		list of newly created Buzz Event names
+	"""
+	import json
+
+	from frappe.utils import add_days, date_diff
+
+	if isinstance(dates, str):
+		dates = json.loads(dates)
+
+	if not dates:
+		frappe.throw(frappe._("Please provide at least one date."))
+
+	source = frappe.get_doc("Buzz Event", name)
+
+	# Preserve the original duration (end_date - start_date offset in days)
+	duration_days = 0
+	if source.end_date and source.start_date:
+		duration_days = date_diff(source.end_date, source.start_date)
+
+	created = []
+
+	for entry in dates:
+		new_doc = frappe.copy_doc(source)
+		new_doc.start_date = entry.get("start_date")
+		new_doc.start_time = entry.get("start_time") or source.start_time
+
+		if duration_days:
+			new_doc.end_date = add_days(new_doc.start_date, duration_days)
+		else:
+			new_doc.end_date = new_doc.start_date
+
+		# New clone starts as a draft
+		new_doc.is_published = 0
+		new_doc.route = ""
+
+		if host:
+			new_doc.host = host
+
+		# Adjust schedule item dates by the same offset
+		if source.start_date and new_doc.schedule:
+			for row in new_doc.schedule:
+				if row.date:
+					row_offset = date_diff(row.date, source.start_date)
+					row.date = add_days(new_doc.start_date, row_offset)
+
+		new_doc.insert()
+		created.append(new_doc.name)
+
+	return created

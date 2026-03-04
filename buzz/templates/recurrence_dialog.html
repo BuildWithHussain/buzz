@@ -1,0 +1,47 @@
+<!-- Weekday selector – visible only when repeat_type == Weekly -->
+<div id="recurrence-weekday-section" style="margin-bottom:16px;">
+	<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;font-weight:500;letter-spacing:.3px;">
+		{{ _("Days of the week") }}
+	</div>
+	<div style="display:flex;gap:8px;width:100%;justify-content:space-between;">
+		{% set day_labels = [("M","Monday"),("T","Tuesday"),("W","Wednesday"),("T","Thursday"),("F","Friday"),("S","Saturday"),("S","Sunday")] %}
+		{% for label, full in day_labels %}
+	<button class="recurrence-day-btn btn btn-default" data-day="{{ loop.index0 }}"
+		title="{{ full }}"
+		style="width:38px;height:38px;border-radius:50%;
+		       font-size:12px;font-weight:600;cursor:pointer;padding:0;flex-shrink:0;">
+		{{ label }}
+	</button>
+		{% endfor %}
+	</div>
+</div>
+
+<!-- Until / For end-condition row -->
+<div id="recurrence-end-type-row"
+	style="display:flex;align-items:center;gap:10px;margin-bottom:14px;width:100%;">
+	<div style="display:flex;border:1px solid var(--border-color);border-radius:8px;overflow:hidden;flex-shrink:0;">
+		<button class="end-type-btn btn btn-default" data-type="Until"
+			style="border:none;border-radius:0;padding:7px 20px;font-size:13px;">
+			{{ _("Until") }}
+		</button>
+		<button class="end-type-btn btn btn-default" data-type="For"
+			style="border:none;border-radius:0;padding:7px 20px;font-size:13px;">
+			{{ _("For") }}
+		</button>
+	</div>
+	<div id="end-condition-wrapper"
+		style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+	</div>
+</div>
+
+<!-- Occurrence preview chips -->
+<div id="recurrence-preview-section" style="margin-top:4px;">
+	<div id="recurrence-preview"
+		style="display:flex;flex-wrap:wrap;gap:6px;padding:12px;
+		       border:1.5px dashed var(--border-color);border-radius:8px;
+		       min-height:64px;background:var(--control-bg);width:100%;box-sizing:border-box;">
+		<span class="text-muted" style="font-size:12px;align-self:center;">
+			{{ _("Set options above to preview dates…") }}
+		</span>
+	</div>
+</div>
