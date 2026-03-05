@@ -1,15 +1,14 @@
 {
  "app": "buzz",
- "creation": "2025-11-26 22:26:27.527211",
+ "creation": "2026-03-05 19:10:56.507483",
  "docstatus": 0,
  "doctype": "Workspace Sidebar",
- "header_icon": "clapperboard",
  "idx": 0,
  "items": [
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "party-popper",
+   "icon": "calendar-check",
    "indent": 0,
    "keep_closed": 0,
    "label": "Events",
@@ -21,7 +20,7 @@
   {
    "child": 0,
    "collapsible": 1,
-   "icon": "circle-dollar-sign",
+   "icon": "notebook-pen",
    "indent": 0,
    "keep_closed": 0,
    "label": "Bookings",
@@ -44,21 +43,20 @@
   },
   {
    "child": 0,
-   "collapsible": 1,
-   "icon": "notebook-tabs",
+   "collapsible": 0,
    "indent": 0,
    "keep_closed": 0,
-   "label": "Detailed Registrations",
-   "link_to": "Detailed Event Registrations",
-   "link_type": "Report",
+   "label": "Publishing",
+   "link_type": "DocType",
    "show_arrow": 0,
-   "type": "Link"
+   "type": "Section Break"
   }
  ],
- "modified": "2025-12-30 14:23:20.133967",
+ "modified": "2026-03-05 19:33:18.241175",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz",
  "owner": "Administrator",
+ "standard": 1,
  "title": "Buzz"
 }

@@ -1,79 +1,29 @@
 {
- "app": "buzz",
+ "app": "Buzz",
  "charts": [],
- "content": "[{\"id\":\"zIbv_UEOb3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Frappe Events</span>\",\"col\":12}},{\"id\":\"6EmoNKPAq9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hosts\",\"col\":4}},{\"id\":\"2pkzzN2QBq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Event\",\"col\":4}},{\"id\":\"HUpOTcgLjG\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"LwunpBpLEf\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Events this Month\",\"col\":4}},{\"id\":\"O38IUyNBcm\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"cga4Qa9PWt\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Proposals</b></span>\",\"col\":12}},{\"id\":\"Yhe9MMCrye\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Talk Proposals This Week \",\"col\":4}},{\"id\":\"L_MVyuOl1o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sponsorship Enquiry\",\"col\":4}},{\"id\":\"lTxES7vTQh\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"MNP78pxO9t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add-ons Overview\",\"col\":4}}]",
- "creation": "2025-07-19 12:52:25.932004",
+ "content": "[]",
+ "creation": "2026-03-05 19:10:56.484378",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
- "for_user": "",
  "hide_custom": 0,
- "icon": "calendar",
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
  "label": "Buzz",
  "link_type": "DocType",
  "links": [],
- "modified": "2025-12-30 12:43:19.655156",
+ "modified": "2026-03-05 19:24:18.378896",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz",
  "number_cards": [],
  "owner": "Administrator",
- "parent_page": "",
  "public": 1,
- "quick_lists": [
-  {
-   "document_type": "Buzz Event",
-   "label": "Events this Month",
-   "quick_list_filter": "[[\"Buzz Event\",\"start_date\",\"Timespan\",\"this month\"]]"
-  }
- ],
+ "quick_lists": [],
  "roles": [],
- "sequence_id": 23.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Add-ons Overview",
-   "link_to": "Event Add-Ons Overview",
-   "report_ref_doctype": "Event Ticket",
-   "type": "Report"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "New",
-   "label": "Create New Event",
-   "link_to": "Buzz Event",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Cyan",
-   "doc_view": "List",
-   "label": "Hosts",
-   "link_to": "Event Host",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Orange",
-   "doc_view": "List",
-   "label": "Talk Proposals This Week ",
-   "link_to": "Talk Proposal",
-   "stats_filter": "[[\"Talk Proposal\",\"creation\",\"Timespan\",\"this week\"]]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Sponsorship Enquiry",
-   "link_to": "Sponsorship Enquiry",
-   "stats_filter": "[]",
-   "type": "DocType"
-  }
- ],
+ "sequence_id": 0.0,
+ "shortcuts": [],
  "title": "Buzz",
  "type": "Workspace"
 }
