@@ -125,7 +125,9 @@ def get_clone_dialog_html(template_name, context=None):
 	import json
 	import os
 
-	template_path = os.path.join(frappe.get_app_path("buzz"), "templates", f"{template_name}.html")
+	template_path = os.path.join(
+		frappe.get_app_path("buzz"), "templates", "clone_event_dialog", f"{template_name}.html"
+	)
 	if not os.path.exists(template_path):
 		frappe.throw(frappe._("Template {0} not found").format(template_name))
 

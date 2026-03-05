@@ -116,9 +116,22 @@ function buzz_compute_occurrences(
 	const results = [];
 	const cur = frappe.datetime.str_to_obj(start_date);
 
-	const limit_date =
-		end_type === "Until" && until_date ? frappe.datetime.str_to_obj(until_date) : null;
-	const count_limit = end_type === "For" ? Math.max(1, parseInt(for_count) || 1) : SAFETY;
+	// Compute the end fence date
+	let limit_date = null;
+	if (end_type === "Until" && until_date) {
+		limit_date = frappe.datetime.str_to_obj(until_date);
+	} else if (end_type === "For") {
+		const n = Math.max(1, parseInt(for_count) || 1);
+		limit_date = new Date(cur);
+		if (repeat_type === "Daily") {
+			limit_date.setDate(limit_date.getDate() + n - 1);
+		} else if (repeat_type === "Weekly") {
+			limit_date.setDate(limit_date.getDate() + n * 7 - 1);
+		} else if (repeat_type === "Monthly") {
+			limit_date.setMonth(limit_date.getMonth() + n);
+			limit_date.setDate(limit_date.getDate() - 1);
+		}
+	}
 
 	// Hard fence: two years out
 	const fence = new Date(cur);
@@ -130,7 +143,6 @@ function buzz_compute_occurrences(
 		iters++;
 		if (cur > fence) break;
 		if (limit_date && cur > limit_date) break;
-		if (results.length >= count_limit) break;
 
 		const date_str = frappe.datetime.obj_to_str(cur);
 
@@ -185,50 +197,63 @@ function _build_clone_dialog(frm, body_html) {
 					${__("No times added yet.")}
 				</p>`
 			);
-		} else {
-			selected_dates.forEach((entry, idx) => {
-				$list.append(`
-					<div style="display:flex;align-items:center;border:1px solid var(--border-color);
-					     border-radius:8px;overflow:hidden;background:var(--control-bg);margin-bottom:6px;">
-						<div style="flex:1;padding:10px 14px;font-size:13px;font-weight:500;">
-							${frappe.utils.escape_html(buzz_fmt_date(entry.start_date))}
-						</div>
-						<div style="width:1px;background:var(--border-color);align-self:stretch;"></div>
-						<div style="flex:1;padding:10px 14px;font-size:13px;
-						     font-family:monospace;letter-spacing:1px;">
-							${frappe.utils.escape_html(buzz_fmt_time(entry.start_time))}
-						</div>
-						<button class="btn btn-link edit-clone-date" data-idx="${idx}"
-							style="padding:0 10px;color:var(--text-muted);"
-							title="${__("Edit")}">
-							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-								viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-								<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-								<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-							</svg>
-						</button>
-						<button class="btn btn-link remove-clone-date" data-idx="${idx}"
-							style="padding:0 14px;color:var(--text-muted);font-size:20px;line-height:1;"
-							title="${__("Remove")}">×</button>
-					</div>
-				`);
+			return;
+		}
+
+		selected_dates.forEach((entry, idx) => {
+			const $row = $(`
+				<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;
+				     border:1px solid var(--border-color);border-radius:8px;
+				     background:var(--control-bg);margin-bottom:6px;">
+					<div class="row-date-wrap" style="flex:1;min-width:0;"></div>
+					<div class="row-time-wrap" style="flex:1;min-width:0;"></div>
+					<button class="btn btn-link row-remove-btn"
+						style="padding:0 4px;color:var(--text-muted);font-size:20px;line-height:1;flex-shrink:0;"
+						title="${__("Remove")}">×</button>
+				</div>
+			`);
+			$list.append($row);
+
+			// Date control
+			const date_ctrl = frappe.ui.form.make_control({
+				df: { fieldtype: "Date", fieldname: `row_date_${idx}`, label: "" },
+				parent: $row.find(".row-date-wrap")[0],
+				render_input: true,
+			});
+			date_ctrl.refresh();
+			$row.find(".row-date-wrap .frappe-control").css({ margin: 0, padding: 0 });
+			$row.find(".row-date-wrap .form-group").css({ margin: 0 });
+			$row.find(".row-date-wrap label").hide();
+			date_ctrl.set_value(entry.start_date || "");
+			date_ctrl.$input.on("change blur", () => {
+				const v = date_ctrl.get_value();
+				if (v) selected_dates[idx].start_date = v;
+				sync_primary_label();
 			});
 
-			$list.find(".edit-clone-date").on("click", function () {
-				const idx = parseInt($(this).data("idx"));
-				const entry = selected_dates[idx];
-				show_add_time_dialog(entry.start_date, entry.start_time, (updated) => {
-					selected_dates[idx] = updated;
-					render_dates();
-				});
+			// Time control
+			const time_ctrl = frappe.ui.form.make_control({
+				df: { fieldtype: "Time", fieldname: `row_time_${idx}`, label: "" },
+				parent: $row.find(".row-time-wrap")[0],
+				render_input: true,
+			});
+			time_ctrl.refresh();
+			$row.find(".row-time-wrap .frappe-control").css({ margin: 0, padding: 0 });
+			$row.find(".row-time-wrap .form-group").css({ margin: 0 });
+			$row.find(".row-time-wrap label").hide();
+			time_ctrl.set_value(entry.start_time || "");
+			time_ctrl.$input.on("change blur", () => {
+				const v = time_ctrl.get_value();
+				if (v) selected_dates[idx].start_time = v;
 			});
 
-			$list.find(".remove-clone-date").on("click", function () {
-				selected_dates.splice(parseInt($(this).data("idx")), 1);
+			// Remove
+			$row.find(".row-remove-btn").on("click", () => {
+				selected_dates.splice(idx, 1);
 				render_dates();
 				sync_primary_label();
 			});
-		}
+		});
 	}
 
 	function sync_primary_label() {

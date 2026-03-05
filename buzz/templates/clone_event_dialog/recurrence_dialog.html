@@ -8,7 +8,7 @@
 		{% for label, full in day_labels %}
 	<button class="recurrence-day-btn btn btn-default" data-day="{{ loop.index0 }}"
 		title="{{ full }}"
-		style="width:38px;height:38px;border-radius:50%;
+		style="width:52px;height:52px;border-radius:50%;
 		       font-size:12px;font-weight:600;cursor:pointer;padding:0;flex-shrink:0;">
 		{{ label }}
 	</button>
@@ -21,11 +21,11 @@
 	style="display:flex;align-items:center;gap:10px;margin-bottom:14px;width:100%;">
 	<div style="display:flex;border:1px solid var(--border-color);border-radius:8px;overflow:hidden;flex-shrink:0;">
 		<button class="end-type-btn btn btn-default" data-type="Until"
-			style="border:none;border-radius:0;padding:7px 20px;font-size:13px;">
+			style="border:none;border-radius:0;font-size:13px;">
 			{{ _("Until") }}
 		</button>
 		<button class="end-type-btn btn btn-default" data-type="For"
-			style="border:none;border-radius:0;padding:7px 20px;font-size:13px;">
+			style="border:none;border-radius:0;font-size:13px;">
 			{{ _("For") }}
 		</button>
 	</div>
