@@ -273,7 +273,7 @@ function _build_clone_dialog(frm, body_html) {
 				options: body_html,
 			},
 			{
-				label: __("Calendar"),
+				label: __("Host"),
 				fieldname: "host",
 				fieldtype: "Link",
 				options: "Event Host",
@@ -320,12 +320,8 @@ function _build_clone_dialog(frm, body_html) {
 	clone_dialog.show();
 	render_dates();
 
-	// Move the Calendar field above the HTML body (aesthetic preference)
 	const $host_field = clone_dialog.fields_dict.host.$wrapper;
 	const $body_html = clone_dialog.$body.find('[data-fieldname="body_html"]');
-	$body_html.before(
-		$(`<div style="font-size:13px;font-weight:600;margin-bottom:6px;">${__("Calendar")}</div>`)
-	);
 	$body_html.before($host_field.detach());
 
 	clone_dialog.$body.on("click", "#clone-add-time-btn", () => {
