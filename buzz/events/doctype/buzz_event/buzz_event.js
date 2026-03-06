@@ -318,9 +318,13 @@ frappe.ui.form.on("Buzz Event", {
 
 		// Clone Event button – only shown on saved documents
 		if (!frm.is_new()) {
-			frm.add_custom_button(__("Clone Event"), () => {
-				show_clone_event_dialog(frm);
-			});
+			frm.add_custom_button(
+				__("Clone Event"),
+				() => {
+					show_clone_event_dialog(frm);
+				},
+				__("Actions")
+			);
 		}
 
 		frm.set_query("track", "schedule", (doc, cdt, cdn) => {
@@ -484,11 +488,8 @@ function buzz_compute_occurrences(
 
 function show_clone_event_dialog(frm) {
 	frappe.call({
-		method: "buzz.events.doctype.buzz_event.buzz_event.get_clone_dialog_html",
-		args: {
-			template_name: "clone_event_dialog",
-			context: JSON.stringify({ title: frm.doc.title }),
-		},
+		method: "buzz.events.doctype.buzz_event.buzz_event.get_clone_event_dialog_html",
+		args: { context: JSON.stringify({ title: frm.doc.title }) },
 		callback(r) {
 			_build_clone_dialog(frm, r.message);
 		},
@@ -698,8 +699,7 @@ function show_add_time_dialog(default_date, default_time, on_add) {
 
 function show_recurrence_dialog(default_date, default_time, on_add) {
 	frappe.call({
-		method: "buzz.events.doctype.buzz_event.buzz_event.get_clone_dialog_html",
-		args: { template_name: "recurrence_dialog" },
+		method: "buzz.events.doctype.buzz_event.buzz_event.get_recurrence_dialog_html",
 		callback(r) {
 			_build_recurrence_dialog(default_date, default_time, on_add, r.message);
 		},

@@ -209,25 +209,21 @@ class BuzzEvent(Document):
 
 
 @frappe.whitelist()
-def get_clone_dialog_html(template_name: str, context: str | dict | None = None) -> str:
-	"""Render a Jinja template from buzz/templates/ and return the HTML string."""
+def get_clone_event_dialog_html(context: str | dict | None = None) -> str:
+	"""Render the clone-event dialog template and return the HTML string."""
 	import json
-	import os
-
-	template_path = os.path.join(
-		frappe.get_app_path("buzz"), "templates", "clone_event_dialog", f"{template_name}.html"
-	)
-	if not os.path.exists(template_path):
-		frappe.throw(frappe._("Template {0} not found").format(template_name))
-
-	with open(template_path) as f:
-		template_str = f.read()
 
 	ctx = {}
 	if context:
 		ctx = json.loads(context) if isinstance(context, str) else context
 
-	return frappe.render_template(template_str, ctx)
+	return frappe.render_template("buzz/templates/clone_event_dialog/clone_event_dialog.html", ctx)
+
+
+@frappe.whitelist()
+def get_recurrence_dialog_html() -> str:
+	"""Render the recurrence dialog template and return the HTML string."""
+	return frappe.render_template("buzz/templates/clone_event_dialog/recurrence_dialog.html", {})
 
 
 @frappe.whitelist()
