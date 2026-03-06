@@ -209,7 +209,7 @@ class BuzzEvent(Document):
 
 
 @frappe.whitelist()
-def get_clone_dialog_html(template_name, context=None):
+def get_clone_dialog_html(template_name: str, context: str | dict | None = None) -> str:
 	"""Render a Jinja template from buzz/templates/ and return the HTML string."""
 	import json
 	import os
@@ -231,7 +231,7 @@ def get_clone_dialog_html(template_name, context=None):
 
 
 @frappe.whitelist()
-def clone_buzz_event(name, dates, host=None):
+def clone_buzz_event(name: str, dates: str | list, host: str | None = None) -> list[str]:
 	"""
 	Clone a Buzz Event for each entry in `dates`.
 
@@ -246,6 +246,7 @@ def clone_buzz_event(name, dates, host=None):
 	import json
 
 	from frappe.utils import add_days, date_diff
+	from frappe.utils.data import get_time_str
 
 	if isinstance(dates, str):
 		dates = json.loads(dates)
@@ -266,6 +267,9 @@ def clone_buzz_event(name, dates, host=None):
 		new_doc = frappe.copy_doc(source)
 		new_doc.start_date = entry.get("start_date")
 		new_doc.start_time = entry.get("start_time") or source.start_time
+
+		new_doc.start_time = get_time_str(new_doc.start_time)
+		new_doc.end_time = get_time_str(new_doc.end_time)
 
 		if duration_days:
 			new_doc.end_date = add_days(new_doc.start_date, duration_days)
