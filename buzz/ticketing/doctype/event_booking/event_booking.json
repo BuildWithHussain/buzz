@@ -10,6 +10,14 @@
   "column_break_cjxu",
   "user",
   "naming_series",
+  "section_break_status",
+  "payment_status",
+  "column_break_status",
+  "status",
+  "payment_method_section",
+  "payment_method",
+  "column_break_payment_method",
+  "offline_payment_method",
   "section_break_xvkp",
   "attendees",
   "section_break_suav",
@@ -17,12 +25,17 @@
   "section_break_tsys",
   "net_amount",
   "tax_percentage",
+  "tax_label",
   "tax_amount",
   "column_break_naeh",
   "total_amount",
   "currency",
+  "coupon_code",
+  "discount_amount",
   "section_break_sdfp",
-  "amended_from"
+  "amended_from",
+  "marketing_tab",
+  "utm_parameters"
  ],
  "fields": [
   {
@@ -110,6 +123,12 @@
    "read_only": 1
   },
   {
+   "fieldname": "tax_label",
+   "fieldtype": "Data",
+   "label": "Tax Label",
+   "read_only": 1
+  },
+  {
    "fieldname": "tax_amount",
    "fieldtype": "Currency",
    "label": "Tax Amount",
@@ -131,6 +150,80 @@
    "fieldtype": "Select",
    "label": "Naming Series",
    "options": "B.###"
+  },
+  {
+   "fieldname": "marketing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Marketing"
+  },
+  {
+   "fieldname": "utm_parameters",
+   "fieldtype": "Table",
+   "label": "UTM Parameters",
+   "options": "UTM Parameter",
+   "read_only": 1
+  },
+  {
+   "fieldname": "coupon_code",
+   "fieldtype": "Link",
+   "label": "Coupon Code",
+   "options": "Buzz Coupon Code"
+  },
+  {
+   "fieldname": "discount_amount",
+   "fieldtype": "Currency",
+   "label": "Discount Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_status",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Unpaid",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Status",
+   "options": "Unpaid\nPaid\nVerification Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_status",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Approval Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Confirmed\nApproval Pending\nApproved\nRejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_method_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Method"
+  },
+  {
+   "fieldname": "payment_method",
+   "fieldtype": "Data",
+   "label": "Payment Method",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment_method",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.payment_method === 'Offline'",
+   "fieldname": "offline_payment_method",
+   "fieldtype": "Data",
+   "label": "Offline Payment Method",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -146,7 +239,7 @@
    "link_fieldname": "reference_docname"
   }
  ],
- "modified": "2025-11-29 16:04:32.159196",
+ "modified": "2026-02-05 09:10:22.542973",
  "modified_by": "Administrator",
  "module": "Ticketing",
  "name": "Event Booking",

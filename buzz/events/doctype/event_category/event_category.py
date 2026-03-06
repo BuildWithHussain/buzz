@@ -15,6 +15,7 @@ class EventCategory(Document):
 		from frappe.types import DF
 
 		banner_image: DF.AttachImage | None
+		description: DF.SmallText | None
 		enabled: DF.Check
 		icon_svg: DF.Code | None
 		slug: DF.Data | None

@@ -201,7 +201,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { Dialog, Button, createResource, toast } from "frappe-ui";
-import { pluralize } from "../utils/pluralize.js";
+import { pluralize } from "@/utils/pluralize";
 
 const props = defineProps({
 	modelValue: {
@@ -297,7 +297,7 @@ const createCancellationRequest = createResource({
 	onError: (error) => {
 		submitting.value = false;
 		toast.error(
-			data.message || __("Failed to submit cancellation request. Please try again.")
+			error?.messages?.[0] || __("Failed to submit cancellation request. Please try again.")
 		);
 	},
 });

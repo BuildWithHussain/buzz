@@ -1,6 +1,6 @@
 <template>
 	<ProfileView />
-	<Tabs as="div" v-model="tabIndex" :tabs="tabs" @change="handleTabChange">
+	<Tabs as="div" v-model="tabIndex" :tabs="tabs">
 		<template #tab-panel>
 			<div class="py-5">
 				<router-view></router-view>
@@ -12,38 +12,27 @@
 <script setup>
 import { Tabs } from "frappe-ui";
 import { ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import ProfileView from "@/components/ProfileView.vue";
+import LucideCalendarDays from "~icons/lucide/calendar-days";
+import LucideTicket from "~icons/lucide/ticket";
+import LucideMegaphone from "~icons/lucide/megaphone";
+import LucideCircleDollarSign from "~icons/lucide/circle-dollar-sign";
 
 const route = useRoute();
-const router = useRouter();
 
 const tabs = [
-	{ label: __("My Bookings"), name: "bookings-list" },
-	{ label: __("My Tickets"), name: "tickets-list" },
-	{ label: __("Sponsorships"), name: "sponsorships-list" },
+	{ label: __("My Bookings"), route: "/account/bookings", icon: LucideCalendarDays },
+	{ label: __("My Tickets"), route: "/account/tickets", icon: LucideTicket },
+	{ label: __("Talk Proposals"), route: "/account/proposals", icon: LucideMegaphone },
+	{ label: __("Sponsorships"), route: "/account/sponsorships", icon: LucideCircleDollarSign },
 ];
 
 // Find the tab index based on current route path
 const getTabIndexFromRoute = () => {
 	const currentPath = route.path;
-
-	// Check path patterns for each tab
-	if (currentPath.startsWith("/account/bookings")) {
-		return tabs.findIndex((tab) => tab.name === "bookings-list");
-	}
-	if (currentPath.startsWith("/account/tickets")) {
-		return tabs.findIndex((tab) => tab.name === "tickets-list");
-	}
-	if (currentPath.startsWith("/account/sponsorships")) {
-		return tabs.findIndex((tab) => tab.name === "sponsorships-list");
-	}
-	if (currentPath.startsWith("/account/profile")) {
-		return tabs.findIndex((tab) => tab.name === "profile");
-	}
-
-	// Default to first tab
-	return 0;
+	const index = tabs.findIndex((tab) => currentPath.startsWith(tab.route));
+	return index >= 0 ? index : 0;
 };
 
 const tabIndex = ref(getTabIndexFromRoute());
@@ -55,12 +44,4 @@ watch(
 		tabIndex.value = getTabIndexFromRoute();
 	}
 );
-
-// Handle tab change and navigate to corresponding route
-const handleTabChange = (newTabIndex) => {
-	const selectedTab = tabs[newTabIndex];
-	if (selectedTab && selectedTab.name !== route.name) {
-		router.push({ name: selectedTab.name });
-	}
-};
 </script>

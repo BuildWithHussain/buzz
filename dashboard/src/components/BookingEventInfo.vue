@@ -36,12 +36,15 @@
 			</div>
 
 			<!-- Venue -->
-			<div v-if="event.venue">
+			<div v-if="venue">
 				<div class="flex items-center text-ink-gray-6 mb-1">
 					<LucideMapPin class="w-4 h-4 mr-2 flex-shrink-0" />
 					<span class="text-sm font-medium">{{ __("Venue") }}</span>
 				</div>
-				<p class="text-ink-gray-9 font-medium">{{ event.venue }}</p>
+				<p class="text-ink-gray-9 font-medium">{{ venue.name }}</p>
+				<p v-if="venue.address" class="text-sm text-ink-gray-6 mt-1">
+					{{ venue.address }}
+				</p>
 			</div>
 
 			<!-- Event Description -->
@@ -68,6 +71,10 @@ defineProps({
 				typeof value.route === "string"
 			);
 		},
+	},
+	venue: {
+		type: Object,
+		default: null,
 	},
 });
 

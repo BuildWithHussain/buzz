@@ -14,6 +14,7 @@
   "default_value",
   "column_break_fpgn",
   "applied_to",
+  "offline_payment_method",
   "fieldtype",
   "options",
   "order"
@@ -33,13 +34,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "default": "Booking",
-   "fieldname": "applied_to",
-   "fieldtype": "Select",
-   "label": "Applied To",
-   "options": "Booking\nTicket"
-  },
-  {
    "fieldname": "label",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -57,7 +51,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Data\nPhone\nEmail\nSelect\nDate\nNumber",
+   "options": "Data\nCheck\nSmall Text\nPhone\nEmail\nSelect\nDate\nNumber\nMulti Select",
    "reqd": 1
   },
   {
@@ -93,12 +87,27 @@
    "fieldname": "default_value",
    "fieldtype": "Data",
    "label": "Default Value"
+  },
+  {
+   "default": "Booking",
+   "fieldname": "applied_to",
+   "fieldtype": "Select",
+   "label": "Applied To",
+   "options": "Booking\nTicket\nOffline Payment Form"
+  },
+  {
+   "depends_on": "eval:doc.applied_to === 'Offline Payment Form'",
+   "fieldname": "offline_payment_method",
+   "fieldtype": "Link",
+   "label": "Offline Payment Method",
+   "mandatory_depends_on": "eval:doc.applied_to === 'Offline Payment Form'",
+   "options": "Offline Payment Method"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-29 12:54:06.927547",
+ "modified": "2026-02-06 15:26:27.195623",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz Custom Field",

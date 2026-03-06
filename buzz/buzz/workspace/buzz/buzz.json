@@ -1,7 +1,7 @@
 {
  "app": "buzz",
  "charts": [],
- "content": "[{\"id\":\"zIbv_UEOb3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Frappe Events</span>\",\"col\":12}},{\"id\":\"B7T9hOVByA\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Events\",\"col\":4}},{\"id\":\"6EmoNKPAq9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hosts\",\"col\":4}},{\"id\":\"2pkzzN2QBq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Event\",\"col\":4}},{\"id\":\"B8S8lsTY5E\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Events Overview Report\",\"col\":5}},{\"id\":\"HUpOTcgLjG\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"LwunpBpLEf\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Events this Month\",\"col\":4}},{\"id\":\"O38IUyNBcm\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"AJ9C_o5Z5X\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Bookings\",\"col\":4}},{\"id\":\"DBwgGwt5rK\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Tickets\",\"col\":4}},{\"id\":\"cga4Qa9PWt\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Proposals</b></span>\",\"col\":12}},{\"id\":\"Yhe9MMCrye\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Talk Proposals This Week \",\"col\":4}},{\"id\":\"L_MVyuOl1o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sponsorship Enquiry\",\"col\":4}},{\"id\":\"lTxES7vTQh\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"MNP78pxO9t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add-ons Overview\",\"col\":4}}]",
+ "content": "[{\"id\":\"zIbv_UEOb3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Frappe Events</span>\",\"col\":12}},{\"id\":\"6EmoNKPAq9\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Hosts\",\"col\":4}},{\"id\":\"2pkzzN2QBq\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Create New Event\",\"col\":4}},{\"id\":\"HUpOTcgLjG\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"LwunpBpLEf\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Events this Month\",\"col\":4}},{\"id\":\"O38IUyNBcm\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"cga4Qa9PWt\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Proposals</b></span>\",\"col\":12}},{\"id\":\"Yhe9MMCrye\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Talk Proposals This Week \",\"col\":4}},{\"id\":\"L_MVyuOl1o\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sponsorship Enquiry\",\"col\":4}},{\"id\":\"lTxES7vTQh\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"MNP78pxO9t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Add-ons Overview\",\"col\":4}}]",
  "creation": "2025-07-19 12:52:25.932004",
  "custom_blocks": [],
  "docstatus": 0,
@@ -15,7 +15,7 @@
  "label": "Buzz",
  "link_type": "DocType",
  "links": [],
- "modified": "2025-11-06 13:06:56.009226",
+ "modified": "2025-12-30 12:43:19.655156",
  "modified_by": "Administrator",
  "module": "Buzz",
  "name": "Buzz",
@@ -27,21 +27,12 @@
   {
    "document_type": "Buzz Event",
    "label": "Events this Month",
-   "quick_list_filter": "[[\"Buzz Event\",\"start_date\",\"Timespan\",\"this month\",false]]"
+   "quick_list_filter": "[[\"Buzz Event\",\"start_date\",\"Timespan\",\"this month\"]]"
   }
  ],
  "roles": [],
  "sequence_id": 23.0,
  "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "format": "{} Done",
-   "label": "Bookings",
-   "link_to": "Event Booking",
-   "stats_filter": "[[\"Event Booking\",\"docstatus\",\"=\",\"1\",false]]",
-   "type": "DocType"
-  },
   {
    "color": "Grey",
    "doc_view": "List",
@@ -51,28 +42,11 @@
    "type": "Report"
   },
   {
-   "color": "Green",
-   "doc_view": "List",
-   "label": "Tickets",
-   "link_to": "Event Ticket",
-   "stats_filter": "[[\"Event Ticket\",\"docstatus\",\"=\",\"1\",false]]",
-   "type": "DocType"
-  },
-  {
    "color": "Grey",
    "doc_view": "New",
    "label": "Create New Event",
    "link_to": "Buzz Event",
    "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Green",
-   "doc_view": "List",
-   "format": "{} Published",
-   "label": "Events",
-   "link_to": "Buzz Event",
-   "stats_filter": "[[\"Buzz Event\",\"is_published\",\"=\",1,false]]",
    "type": "DocType"
   },
   {
@@ -88,16 +62,8 @@
    "doc_view": "List",
    "label": "Talk Proposals This Week ",
    "link_to": "Talk Proposal",
-   "stats_filter": "[[\"Talk Proposal\",\"creation\",\"Timespan\",\"this week\",false]]",
+   "stats_filter": "[[\"Talk Proposal\",\"creation\",\"Timespan\",\"this week\"]]",
    "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Events Overview Report",
-   "link_to": "Event Overview",
-   "report_ref_doctype": "Buzz Event",
-   "type": "Report"
   },
   {
    "color": "Grey",

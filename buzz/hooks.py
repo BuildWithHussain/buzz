@@ -39,7 +39,7 @@ doc_events = {
 	},
 }
 
-fixtures = [{"dt": "Role", "filters": {"name": ["Buzz User", "Frontdesk Manager"]}}]
+fixtures = [{"dt": "Role", "filters": {"name": ["in", ["Buzz User", "Frontdesk Manager"]]}}]
 
 user_invitation = {"allowed_roles": {"Event Manager": ["Buzz User"], "Buzz User": ["Buzz User"]}}
 
@@ -49,22 +49,22 @@ ignore_links_on_delete = ["Ticket Cancellation Request", "Ticket Add-on Value"]
 after_app_install = "buzz.install.after_app_install"
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "events",
-# 		"logo": "/assets/events/logo.png",
-# 		"title": "Events",
-# 		"route": "/events",
-# 		"has_permission": "buzz.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "buzz",
+		"logo": "/assets/buzz/images/buzz-logo-rounded.png",
+		"title": "Buzz",
+		"route": "/app/buzz",
+		"has_permission": "buzz.api.has_app_permission",
+	}
+]
 
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/events/css/events.css"
-# app_include_js = "/assets/events/js/events.js"
+# app_include_js = "/assets/buzz/js/events.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/events/css/events.css"
@@ -145,7 +145,8 @@ after_app_install = "buzz.install.after_app_install"
 # Name of the app being uninstalled is passed as an argument
 
 # before_app_uninstall = "events.utils.before_app_uninstall"
-# after_app_uninstall = "events.utils.after_app_uninstall"
+after_app_uninstall = "buzz.install.after_app_uninstall"
+after_migrate = "buzz.install.on_migrate"
 
 # Desk Notifications
 # ------------------

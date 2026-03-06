@@ -4,6 +4,7 @@
 import frappe
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
+from frappe.utils import get_url
 
 from buzz.payments import mark_payment_as_received
 
@@ -26,6 +27,13 @@ class SponsorshipEnquiry(Document):
 		tier: DF.Link | None
 		website: DF.Data | None
 	# end: auto-generated types
+
+	def on_update(self):
+		if self.has_value_changed("status") and self.status == "Payment Pending":
+			try:
+				self.send_approval_notification()
+			except Exception:
+				frappe.log_error("Error sending Sponsorship Approval Notification")
 
 	def on_payment_authorized(self, payment_status: str):
 		if payment_status in ("Authorized", "Completed"):
@@ -71,22 +79,59 @@ class SponsorshipEnquiry(Document):
 
 	def send_pitch_deck(self, now=False):
 		event = frappe.get_cached_doc("Buzz Event", self.event)
-		if not event.auto_send_pitch_deck:
+		settings = frappe.get_cached_doc("Buzz Settings")
+
+		# Check event-level toggle first, then fall back to global
+		if not event.auto_send_pitch_deck and not settings.auto_send_pitch_deck:
 			return
 
-		email_template = get_email_template(event.sponsor_deck_email_template, {"doc": self, "event": event})
+		# Get template: event-level takes precedence, fall back to global
+		template_name = event.sponsor_deck_email_template or settings.default_sponsor_deck_email_template
+		if not template_name:
+			frappe.log_error("No sponsor deck email template configured", "Sponsorship Enquiry")
+			return
+
+		email_template = get_email_template(template_name, {"doc": self, "event": event})
 
 		subject = email_template.get("subject")
 		content = email_template.get("message")
 
+		# Get CC and Reply-To: event-level takes precedence
+		cc = event.sponsor_deck_cc or settings.default_sponsor_deck_cc
+		reply_to = event.sponsor_deck_reply_to or settings.default_sponsor_deck_reply_to
+
 		frappe.sendmail(
 			recipients=[self.owner],
 			subject=subject,
-			cc=event.sponsor_deck_cc,
-			reply_to=event.sponsor_deck_reply_to,
+			cc=cc,
+			reply_to=reply_to,
 			content=content,
 			reference_doctype=self.doctype,
 			reference_name=self.name,
 			now=now,
 			attachments=[{"file_url": attachment.file} for attachment in event.sponsor_deck_attachments],
+		)
+
+	def send_approval_notification(self):
+		event = frappe.get_cached_doc("Buzz Event", self.event)
+		host_name = event.host or "The Event Team"
+		dashboard_link = get_url(f"/dashboard/account/sponsorships/{self.name}")
+
+		subject = f"[Payment Pending] Your Sponsorship for {event.title} has been Approved!"
+		message = f"""
+		<p>Dear {self.company_name},</p>
+
+		<p>We are pleased to inform you that your sponsorship enquiry for <strong>{event.title}</strong> has been approved.</p>
+
+		<p>You can now proceed to select a sponsorship tier and complete the payment by visiting your dashboard <a href="{dashboard_link}">here</a>.</p>
+
+		<br>{host_name}</p>
+		"""
+
+		frappe.sendmail(
+			recipients=[self.owner],
+			subject=subject,
+			message=message,
+			reference_doctype=self.doctype,
+			reference_name=self.name,
 		)

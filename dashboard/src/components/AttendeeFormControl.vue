@@ -51,7 +51,7 @@
 				:options="
 					availableTicketTypes.map((tt) => ({
 						label: `${__(tt.title)} (${formatPriceOrFree(tt.price, tt.currency)})`,
-						value: tt.name,
+						value: String(tt.name),
 					}))
 				"
 			/>
@@ -109,9 +109,9 @@
 
 <script setup>
 import { Tooltip } from "frappe-ui";
-import { formatPriceOrFree } from "../utils/currency.js";
+import { formatPriceOrFree } from "@/utils/currency";
 import CustomFieldInput from "./CustomFieldInput.vue";
-import { getFieldDefaultValue } from "@/composables/useCustomFields.js";
+import { getFieldDefaultValue } from "@/composables/useCustomFields";
 
 const props = defineProps({
 	attendee: { type: Object, required: true },

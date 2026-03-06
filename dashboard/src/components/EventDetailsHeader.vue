@@ -45,7 +45,9 @@
 					<div>
 						<p class="font-medium text-ink-gray-8">
 							{{ formatEventTime(eventDetails.start_time, eventDetails.end_time) }}
-							({{ eventDetails.time_zone }})
+							<span v-if="eventDetails.time_zone"
+								>({{ eventDetails.time_zone }})</span
+							>
 						</p>
 					</div>
 				</div>
@@ -92,7 +94,7 @@
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideClock from "~icons/lucide/clock";
 import LucideMapPin from "~icons/lucide/map-pin";
-import { dayjsLocal, dayjs } from "frappe-ui/src/utils/dayjs";
+import { dayjsLocal, dayjs } from "frappe-ui";
 
 const props = defineProps({
 	eventDetails: {

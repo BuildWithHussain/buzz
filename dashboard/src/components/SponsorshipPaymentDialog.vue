@@ -2,26 +2,32 @@
 	<Dialog
 		v-model="isOpen"
 		:options="{
-			title: 'Select Sponsorship Tier',
+			title: __('Select Sponsorship Tier'),
 			size: 'xl',
-			description: 'Choose your preferred sponsorship tier and proceed to payment',
+			description: __('Choose your preferred sponsorship tier and proceed to payment'),
 		}"
 	>
 		<template #body-content>
 			<div v-if="!props.eventId" class="text-center py-8">
-				<p class="text-ink-gray-5">Loading event information...</p>
+				<p class="text-ink-gray-5">{{ __("Loading event information...") }}</p>
 			</div>
 
 			<div v-else-if="tiers.loading" class="flex justify-center py-8">
 				<Spinner />
 			</div>
 
-			<div v-else-if="tiers.data && tiers.data.length > 0" class="space-y-4">
-				<p class="text-ink-gray-7 mb-6">
-					Select a sponsorship tier for
-					<strong>{{ eventTitle || "this event" }}</strong> and proceed to payment.
-				</p>
+			<div v-else-if="tiers.data && tiers.data.length > 0" class="space-y-6">
+				<p
+					class="text-ink-gray-7"
+					v-html="
+						__(
+							'Select a sponsorship tier for <strong>{0}</strong> and proceed to payment.',
+							[eventTitle || __('this event')]
+						)
+					"
+				></p>
 
+				<!-- Tier Selection -->
 				<div class="space-y-3">
 					<div
 						v-for="tier in tiers.data"
@@ -42,7 +48,9 @@
 									class="text-ink-gray-6"
 								/>
 								<div>
-									<h3 class="font-semibold text-ink-gray-9">{{ tier.title }}</h3>
+									<h3 class="font-semibold text-ink-gray-9">
+										{{ tier.title }}
+									</h3>
 								</div>
 							</div>
 							<div class="text-right">
@@ -54,17 +62,49 @@
 					</div>
 				</div>
 
+				<!-- Payment Gateway Selection (only shown when tier is selected and multiple gateways exist) -->
+				<div v-if="selectedTier && hasMultipleGateways" class="space-y-3">
+					<h4 class="font-semibold text-ink-gray-8">
+						{{ __("Select Payment Method") }}
+					</h4>
+					<div class="flex flex-wrap gap-3">
+						<div
+							v-for="gateway in paymentGateways"
+							:key="gateway"
+							class="border border-outline-gray-2 rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-outline-gray-3 hover:bg-surface-gray-1"
+							:class="{
+								'border-outline-gray-4 bg-surface-gray-2':
+									selectedGateway === gateway,
+							}"
+							@click="selectedGateway = gateway"
+						>
+							<div class="flex items-center space-x-2">
+								<input
+									type="radio"
+									:checked="selectedGateway === gateway"
+									@change="selectedGateway = gateway"
+									class="text-ink-gray-6"
+								/>
+								<span class="font-medium text-ink-gray-9">{{ gateway }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Selected Summary -->
 				<div
 					v-if="selectedTier"
-					class="mt-6 p-4 bg-surface-green-1 border border-outline-green-1 rounded-lg"
+					class="p-4 bg-surface-green-1 border border-outline-green-1 rounded-lg"
 				>
 					<div class="flex items-center justify-between">
 						<div>
-							<h4 class="font-semibold text-ink-green-2">Selected Tier</h4>
+							<h4 class="font-semibold text-ink-green-2">
+								{{ __("Selected Tier") }}
+							</h4>
 							<p class="text-ink-green-2">{{ selectedTier.title }}</p>
 						</div>
 						<div class="text-right">
-							<p class="text-sm text-ink-green-2">Total Amount</p>
+							<p class="text-sm text-ink-green-2">{{ __("Total Amount") }}</p>
 							<p class="font-bold text-xl text-ink-green-2">
 								{{ formatCurrency(selectedTier.price, selectedTier.currency) }}
 							</p>
@@ -74,25 +114,27 @@
 			</div>
 
 			<div v-else-if="tiers.error" class="text-center py-8">
-				<p class="text-ink-red-2">Error loading sponsorship tiers</p>
+				<p class="text-ink-red-2">{{ __("Error loading sponsorship tiers") }}</p>
 				<p class="text-ink-gray-5 text-sm">{{ tiers.error }}</p>
 			</div>
 
 			<div v-else class="text-center py-8">
-				<p class="text-ink-gray-5">No sponsorship tiers available for this event</p>
+				<p class="text-ink-gray-5">
+					{{ __("No sponsorship tiers available for this event") }}
+				</p>
 			</div>
 		</template>
 
 		<template #actions>
 			<div class="flex justify-end space-x-3">
-				<Button variant="ghost" @click="closeDialog">Cancel</Button>
+				<Button variant="ghost" @click="closeDialog">{{ __("Cancel") }}</Button>
 				<Button
 					variant="solid"
-					:disabled="!selectedTier || paymentLink.loading"
+					:disabled="!canProceed || paymentLink.loading"
 					:loading="paymentLink.loading"
 					@click="proceedToPayment"
 				>
-					Proceed to Pay
+					{{ __("Proceed to Pay") }}
 				</Button>
 			</div>
 		</template>
@@ -100,9 +142,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { Dialog, Button, Spinner, createResource, useList } from "frappe-ui";
-import { formatCurrency } from "../utils/currency";
+import { formatCurrency } from "@/utils/currency";
 
 const props = defineProps({
 	open: {
@@ -127,6 +169,17 @@ const emit = defineEmits(["update:open", "payment-started"]);
 
 const isOpen = ref(props.open);
 const selectedTier = ref(null);
+const selectedGateway = ref(null);
+const paymentGateways = ref([]);
+
+const hasMultipleGateways = computed(() => paymentGateways.value.length > 1);
+
+const canProceed = computed(() => {
+	if (!selectedTier.value) return false;
+	// If multiple gateways, require gateway selection
+	if (hasMultipleGateways.value && !selectedGateway.value) return false;
+	return true;
+});
 
 // Watch for prop changes
 watch(
@@ -136,7 +189,9 @@ watch(
 		if (newVal && props.eventId) {
 			// Reset selection when dialog opens
 			selectedTier.value = null;
+			selectedGateway.value = null;
 			tiers.fetch();
+			fetchPaymentGateways();
 		}
 	}
 );
@@ -154,6 +209,21 @@ const tiers = useList({
 	onError: console.error,
 	auto: false, // Don't auto-fetch, we'll fetch manually when dialog opens
 });
+
+// Fetch payment gateways for the event
+const paymentGatewaysResource = createResource({
+	url: "buzz.api.get_event_payment_gateways",
+	onSuccess: (data) => {
+		paymentGateways.value = data || [];
+	},
+	onError: console.error,
+});
+
+function fetchPaymentGateways() {
+	paymentGatewaysResource.submit({
+		event: props.eventId,
+	});
+}
 
 // Resource to create payment link
 const paymentLink = createResource({
@@ -173,14 +243,19 @@ const paymentLink = createResource({
 const closeDialog = () => {
 	isOpen.value = false;
 	selectedTier.value = null;
+	selectedGateway.value = null;
 };
 
 const proceedToPayment = () => {
 	if (!selectedTier.value) return;
 
+	// Use selected gateway or first available (for single gateway case)
+	const gateway = selectedGateway.value || paymentGateways.value[0] || null;
+
 	paymentLink.submit({
 		enquiry_id: props.enquiryId,
 		tier_id: selectedTier.value.name,
+		payment_gateway: gateway,
 	});
 };
 </script>

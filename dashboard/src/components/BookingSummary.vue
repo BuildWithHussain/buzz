@@ -9,14 +9,44 @@
 			<div
 				v-for="(ticket, name) in summary.tickets"
 				:key="name"
-				class="flex justify-between items-center text-ink-gray-7 mb-1"
+				class="flex justify-between items-start text-ink-gray-7 mb-2"
 			>
-				<span v-if="total > 0"
-					>{{ __(ticket.title) }} (x {{ ticket.count }} x
-					{{ formatPriceOrFree(ticket.price, ticket.currency) }})</span
-				>
-				<span v-else>{{ __(ticket.title) }} (x {{ ticket.count }})</span>
-				<span v-if="total > 0" class="font-medium">{{
+				<div class="flex flex-col">
+					<span>{{ __(ticket.title) }}</span>
+					<span
+						v-if="freeTicketType === name && freeTicketCount > 0"
+						class="text-sm text-ink-gray-5"
+					>
+						{{ Math.min(freeTicketCount, ticket.count) }} x
+						<span class="line-through">{{
+							formatPriceOrFree(ticket.price, ticket.currency)
+						}}</span>
+						{{ __("Free")
+						}}{{
+							ticket.count > freeTicketCount
+								? `, ${ticket.count - freeTicketCount} x ${formatPriceOrFree(
+										ticket.price,
+										ticket.currency
+								  )}`
+								: ""
+						}}
+					</span>
+					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
+						{{ ticket.count }} x {{ formatPriceOrFree(ticket.price, ticket.currency) }}
+					</span>
+					<span v-else class="text-sm text-ink-gray-5">x {{ ticket.count }}</span>
+				</div>
+				<span v-if="freeTicketType === name && freeTicketCount > 0" class="font-medium">
+					{{
+						ticket.count <= freeTicketCount
+							? __("Free")
+							: formatPriceOrFree(
+									(ticket.count - freeTicketCount) * ticket.price,
+									ticket.currency
+							  )
+					}}
+				</span>
+				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(ticket.amount, ticket.currency)
 				}}</span>
 			</div>
@@ -28,43 +58,100 @@
 			<div
 				v-for="(addOn, name) in summary.add_ons"
 				:key="name"
-				class="flex justify-between items-center text-ink-gray-7 mb-1"
+				class="flex justify-between items-start text-ink-gray-7 mb-2"
 			>
-				<span v-if="total > 0"
-					>{{ __(addOn.title) }} (x {{ addOn.count }} x
-					{{ formatPriceOrFree(addOn.price, addOn.currency) }})</span
-				>
-				<span v-else>{{ __(addOn.title) }} (x {{ addOn.count }})</span>
-				<span v-if="total > 0" class="font-medium">{{
+				<div class="flex flex-col">
+					<span>{{ __(addOn.title) }}</span>
+					<span v-if="freeAddOnCounts[name] > 0" class="text-sm text-ink-gray-5">
+						{{ Math.min(freeAddOnCounts[name], addOn.count) }} x
+						<span class="line-through">{{
+							formatPriceOrFree(addOn.price, addOn.currency)
+						}}</span>
+						{{ __("Free")
+						}}{{
+							addOn.count > freeAddOnCounts[name]
+								? `, ${addOn.count - freeAddOnCounts[name]} x ${formatPriceOrFree(
+										addOn.price,
+										addOn.currency
+								  )}`
+								: ""
+						}}
+					</span>
+					<span v-else-if="netAmount > 0" class="text-sm text-ink-gray-5">
+						{{ addOn.count }} x {{ formatPriceOrFree(addOn.price, addOn.currency) }}
+					</span>
+					<span v-else class="text-sm text-ink-gray-5">x {{ addOn.count }}</span>
+				</div>
+				<span v-if="freeAddOnCounts[name] > 0" class="font-medium">
+					{{
+						addOn.count <= freeAddOnCounts[name]
+							? __("Free")
+							: formatPriceOrFree(
+									(addOn.count - freeAddOnCounts[name]) * addOn.price,
+									addOn.currency
+							  )
+					}}
+				</span>
+				<span v-else-if="netAmount > 0" class="font-medium">{{
 					formatPriceOrFree(addOn.amount, addOn.currency)
 				}}</span>
 			</div>
 		</div>
 
-		<!-- Only show pricing summary if total > 0 -->
-		<template v-if="total > 0">
+		<!-- Show pricing summary if total > 0 OR coupon made it free -->
+		<template v-if="total > 0 || (couponApplied && netAmount > 0)">
 			<hr class="my-4 border-t border-outline-gray-1" />
 
-			<!-- Subtotal -->
-			<div class="flex justify-between items-center text-ink-gray-7 mb-2">
+			<!-- Subtotal (hide when tax-inclusive and no discount, since it equals total) -->
+			<div
+				v-if="!taxInclusive || (couponApplied && discountAmount > 0)"
+				class="flex justify-between items-center text-ink-gray-7 mb-2"
+			>
 				<span>{{ __("Subtotal") }}</span>
 				<span class="font-medium">{{ formatPriceOrFree(netAmount, totalCurrency) }}</span>
 			</div>
 
-			<!-- GST Section -->
+			<!-- Discount Section -->
 			<div
-				v-if="shouldApplyGst"
+				v-if="couponApplied && discountAmount > 0"
+				class="flex justify-between items-center text-green-600 mb-2"
+			>
+				<span>{{
+					couponType === "Free Tickets" ? __("Free Tickets") : __("Discount")
+				}}</span>
+				<span class="font-medium"
+					>-{{ formatPriceOrFree(discountAmount, totalCurrency) }}</span
+				>
+			</div>
+
+			<!-- Tax Section (exclusive only — shown as line item added to total) -->
+			<div
+				v-if="shouldApplyTax && !taxInclusive"
 				class="flex justify-between items-center text-ink-gray-7 mb-2"
 			>
-				<span>{{ __("GST") }} ({{ taxPercentage }}%)</span>
+				<span>{{ __(taxLabel) }} ({{ taxPercentage }}%)</span>
 				<span class="font-medium">{{ formatPriceOrFree(taxAmount, totalCurrency) }}</span>
 			</div>
 
 			<!-- Final Total Section -->
-			<hr v-if="shouldApplyGst" class="my-2 border-t border-outline-gray-1" />
+			<hr v-if="shouldApplyTax" class="my-2 border-t border-outline-gray-1" />
 			<div class="flex justify-between items-center text-xl font-bold text-ink-gray-9">
 				<h3>{{ __("Total") }}</h3>
 				<span>{{ formatPriceOrFree(total, totalCurrency) }}</span>
+			</div>
+
+			<!-- Tax-inclusive note (shown below total) -->
+			<div
+				v-if="shouldApplyTax && taxInclusive"
+				class="text-sm text-ink-gray-5 text-right mt-3"
+			>
+				{{
+					__("Inclusive of {0} {1} ({2}%)", [
+						formatPriceOrFree(taxAmount, totalCurrency),
+						__(taxLabel),
+						taxPercentage,
+					])
+				}}
 			</div>
 		</template>
 
@@ -79,7 +166,7 @@
 </template>
 
 <script setup>
-import { formatPriceOrFree } from "../utils/currency.js";
+import { formatPriceOrFree } from "@/utils/currency";
 
 defineProps({
 	summary: {
@@ -90,6 +177,30 @@ defineProps({
 		type: Number,
 		required: true,
 	},
+	discountAmount: {
+		type: Number,
+		default: 0,
+	},
+	couponApplied: {
+		type: Boolean,
+		default: false,
+	},
+	couponType: {
+		type: String,
+		default: "",
+	},
+	freeAddOnCounts: {
+		type: Object,
+		default: () => ({}),
+	},
+	freeTicketType: {
+		type: String,
+		default: "",
+	},
+	freeTicketCount: {
+		type: Number,
+		default: 0,
+	},
 	taxAmount: {
 		type: Number,
 		default: 0,
@@ -98,7 +209,15 @@ defineProps({
 		type: Number,
 		default: 0,
 	},
-	shouldApplyGst: {
+	taxLabel: {
+		type: String,
+		default: "Tax",
+	},
+	taxInclusive: {
+		type: Boolean,
+		default: false,
+	},
+	shouldApplyTax: {
 		type: Boolean,
 		default: false,
 	},

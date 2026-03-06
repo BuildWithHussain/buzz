@@ -39,7 +39,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Review Pending\nShortlisted\nApproved\nRejected"
+   "options": "Review Pending\nShortlisted\nAccepted\nRejected"
   },
   {
    "fieldname": "event",
@@ -86,7 +86,7 @@
    "link_fieldname": "proposal"
   }
  ],
- "modified": "2025-12-02 15:48:20.148917",
+ "modified": "2026-01-14 12:38:27.700962",
  "modified_by": "Administrator",
  "module": "Proposals",
  "name": "Talk Proposal",
@@ -103,13 +103,43 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Event Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "if_owner": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Buzz User",
+   "share": 1,
+   "write": 1
   }
  ],
  "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "creation",
  "sort_order": "DESC",
- "states": [],
+ "states": [
+  {
+   "color": "Green",
+   "title": "Accepted"
+  }
+ ],
  "title_field": "title",
  "track_changes": 1,
  "track_seen": 1,

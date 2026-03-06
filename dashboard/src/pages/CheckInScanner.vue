@@ -85,16 +85,25 @@
 </template>
 
 <script setup>
-import { Button } from "frappe-ui";
+import { createResource } from "frappe-ui";
 import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import BackButton from "../components/common/BackButton.vue";
 import EventSelector from "../components/EventSelector.vue";
 import QRScanner from "../components/QRScanner.vue";
 import TicketDetailsModal from "../components/TicketDetailsModal.vue";
-import { useTicketValidation } from "../composables/useTicketValidation.js";
+import { useTicketValidation } from "@/composables/useTicketValidation";
 import LucideShieldX from "~icons/lucide/shield-x";
-import { userResource } from "../data/user.js";
+import { userResource } from "@/data/user";
 
+const props = defineProps({
+	eventName: {
+		type: String,
+		default: "",
+	},
+});
+
+const router = useRouter();
 const userProfile = ref({});
 
 const hasRequiredRole = computed(() => {
@@ -112,14 +121,34 @@ const qrScannerRef = ref(null);
 const selectEvent = (event) => {
 	selectedEvent.value = event;
 	clearResults();
+	router.replace({ name: "check-in", params: { eventName: event.name } });
 };
 
 const clearEventSelection = () => {
 	selectedEvent.value = null;
 	clearResults();
+	router.replace({ name: "check-in" });
 };
 
 onMounted(() => {
 	userProfile.value = { ...userResource.data };
+
+	if (props.eventName) {
+		const eventResource = createResource({
+			url: "frappe.client.get_list",
+			params: {
+				doctype: "Buzz Event",
+				filters: { name: props.eventName },
+				fields: ["name", "title", "start_date", "start_time", "end_date", "end_time"],
+				limit_page_length: 1,
+			},
+			auto: false,
+		});
+		eventResource.fetch().then(() => {
+			if (eventResource.data && eventResource.data.length > 0) {
+				selectedEvent.value = eventResource.data[0];
+			}
+		});
+	}
 });
 </script>

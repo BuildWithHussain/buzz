@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Buzz Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{{uid}}@buzz
+DTSTAMP:{{now}}
+DTSTART;TZID={{timezone}}:{{start}}
+DTEND;TZID={{timezone}}:{{end}}
+SUMMARY:{{title}}
+LOCATION:{{location}}
+ATTENDEE;CN=Attendee;RSVP=TRUE:mailto:{{attendee_email}}
+DESCRIPTION:{{description}}
+END:VEVENT
+END:VCALENDAR

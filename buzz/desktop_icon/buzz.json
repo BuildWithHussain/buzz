@@ -1,0 +1,21 @@
+{
+ "app": "buzz",
+ "creation": "2026-01-06 12:22:37.145959",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "Folder",
+ "idx": 0,
+ "label": "Buzz",
+ "link_to": "Buzz",
+ "link_type": "Workspace",
+ "logo_url": "/assets/buzz/images/buzz-logo-rounded.png",
+ "modified": "2026-01-06 12:22:51.563570",
+ "modified_by": "Administrator",
+ "name": "Buzz",
+ "owner": "Administrator",
+ "parent_icon": "Buzz",
+ "roles": [],
+ "sidebar": "Buzz",
+ "standard": 1
+}

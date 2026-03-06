@@ -193,6 +193,7 @@
                                       {{ doc.name }}
                                     </p>
                                   </td>
+                                  {% if doc.add_ons %}
                                   <td
                                     data-id="__react-email-column"
                                     style="width:50%;padding-left:16px">
@@ -210,6 +211,7 @@
 									  {% endfor %}
                                     </div>
                                   </td>
+                                  {% endif %}
                                 </tr>
                               </tbody>
                             </table>

@@ -1,0 +1,74 @@
+name: PR Title Check
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+permissions:
+  pull-requests: write
+
+jobs:
+  validate-pr-title:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Validate PR title
+        id: validate
+        uses: amannn/action-semantic-pull-request@v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+        with:
+          # Default types from: https://github.com/commitizen/conventional-commit-types
+          requireScope: false
+          wip: false
+
+      - name: Print Failure Documentation
+        if: steps.validate.outcome == 'failure'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "## ❌ PR Title Validation Failed"
+          echo ""
+          echo "**Current title:** \`$PR_TITLE\`"
+          echo ""
+          echo "Use a conventional commit style so we can keep a clear history. Fix it like this:"
+          echo ""
+          echo "### 📋 Format"
+          echo ""
+          echo "\`type: description\`  or  \`type(scope): description\`"
+          echo ""
+          echo "### 🏷️ Allowed types"
+          echo ""
+          echo "| Type     | Use for |"
+          echo "|----------|--------|"
+          echo "| feat     | New feature or user-facing change |"
+          echo "| fix      | Bug fix |"
+          echo "| docs     | Documentation only |"
+          echo "| style    | Formatting, no logic change |"
+          echo "| refactor | Code change (no new feature or bug fix) |"
+          echo "| perf     | Performance improvement |"
+          echo "| test     | Adding or updating tests |"
+          echo "| build    | Build system or dependencies |"
+          echo "| ci       | CI configuration |"
+          echo "| chore    | Other (maintenance, tooling) |"
+          echo ""
+          echo "### 🎯 Examples"
+          echo ""
+          echo "- \`feat: add user authentication\`"
+          echo "- \`feat(api): add payment endpoint\`"
+          echo "- \`fix: resolve login timeout\`"
+          echo "- \`chore: update Python dependencies\`"
+          echo ""
+          echo "### ❌ Fix these mistakes"
+          echo ""
+          echo "- \`Add user login\` → \`feat: add user authentication\`"
+          echo "- \`Fixed the bug\` → \`fix: resolve checkout error\`"
+          echo "- \`feat:add feature\` → \`feat: add feature\` (space after colon)"
+          echo ""
+          echo "---"
+          echo "Edit the PR title and this check will re-run automatically."
+          exit 1
