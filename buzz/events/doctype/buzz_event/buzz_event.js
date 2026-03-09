@@ -933,7 +933,7 @@ function _build_recurrence_dialog(default_date, default_time, on_add, body_html)
 			$preview.append(`
 				<div style="display:flex;flex-direction:column;align-items:center;
 					padding:6px 8px;border:1px solid var(--border-color);border-radius:8px;
-					background:var(--card-bg);min-width:0;flex:1;text-align:center;">
+					background:var(--card-bg);min-width:0;flex:0 0 calc(20% - 5px);text-align:center;">
 					<span style="font-size:9px;color:var(--text-muted);
 					     text-transform:uppercase;letter-spacing:.5px;line-height:1.4;">
 						${d_obj.toLocaleDateString("en-US", { month: "short" })}
@@ -952,7 +952,7 @@ function _build_recurrence_dialog(default_date, default_time, on_add, body_html)
 			$preview.append(`
 				<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
 					padding:6px 8px;border:1px solid var(--border-color);border-radius:8px;
-					background:var(--card-bg);min-width:0;flex:1;text-align:center;
+					background:var(--card-bg);min-width:0;flex:0 0 calc(20% - 5px);text-align:center;
 					color:var(--text-muted);font-size:13px;font-weight:700;">
 					+${overflow}
 				</div>
