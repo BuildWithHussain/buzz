@@ -21,7 +21,7 @@
 		</h4>
 
 		<!-- Name, Email and Custom Fields -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-end">
 			<FormControl
 				v-model="attendee.full_name"
 				:label="__('Full Name')"

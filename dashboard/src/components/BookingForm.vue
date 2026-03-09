@@ -123,7 +123,7 @@
 						<h3 class="text-sm font-semibold text-ink-gray-8 mb-4">
 							{{ __("Your Details") }}
 						</h3>
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
 							<FormControl
 								v-model="guestFullName"
 								type="text"
