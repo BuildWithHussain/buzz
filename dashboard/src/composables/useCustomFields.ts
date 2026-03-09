@@ -77,11 +77,14 @@ export function getFieldOptions(field: FrappeField): SelectOption[] {
 		let options = [];
 
 		if (typeof field.options === "string") {
-			// Split by newlines and filter out empty options
-			options = field.options
-				.split("\n")
-				.map((option) => option.trim())
-				.filter((option) => option.length > 0);
+			// Split by newlines, trim each option, and filter out empty ones
+			// but preserve an empty first option as a placeholder
+			const allOptions = field.options.split("\n").map((option) => option.trim());
+			const hasEmptyFirst = allOptions.length > 0 && allOptions[0].length === 0;
+			options = allOptions.filter((option) => option.length > 0);
+			if (hasEmptyFirst) {
+				options.unshift("");
+			}
 		} else if (Array.isArray(field.options)) {
 			// If options is already an array
 			options = field.options.filter((option) => {
@@ -152,14 +155,6 @@ export function getFieldDefaultValue(field: FrappeField): string | number | bool
 	// Check for explicit default value (use != null to allow "0" and 0)
 	if (field.default_value != null && field.default_value !== "") {
 		return field.default_value;
-	}
-
-	// For select fields, return the first option as default
-	if (field.fieldtype === "Select") {
-		const options = getFieldOptions(field);
-		if (options.length > 0) {
-			return options[0].value;
-		}
 	}
 
 	return "";
