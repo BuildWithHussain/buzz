@@ -9,7 +9,7 @@
 			<img
 				:src="eventDetails.banner_image"
 				:alt="eventDetails.title"
-				class="w-full h-full object-cover contrast-100 brightness-100"
+				class="w-full h-auto object-cover contrast-100 brightness-100"
 			/>
 		</div>
 
