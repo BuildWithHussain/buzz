@@ -327,7 +327,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
 import { createResource, Spinner, Button, Badge } from "frappe-ui";
 import { formatCurrency } from "@/utils/currency";
@@ -341,6 +341,34 @@ import LucideEdit from "~icons/lucide/edit";
 import LucideTriangleAlert from "~icons/lucide/triangle-alert";
 import LucideExternalLink from "~icons/lucide/external-link";
 import BackButton from "../components/common/BackButton.vue";
+import type { EventTicket } from "@/types/Ticketing/EventTicket";
+import type { BuzzEvent } from "@/types/Events/BuzzEvent";
+import type { EventBooking } from "@/types/Ticketing/EventBooking";
+import type { EventTicketType } from "@/types/Ticketing/EventTicketType";
+
+export interface TicketDetailsAddOn {
+	id: string;
+	name: string;
+	title: string;
+	value: string;
+	price: number;
+	currency: string;
+	user_selects_option: boolean;
+	options: string[];
+}
+
+export interface TicketDetailsAPIResponse {
+	doc: EventTicket;
+	add_ons: TicketDetailsAddOn[];
+	event: BuzzEvent;
+	booking: EventBooking | null;
+	ticket_type: EventTicketType;
+	can_transfer_ticket: { can_transfer: boolean };
+	can_change_add_ons: { can_change_add_ons: boolean };
+	can_request_cancellation: { can_request_cancellation: boolean };
+	zoom_join_url: string | null;
+	zoom_webinar?: string;
+}
 
 const props = defineProps({
 	ticketId: {
@@ -350,7 +378,7 @@ const props = defineProps({
 });
 
 // Helper function to format date and time together
-const formatEventDateTime = (date, time) => {
+const formatEventDateTime = (date: string, time?: string) => {
 	if (!date) return "";
 
 	// Create a date object from the date string
@@ -377,7 +405,7 @@ const ticketDetails = createResource({
 	url: "buzz.api.get_ticket_details",
 	params: { ticket_id: props.ticketId },
 	auto: true,
-	transform(data) {
+	transform(data: TicketDetailsAPIResponse) {
 		if (!data) return null;
 
 		return {
@@ -387,7 +415,10 @@ const ticketDetails = createResource({
 				...data.doc,
 				formatted_amount:
 					data.booking && data.booking.total_amount !== 0
-						? formatCurrency(data.booking.total_amount, data.booking.currency || "USD")
+						? formatCurrency(
+								data.booking.total_amount ?? 0,
+								data.booking.currency || "USD"
+						  )
 						: "FREE",
 				booking_status: data.booking
 					? data.booking.docstatus === 1
@@ -410,7 +441,7 @@ const ticketDetails = createResource({
 				),
 				event_title: data.event?.title || "",
 				venue: data.event?.venue || "",
-				description: data.event?.description || "",
+				description: data.event?.short_description || "",
 				ticket_type_title: data.ticket_type?.title || data.doc.ticket_type,
 			},
 			// Add-ons with proper titles
@@ -438,7 +469,7 @@ const hasCustomizableAddOns = computed(() => {
 	}
 
 	console.log("Add-ons data:", ticketDetails.data.add_ons);
-	const hasCustomizable = ticketDetails.data.add_ons.some((addon) => {
+	const hasCustomizable = ticketDetails.data.add_ons.some((addon: any) => {
 		console.log(
 			"Checking addon:",
 			addon,
@@ -459,7 +490,7 @@ const canChangeAddOns = computed(() => {
 	);
 });
 
-const getTicketStatusTheme = (status) => {
+const getTicketStatusTheme = (status: string) => {
 	switch (status) {
 		case "Confirmed":
 		case "Active":

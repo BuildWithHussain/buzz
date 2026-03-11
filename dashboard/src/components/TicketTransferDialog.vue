@@ -46,26 +46,31 @@
 	</Dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { createResource, Dialog, FormControl, Button, toast } from "frappe-ui";
+import type { EventTicket } from "@/types/Ticketing/EventTicket";
+import { FrappeError } from "@/types/Frappe/FrappeError";
 
-const props = defineProps({
-	modelValue: {
-		type: Boolean,
-		default: false,
-	},
-	ticket: {
-		type: Object,
-		default: null,
-	},
-});
+const props = withDefaults(
+	defineProps<{
+		modelValue?: boolean;
+		ticket?: EventTicket | null;
+	}>(),
+	{
+		modelValue: false,
+		ticket: null,
+	}
+);
 
-const emit = defineEmits(["update:modelValue", "success"]);
+const emit = defineEmits<{
+	"update:modelValue": [value: boolean];
+	success: [];
+}>();
 
 const isOpen = computed({
 	get: () => props.modelValue,
-	set: (value) => emit("update:modelValue", value),
+	set: (value: boolean) => emit("update:modelValue", value),
 });
 
 const transferForm = ref({
@@ -82,7 +87,7 @@ const transferResource = createResource({
 		resetTransferForm();
 		emit("success");
 	},
-	onError: (error) => {
+	onError: (error: FrappeError) => {
 		toast.error(`${__("Failed to transfer ticket")}: ${error.message}`);
 	},
 });
@@ -108,7 +113,7 @@ const resetTransferForm = () => {
 };
 
 // Reset form when dialog is closed
-watch(isOpen, (newValue) => {
+watch(isOpen, (newValue: boolean) => {
 	if (!newValue) {
 		resetTransferForm();
 	}
