@@ -209,6 +209,90 @@ class BuzzEvent(Document):
 
 
 @frappe.whitelist()
+def get_clone_event_dialog_html(context: str | dict | None = None) -> str:
+	"""Render the clone-event dialog template and return the HTML string."""
+	import json
+
+	ctx = {}
+	if context:
+		ctx = json.loads(context) if isinstance(context, str) else context
+
+	return frappe.render_template("buzz/templates/clone_event_dialog/clone_event_dialog.html", ctx)
+
+
+@frappe.whitelist()
+def get_recurrence_dialog_html() -> str:
+	"""Render the recurrence dialog template and return the HTML string."""
+	return frappe.render_template("buzz/templates/clone_event_dialog/recurrence_dialog.html", {})
+
+
+@frappe.whitelist()
+def clone_buzz_event(name: str, dates: str | list, host: str | None = None) -> list[str]:
+	"""
+	Clone a Buzz Event for each entry in `dates`.
+
+	Args:
+		name    : name of the source Buzz Event
+		dates   : JSON list of {"start_date": "YYYY-MM-DD", "start_time": "HH:MM:SS"}
+		host    : optional Event Host to override on clones
+
+	Returns:
+		list of newly created Buzz Event names
+	"""
+	import json
+
+	from frappe.utils import add_days, date_diff
+	from frappe.utils.data import get_time_str
+
+	if isinstance(dates, str):
+		dates = json.loads(dates)
+
+	if not dates:
+		frappe.throw(frappe._("Please provide at least one date."))
+
+	source = frappe.get_doc("Buzz Event", name)
+
+	# Preserve the original duration (end_date - start_date offset in days)
+	duration_days = 0
+	if source.end_date and source.start_date:
+		duration_days = date_diff(source.end_date, source.start_date)
+
+	created = []
+
+	for entry in dates:
+		new_doc = frappe.copy_doc(source)
+		new_doc.start_date = entry.get("start_date")
+		new_doc.start_time = entry.get("start_time") or source.start_time
+
+		new_doc.start_time = get_time_str(new_doc.start_time)
+		new_doc.end_time = get_time_str(new_doc.end_time)
+
+		if duration_days:
+			new_doc.end_date = add_days(new_doc.start_date, duration_days)
+		else:
+			new_doc.end_date = new_doc.start_date
+
+		# New clone starts as a draft
+		new_doc.is_published = 0
+		new_doc.route = ""
+
+		if host:
+			new_doc.host = host
+
+		# Adjust schedule item dates by the same offset
+		if source.start_date and new_doc.schedule:
+			for row in new_doc.schedule:
+				if row.date:
+					row_offset = date_diff(row.date, source.start_date)
+					row.date = add_days(new_doc.start_date, row_offset)
+
+		new_doc.insert()
+		created.append(new_doc.name)
+
+	return created
+
+
+@frappe.whitelist()
 def create_from_template(template_name: str, options: str, additional_fields: str = "{}") -> str:
 	"""
 	Create a new Buzz Event from a template.
