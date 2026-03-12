@@ -360,23 +360,23 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { usePaymentSuccess } from "@/composables/usePaymentSuccess";
 import {
-	createResource,
-	Spinner,
 	Badge,
 	Button,
-	FileUploader,
-	ErrorMessage,
 	Dialog,
+	ErrorMessage,
+	FileUploader,
+	Spinner,
+	createResource,
 } from "frappe-ui";
 import { toast } from "frappe-ui";
 import { dayjsLocal } from "frappe-ui";
+import { computed, ref } from "vue";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideClock from "~icons/lucide/clock";
 import LucideXCircle from "~icons/lucide/x-circle";
 import SponsorshipPaymentDialog from "../components/SponsorshipPaymentDialog.vue";
-import { usePaymentSuccess } from "@/composables/usePaymentSuccess";
 import BackButton from "../components/common/BackButton.vue";
 
 const props = defineProps({

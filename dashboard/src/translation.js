@@ -7,17 +7,17 @@ export default function translationPlugin(app) {
 }
 
 function format(message, replace) {
-	return message.replace(/{(\d+)}/g, function (match, number) {
-		return typeof replace[number] != "undefined" ? replace[number] : match;
-	});
+	return message.replace(/{(\d+)}/g, (match, number) =>
+		typeof replace[number] != "undefined" ? replace[number] : match
+	);
 }
 
 function translate(message, replace, context = null) {
-	let translatedMessages = window.translatedMessages || {};
+	const translatedMessages = window.translatedMessages || {};
 	let translatedMessage = "";
 
 	if (context) {
-		let key = `${message}:${context}`;
+		const key = `${message}:${context}`;
 		if (translatedMessages[key]) {
 			translatedMessage = translatedMessages[key];
 		}

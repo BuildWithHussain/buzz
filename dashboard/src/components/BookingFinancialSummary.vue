@@ -117,7 +117,11 @@ const paymentBadge = computed(() => {
 	if (status === "Paid") {
 		return { label: __("Paid"), theme: "green", icon: LucideCheck };
 	} else if (status === "Verification Pending") {
-		return { label: __("Verification Pending"), theme: "orange", icon: LucideClock };
+		return {
+			label: __("Verification Pending"),
+			theme: "orange",
+			icon: LucideClock,
+		};
 	}
 	return { label: __(status || "Unpaid"), theme: "red", icon: LucideX };
 });

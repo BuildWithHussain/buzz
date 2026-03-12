@@ -56,9 +56,9 @@
 </template>
 
 <script setup>
+import { dayjsLocal } from "frappe-ui";
 import LucideCalendarDays from "~icons/lucide/calendar-days";
 import LucideMapPin from "~icons/lucide/map-pin";
-import { dayjsLocal } from "frappe-ui";
 
 defineProps({
 	event: {

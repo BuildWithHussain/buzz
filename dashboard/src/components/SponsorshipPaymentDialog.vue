@@ -142,9 +142,9 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
-import { Dialog, Button, Spinner, createResource, useList } from "frappe-ui";
 import { formatCurrency } from "@/utils/currency";
+import { Button, Dialog, Spinner, createResource, useList } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
 	open: {

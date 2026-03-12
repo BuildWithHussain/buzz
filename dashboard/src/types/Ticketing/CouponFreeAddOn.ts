@@ -1,5 +1,4 @@
-
-export interface CouponFreeAddOn{
+export interface CouponFreeAddOn {
 	name: string
 	creation: string
 	modified: string

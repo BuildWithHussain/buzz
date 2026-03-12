@@ -1,6 +1,6 @@
-import { AdditionalField } from '../Ticketing/AdditionalField'
+import type { AdditionalField } from "../Ticketing/AdditionalField"
 
-export interface EventFeedback{
+export interface EventFeedback {
 	name: string
 	creation: string
 	modified: string

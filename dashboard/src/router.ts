@@ -1,6 +1,6 @@
-import { userResource } from "@/data/user";
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import { session } from "./data/session";
+import { userResource } from "@/data/user"
+import { type RouteRecordRaw, createRouter, createWebHistory } from "vue-router"
+import { session } from "./data/session"
 
 const routes: RouteRecordRaw[] = [
 	{
@@ -101,33 +101,33 @@ const routes: RouteRecordRaw[] = [
 			},
 		],
 	},
-];
+]
 
 const router = createRouter({
 	history: createWebHistory("/dashboard"),
 	routes,
-});
+})
 
 router.beforeEach(async (to, from, next) => {
-	let isLoggedIn = session.isLoggedIn;
+	let isLoggedIn = session.isLoggedIn
 	try {
-		await userResource.fetch();
+		await userResource.fetch()
 	} catch (error) {
-		isLoggedIn = false;
+		isLoggedIn = false
 	}
 
 	if (to.meta?.isPublic) {
-		next();
-		return;
+		next()
+		return
 	}
 
 	if (to.name === "Login" && isLoggedIn) {
-		next({ name: "dashboard" });
+		next({ name: "dashboard" })
 	} else if (to.name !== "Login" && !isLoggedIn) {
-		window.location.href = `/login?redirect-to=/dashboard${encodeURIComponent(to.fullPath)}`;
+		window.location.href = `/login?redirect-to=/dashboard${encodeURIComponent(to.fullPath)}`
 	} else {
-		next();
+		next()
 	}
-});
+})
 
-export default router;
+export default router

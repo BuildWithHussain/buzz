@@ -17,8 +17,8 @@
 </template>
 
 <script setup>
-import CustomFieldInput from "./CustomFieldInput.vue";
 import { getFieldDefaultValue } from "@/composables/useCustomFields";
+import CustomFieldInput from "./CustomFieldInput.vue";
 
 const props = defineProps({
 	customFields: {

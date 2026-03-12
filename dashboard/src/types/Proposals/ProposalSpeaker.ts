@@ -1,5 +1,4 @@
-
-export interface ProposalSpeaker{
+export interface ProposalSpeaker {
 	name: string
 	creation: string
 	modified: string

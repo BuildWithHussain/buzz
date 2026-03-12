@@ -1,5 +1,4 @@
-
-export interface AdditionalEventPage{
+export interface AdditionalEventPage {
 	name: string
 	creation: string
 	modified: string

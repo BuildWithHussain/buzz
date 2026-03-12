@@ -1,7 +1,7 @@
-import { AdditionalField } from './AdditionalField'
-import { TicketAddOnValue } from './TicketAddOnValue'
+import type { AdditionalField } from "./AdditionalField"
+import type { TicketAddOnValue } from "./TicketAddOnValue"
 
-export interface EventTicket{
+export interface EventTicket {
 	name: string
 	creation: string
 	modified: string
@@ -12,6 +12,10 @@ export interface EventTicket{
 	parentfield?: string
 	parenttype?: string
 	idx?: number
+	/**	First Name : Data	*/
+	first_name: string
+	/**	Last Name : Data	*/
+	last_name?: string
 	/**	Attendee Name : Data	*/
 	attendee_name: string
 	/**	Event : Link - Buzz Event	*/

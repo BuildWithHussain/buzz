@@ -60,15 +60,15 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { DatePicker, DateTimePicker, MultiSelect } from "frappe-ui";
 import {
-	getFormControlType,
 	getFieldOptions,
 	getFieldPlaceholder,
+	getFormControlType,
 	isDateField,
 	isDateTimeField,
 } from "@/composables/useCustomFields";
+import { DatePicker, DateTimePicker, MultiSelect } from "frappe-ui";
+import { computed } from "vue";
 
 const props = defineProps({
 	field: {

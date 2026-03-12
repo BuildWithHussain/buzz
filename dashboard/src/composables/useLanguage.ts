@@ -1,12 +1,12 @@
-import { createResource } from "frappe-ui";
-import { computed, type ComputedRef } from "vue";
-import { userResource } from "@/data/user";
+import { userResource } from "@/data/user"
+import { createResource } from "frappe-ui"
+import { type ComputedRef, computed } from "vue"
 
 interface LanguageComposable {
-  availableLanguages: any;
-  currentLanguage: ComputedRef<string>;
-  changeLanguage: (languageCode: string) => void;
-  isSwitching: ComputedRef<boolean>;
+	availableLanguages: any
+	currentLanguage: ComputedRef<string>
+	changeLanguage: (languageCode: string) => void
+	isSwitching: ComputedRef<boolean>
 }
 
 export function useLanguage(): LanguageComposable {
@@ -14,22 +14,22 @@ export function useLanguage(): LanguageComposable {
 		url: "buzz.api.get_enabled_languages",
 		auto: true,
 		cache: "enabled_languages",
-	});
+	})
 
 	const currentLanguage = computed(() => {
-		return userResource.data?.language || "en";
-	});
+		return userResource.data?.language || "en"
+	})
 
 	const switchLanguage = createResource({
 		url: "buzz.api.update_user_language",
 		onSuccess() {
 			// Reload the page to apply new translations
-			window.location.reload();
+			window.location.reload()
 		},
-	});
+	})
 
 	function changeLanguage(languageCode: string) {
-		switchLanguage.submit({ language_code: languageCode });
+		switchLanguage.submit({ language_code: languageCode })
 	}
 
 	return {
@@ -37,5 +37,5 @@ export function useLanguage(): LanguageComposable {
 		currentLanguage,
 		changeLanguage,
 		isSwitching: computed(() => switchLanguage.loading),
-	};
+	}
 }

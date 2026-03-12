@@ -10,22 +10,34 @@
 </template>
 
 <script setup>
+import ProfileView from "@/components/ProfileView.vue";
 import { Tabs } from "frappe-ui";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import ProfileView from "@/components/ProfileView.vue";
 import LucideCalendarDays from "~icons/lucide/calendar-days";
-import LucideTicket from "~icons/lucide/ticket";
-import LucideMegaphone from "~icons/lucide/megaphone";
 import LucideCircleDollarSign from "~icons/lucide/circle-dollar-sign";
+import LucideMegaphone from "~icons/lucide/megaphone";
+import LucideTicket from "~icons/lucide/ticket";
 
 const route = useRoute();
 
 const tabs = [
-	{ label: __("My Bookings"), route: "/account/bookings", icon: LucideCalendarDays },
+	{
+		label: __("My Bookings"),
+		route: "/account/bookings",
+		icon: LucideCalendarDays,
+	},
 	{ label: __("My Tickets"), route: "/account/tickets", icon: LucideTicket },
-	{ label: __("Talk Proposals"), route: "/account/proposals", icon: LucideMegaphone },
-	{ label: __("Sponsorships"), route: "/account/sponsorships", icon: LucideCircleDollarSign },
+	{
+		label: __("Talk Proposals"),
+		route: "/account/proposals",
+		icon: LucideMegaphone,
+	},
+	{
+		label: __("Sponsorships"),
+		route: "/account/sponsorships",
+		icon: LucideCircleDollarSign,
+	},
 ];
 
 // Find the tab index based on current route path

@@ -1,5 +1,4 @@
-
-export interface EventProposal{
+export interface EventProposal {
 	name: string
 	creation: string
 	modified: string

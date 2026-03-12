@@ -46,8 +46,8 @@
 </template>
 
 <script setup>
-import { ListView, Badge, Spinner, useList, dayjsLocal } from "frappe-ui";
 import { session } from "@/data/session";
+import { Badge, ListView, Spinner, dayjsLocal, useList } from "frappe-ui";
 
 const columns = [
 	{ label: __("Title"), key: "title" },

@@ -6,6 +6,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "first_name",
+  "last_name",
   "full_name",
   "ticket_type",
   "custom_fields",
@@ -19,11 +21,23 @@
  ],
  "fields": [
   {
-   "fieldname": "full_name",
+   "fieldname": "first_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Full Name",
+   "label": "First Name",
    "reqd": 1
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Full Name",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_xmfr",

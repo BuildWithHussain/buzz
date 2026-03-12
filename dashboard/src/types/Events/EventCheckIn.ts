@@ -1,5 +1,4 @@
-
-export interface EventCheckIn{
+export interface EventCheckIn {
 	name: string
 	creation: string
 	modified: string

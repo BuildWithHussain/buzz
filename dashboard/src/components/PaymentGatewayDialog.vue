@@ -44,8 +44,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
-import { Dialog, Button } from "frappe-ui";
+import { Button, Dialog } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
 	open: {

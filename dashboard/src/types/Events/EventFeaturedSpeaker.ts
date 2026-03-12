@@ -1,5 +1,4 @@
-
-export interface EventFeaturedSpeaker{
+export interface EventFeaturedSpeaker {
 	name: string
 	creation: string
 	modified: string

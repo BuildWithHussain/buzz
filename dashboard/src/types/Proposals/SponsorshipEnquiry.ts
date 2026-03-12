@@ -1,5 +1,4 @@
-
-export interface SponsorshipEnquiry{
+export interface SponsorshipEnquiry {
 	name: string
 	creation: string
 	modified: string

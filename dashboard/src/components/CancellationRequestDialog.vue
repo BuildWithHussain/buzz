@@ -199,9 +199,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
-import { Dialog, Button, createResource, toast } from "frappe-ui";
 import { pluralize } from "@/utils/pluralize";
+import { Button, Dialog, createResource, toast } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
 	modelValue: {

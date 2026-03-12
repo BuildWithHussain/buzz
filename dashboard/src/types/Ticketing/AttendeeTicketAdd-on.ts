@@ -1,6 +1,6 @@
-import { TicketAddOnValue } from './TicketAddOnValue'
+import type { TicketAddOnValue } from "./TicketAddOnValue"
 
-export interface AttendeeTicketAddOn{
+export interface AttendeeTicketAddOn {
 	name: string
 	creation: string
 	modified: string

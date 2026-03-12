@@ -91,10 +91,10 @@
 </template>
 
 <script setup>
+import { dayjs, dayjsLocal } from "frappe-ui";
 import LucideCalendar from "~icons/lucide/calendar";
 import LucideClock from "~icons/lucide/clock";
 import LucideMapPin from "~icons/lucide/map-pin";
-import { dayjsLocal, dayjs } from "frappe-ui";
 
 const props = defineProps({
 	eventDetails: {

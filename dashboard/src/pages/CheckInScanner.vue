@@ -85,16 +85,16 @@
 </template>
 
 <script setup>
+import { useTicketValidation } from "@/composables/useTicketValidation";
+import { userResource } from "@/data/user";
 import { createResource } from "frappe-ui";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import BackButton from "../components/common/BackButton.vue";
+import LucideShieldX from "~icons/lucide/shield-x";
 import EventSelector from "../components/EventSelector.vue";
 import QRScanner from "../components/QRScanner.vue";
 import TicketDetailsModal from "../components/TicketDetailsModal.vue";
-import { useTicketValidation } from "@/composables/useTicketValidation";
-import LucideShieldX from "~icons/lucide/shield-x";
-import { userResource } from "@/data/user";
+import BackButton from "../components/common/BackButton.vue";
 
 const props = defineProps({
 	eventName: {

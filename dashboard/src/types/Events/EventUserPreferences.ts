@@ -1,5 +1,4 @@
-
-export interface EventUserPreferences{
+export interface EventUserPreferences {
 	name: string
 	creation: string
 	modified: string

@@ -1,6 +1,6 @@
-import { TalkSpeaker } from './TalkSpeaker'
+import type { TalkSpeaker } from "./TalkSpeaker"
 
-export interface EventTalk{
+export interface EventTalk {
 	name: number
 	creation: string
 	modified: string

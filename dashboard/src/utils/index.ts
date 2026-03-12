@@ -1,12 +1,14 @@
 export function isImage(extension: string | null | undefined): boolean {
-	if (!extension) return false;
-	return ["png", "jpg", "jpeg", "gif", "svg", "bmp", "webp"].includes(extension.toLowerCase());
+	if (!extension) return false
+	return ["png", "jpg", "jpeg", "gif", "svg", "bmp", "webp"].includes(
+		extension.toLowerCase(),
+	)
 }
 
 export function validateIsImageFile(file: File): string | void {
-	const extn = file.name.split(".").pop()?.toLowerCase();
+	const extn = file.name.split(".").pop()?.toLowerCase()
 	if (!isImage(extn)) {
-		return "Only image files are allowed";
+		return "Only image files are allowed"
 	}
 }
 
@@ -15,20 +17,20 @@ export function validateIsImageFile(file: File): string | void {
  * This removes all keys that start with 'event-booking-'
  */
 export function clearBookingCache(): void {
-	const keysToRemove: string[] = [];
+	const keysToRemove: string[] = []
 	for (let i = 0; i < localStorage.length; i++) {
-		const key = localStorage.key(i);
+		const key = localStorage.key(i)
 		if (key && key.startsWith("event-booking-")) {
-			keysToRemove.push(key);
+			keysToRemove.push(key)
 		}
 	}
-	keysToRemove.forEach((key) => localStorage.removeItem(key));
+	keysToRemove.forEach((key) => localStorage.removeItem(key))
 }
 
 /**
  * Redirect to login page with current path as redirect-to parameter
  */
 export function redirectToLogin() {
-	const currentPath = window.location.pathname + window.location.search;
-	window.location.href = `/login?redirect-to=${encodeURIComponent(currentPath)}`;
+	const currentPath = window.location.pathname + window.location.search
+	window.location.href = `/login?redirect-to=${encodeURIComponent(currentPath)}`
 }

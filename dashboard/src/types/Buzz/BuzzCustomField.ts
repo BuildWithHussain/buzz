@@ -1,5 +1,4 @@
-
-export interface BuzzCustomField{
+export interface BuzzCustomField {
 	name: string
 	creation: string
 	modified: string
@@ -27,7 +26,15 @@ export interface BuzzCustomField{
 	/**	Applied To : Select	*/
 	applied_to?: "Booking" | "Ticket" | "Feedback"
 	/**	Type : Select	*/
-	fieldtype: "Data" | "Phone" | "Email" | "Select" | "Date" | "Number" | "Multi Select" | "Text"
+	fieldtype:
+		| "Data"
+		| "Phone"
+		| "Email"
+		| "Select"
+		| "Date"
+		| "Number"
+		| "Multi Select"
+		| "Text"
 	/**	Options : Small Text	*/
 	options?: string
 	/**	Order : Int	*/

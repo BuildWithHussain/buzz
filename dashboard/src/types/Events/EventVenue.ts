@@ -1,5 +1,4 @@
-
-export interface EventVenue{
+export interface EventVenue {
 	name: string
 	creation: string
 	modified: string

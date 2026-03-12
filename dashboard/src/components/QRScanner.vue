@@ -73,11 +73,11 @@
 </template>
 
 <script setup>
+import { useTicketValidation } from "@/composables/useTicketValidation";
 import { Button, Spinner, TextInput, toast } from "frappe-ui";
 import { Html5Qrcode } from "html5-qrcode";
 import { onMounted, onUnmounted, ref } from "vue";
 import LucideQrCode from "~icons/lucide/qr-code";
-import { useTicketValidation } from "@/composables/useTicketValidation";
 
 const { validateTicket, isProcessingTicket } = useTicketValidation();
 

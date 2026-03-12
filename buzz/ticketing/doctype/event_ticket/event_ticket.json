@@ -6,6 +6,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "first_name",
+  "last_name",
   "attendee_name",
   "event",
   "booking",
@@ -24,12 +26,26 @@
  "fields": [
   {
    "allow_on_submit": 1,
-   "fieldname": "attendee_name",
+   "fieldname": "first_name",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "label": "First Name",
+   "reqd": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "attendee_name",
+   "fieldtype": "Data",
+   "hidden": 1,
    "in_standard_filter": 1,
    "label": "Attendee Name",
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fetch_from": "ticket_type.event",

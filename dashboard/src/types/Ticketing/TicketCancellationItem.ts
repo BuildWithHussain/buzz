@@ -1,5 +1,4 @@
-
-export interface TicketCancellationItem{
+export interface TicketCancellationItem {
 	name: string
 	creation: string
 	modified: string

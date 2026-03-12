@@ -1,5 +1,4 @@
-
-export interface EventTicketType{
+export interface EventTicketType {
 	name: number
 	creation: string
 	modified: string

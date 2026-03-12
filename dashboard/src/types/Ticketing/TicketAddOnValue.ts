@@ -1,5 +1,4 @@
-
-export interface TicketAddOnValue{
+export interface TicketAddOnValue {
 	name: string
 	creation: string
 	modified: string

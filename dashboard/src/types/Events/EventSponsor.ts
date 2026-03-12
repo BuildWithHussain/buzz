@@ -1,5 +1,4 @@
-
-export interface EventSponsor{
+export interface EventSponsor {
 	name: string
 	creation: string
 	modified: string

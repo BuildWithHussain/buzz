@@ -1,9 +1,9 @@
-import { ScheduleItem } from './ScheduleItem'
-import { EventFeaturedSpeaker } from './EventFeaturedSpeaker'
-import { EventPaymentGateway } from './EventPaymentGateway'
-import { SponsorshipDeckItem } from '../Proposals/SponsorshipDeckItem'
+import type { SponsorshipDeckItem } from "../Proposals/SponsorshipDeckItem"
+import type { EventFeaturedSpeaker } from "./EventFeaturedSpeaker"
+import type { EventPaymentGateway } from "./EventPaymentGateway"
+import type { ScheduleItem } from "./ScheduleItem"
 
-export interface BuzzEvent{
+export interface BuzzEvent {
 	name: number
 	creation: string
 	modified: string

@@ -1,5 +1,4 @@
-
-export interface AdditionalField{
+export interface AdditionalField {
 	name: string
 	creation: string
 	modified: string

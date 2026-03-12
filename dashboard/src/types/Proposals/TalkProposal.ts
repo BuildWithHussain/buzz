@@ -1,6 +1,6 @@
-import { ProposalSpeaker } from './ProposalSpeaker'
+import type { ProposalSpeaker } from "./ProposalSpeaker"
 
-export interface TalkProposal{
+export interface TalkProposal {
 	name: string
 	creation: string
 	modified: string

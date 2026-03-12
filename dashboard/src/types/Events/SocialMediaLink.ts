@@ -1,5 +1,4 @@
-
-export interface SocialMediaLink{
+export interface SocialMediaLink {
 	name: string
 	creation: string
 	modified: string

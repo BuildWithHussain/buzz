@@ -1,5 +1,4 @@
-
-export interface EventTrack{
+export interface EventTrack {
 	name: string
 	creation: string
 	modified: string

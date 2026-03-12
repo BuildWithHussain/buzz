@@ -1,5 +1,4 @@
-
-export interface SponsorshipTier{
+export interface SponsorshipTier {
 	name: string
 	creation: string
 	modified: string

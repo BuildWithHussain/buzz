@@ -1,20 +1,20 @@
-import { ref, onMounted, type Ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { triggerCelebrationConfetti } from "@/utils/confetti";
+import { triggerCelebrationConfetti } from "@/utils/confetti"
+import { type Ref, onMounted, ref } from "vue"
+import { useRoute, useRouter } from "vue-router"
 
 interface PaymentSuccessOptions {
-	onSuccess?: () => void;
-	messageDuration?: number;
-	enableConfetti?: boolean;
-	cleanupUrl?: boolean;
+	onSuccess?: () => void
+	messageDuration?: number
+	enableConfetti?: boolean
+	cleanupUrl?: boolean
 }
 
 interface PaymentSuccessReturn {
-	showSuccessMessage: Ref<boolean>;
-	triggerSuccessFlow: () => void;
-	checkForSuccess: () => void;
-	hideSuccessMessage: () => void;
-	showSuccess: () => void;
+	showSuccessMessage: Ref<boolean>
+	triggerSuccessFlow: () => void
+	checkForSuccess: () => void
+	hideSuccessMessage: () => void
+	showSuccess: () => void
 }
 
 /**
@@ -28,34 +28,36 @@ interface PaymentSuccessReturn {
  * @param {boolean} options.cleanupUrl - Whether to clean up success parameter from URL (default: true)
  * @returns {Object} - Returns reactive state and helper functions
  */
-export function usePaymentSuccess(options: PaymentSuccessOptions = {}): PaymentSuccessReturn {
+export function usePaymentSuccess(
+	options: PaymentSuccessOptions = {},
+): PaymentSuccessReturn {
 	const {
 		onSuccess,
 		messageDuration = 10000,
 		enableConfetti = true,
 		cleanupUrl = true,
-	} = options;
+	} = options
 
-	const route = useRoute();
-	const router = useRouter();
+	const route = useRoute()
+	const router = useRouter()
 
-	const showSuccessMessage = ref(false);
+	const showSuccessMessage = ref(false)
 
 	/**
 	 * Trigger the complete success flow
 	 */
 	const triggerSuccessFlow = () => {
 		// Show success message
-		showSuccessMessage.value = true;
+		showSuccessMessage.value = true
 
 		// Trigger confetti animation
 		if (enableConfetti) {
-			triggerCelebrationConfetti();
+			triggerCelebrationConfetti()
 		}
 
 		// Execute custom success callback (e.g., reload data)
 		if (onSuccess && typeof onSuccess === "function") {
-			onSuccess();
+			onSuccess()
 		}
 
 		// Clean up the URL by removing the success parameter
@@ -63,44 +65,44 @@ export function usePaymentSuccess(options: PaymentSuccessOptions = {}): PaymentS
 			router.replace({
 				name: route.name,
 				params: route.params,
-			});
+			})
 		}
 
 		// Hide success message after specified duration
 		if (messageDuration > 0) {
 			setTimeout(() => {
-				showSuccessMessage.value = false;
-			}, messageDuration);
+				showSuccessMessage.value = false
+			}, messageDuration)
 		}
-	};
+	}
 
 	/**
 	 * Check for success parameter and trigger flow if present
 	 */
 	const checkForSuccess = () => {
 		if (route.query.success === "true") {
-			triggerSuccessFlow();
+			triggerSuccessFlow()
 		}
-	};
+	}
 
 	/**
 	 * Manually hide the success message
 	 */
 	const hideSuccessMessage = () => {
-		showSuccessMessage.value = false;
-	};
+		showSuccessMessage.value = false
+	}
 
 	/**
 	 * Manually show the success message
 	 */
 	const showSuccess = () => {
-		triggerSuccessFlow();
-	};
+		triggerSuccessFlow()
+	}
 
 	// Auto-check for success on mount
 	onMounted(() => {
-		checkForSuccess();
-	});
+		checkForSuccess()
+	})
 
 	return {
 		showSuccessMessage,
@@ -108,5 +110,5 @@ export function usePaymentSuccess(options: PaymentSuccessOptions = {}): PaymentS
 		checkForSuccess,
 		hideSuccessMessage,
 		showSuccess,
-	};
+	}
 }

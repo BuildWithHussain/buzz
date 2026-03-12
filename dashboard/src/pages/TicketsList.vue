@@ -39,8 +39,8 @@
 
 <script setup>
 import { ListView, useList } from "frappe-ui";
-import { session } from "../data/session";
 import { dayjsLocal } from "frappe-ui";
+import { session } from "../data/session";
 
 const columns = [
 	{ label: __("Attendee Name"), key: "attendee_name" },

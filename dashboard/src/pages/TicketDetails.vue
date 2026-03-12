@@ -328,18 +328,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { createResource, Spinner, Button, Badge } from "frappe-ui";
 import { formatCurrency } from "@/utils/currency";
+import { Badge, Button, Spinner, createResource } from "frappe-ui";
 import { dayjsLocal } from "frappe-ui";
-import TicketTransferDialog from "../components/TicketTransferDialog.vue";
+import { computed, ref } from "vue";
+import LucideDownload from "~icons/lucide/download";
+import LucideEdit from "~icons/lucide/edit";
+import LucideExternalLink from "~icons/lucide/external-link";
+import LucideTriangleAlert from "~icons/lucide/triangle-alert";
+import LucideUserPlus from "~icons/lucide/user-plus";
 import AddOnPreferenceDialog from "../components/AddOnPreferenceDialog.vue";
 import QRCodeExpandDialog from "../components/QRCodeExpandDialog.vue";
-import LucideDownload from "~icons/lucide/download";
-import LucideUserPlus from "~icons/lucide/user-plus";
-import LucideEdit from "~icons/lucide/edit";
-import LucideTriangleAlert from "~icons/lucide/triangle-alert";
-import LucideExternalLink from "~icons/lucide/external-link";
+import TicketTransferDialog from "../components/TicketTransferDialog.vue";
 import BackButton from "../components/common/BackButton.vue";
 
 const props = defineProps({

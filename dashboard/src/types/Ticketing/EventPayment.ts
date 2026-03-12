@@ -1,5 +1,4 @@
-
-export interface EventPayment{
+export interface EventPayment {
 	name: number
 	creation: string
 	modified: string

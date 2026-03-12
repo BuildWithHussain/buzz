@@ -1,5 +1,4 @@
-
-export interface EventBookingAttendee{
+export interface EventBookingAttendee {
 	name: string
 	creation: string
 	modified: string
@@ -10,6 +9,10 @@ export interface EventBookingAttendee{
 	parentfield?: string
 	parenttype?: string
 	idx?: number
+	/**	First Name : Data	*/
+	first_name: string
+	/**	Last Name : Data	*/
+	last_name?: string
 	/**	Full Name : Data	*/
 	full_name: string
 	/**	Ticket Type : Link - Event Ticket Type	*/

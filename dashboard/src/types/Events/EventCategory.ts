@@ -1,5 +1,4 @@
-
-export interface EventCategory{
+export interface EventCategory {
 	name: string
 	creation: string
 	modified: string

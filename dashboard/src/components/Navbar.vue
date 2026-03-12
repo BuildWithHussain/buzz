@@ -40,16 +40,16 @@
 </template>
 
 <script setup>
-import LucideSun from "~icons/lucide/sun";
-import LucideMoon from "~icons/lucide/moon";
-import { session } from "../data/session";
-import BuzzLogo from "./common/BuzzLogo.vue";
 import { userResource } from "@/data/user";
+import LucideMoon from "~icons/lucide/moon";
+import LucideSun from "~icons/lucide/sun";
+import { session } from "../data/session";
 import LanguageSwitcher from "./LanguageSwitcher.vue";
+import BuzzLogo from "./common/BuzzLogo.vue";
 
-import { onMounted } from "vue";
-import { useStorage } from "@vueuse/core";
 import { redirectToLogin } from "@/utils/index";
+import { useStorage } from "@vueuse/core";
+import { onMounted } from "vue";
 
 const userTheme = useStorage("user-theme", "dark");
 

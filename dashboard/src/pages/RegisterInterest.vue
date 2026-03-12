@@ -60,10 +60,10 @@
 
 <script setup>
 import { Button, Spinner, createResource } from "frappe-ui";
-import LucideCheckCircle from "~icons/lucide/check-circle";
-import LucideXCircle from "~icons/lucide/x-circle";
 import { marked } from "marked";
 import { computed, ref } from "vue";
+import LucideCheckCircle from "~icons/lucide/check-circle";
+import LucideXCircle from "~icons/lucide/x-circle";
 
 const props = defineProps({
 	campaign: {

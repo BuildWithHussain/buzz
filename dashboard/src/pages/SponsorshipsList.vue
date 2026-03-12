@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ListView, Badge, Spinner, createResource } from "frappe-ui";
+import { Badge, ListView, Spinner, createResource } from "frappe-ui";
 import { dayjsLocal } from "frappe-ui";
 
 const columns = [

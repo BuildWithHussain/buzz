@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { createListResource, dayjsLocal, ListView, Spinner } from "frappe-ui";
+import { ListView, Spinner, createListResource, dayjsLocal } from "frappe-ui";
 
 defineProps({
 	selectedEvent: {

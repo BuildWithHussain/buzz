@@ -1,6 +1,6 @@
-import { SocialMediaLink } from './SocialMediaLink'
+import type { SocialMediaLink } from "./SocialMediaLink"
 
-export interface EventHost{
+export interface EventHost {
 	name: string
 	creation: string
 	modified: string

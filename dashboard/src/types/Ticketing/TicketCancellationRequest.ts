@@ -1,6 +1,6 @@
-import { TicketCancellationItem } from './TicketCancellationItem'
+import type { TicketCancellationItem } from "./TicketCancellationItem"
 
-export interface TicketCancellationRequest{
+export interface TicketCancellationRequest {
 	name: string
 	creation: string
 	modified: string

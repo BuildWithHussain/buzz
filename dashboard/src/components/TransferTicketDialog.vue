@@ -44,8 +44,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
-import { createResource, Dialog, FormControl, Button, toast } from "frappe-ui";
+import { Button, Dialog, FormControl, createResource, toast } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
 	modelValue: {

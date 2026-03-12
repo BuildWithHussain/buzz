@@ -1,5 +1,4 @@
-
-export interface BuzzSettings{
+export interface BuzzSettings {
 	name: string
 	creation: string
 	modified: string

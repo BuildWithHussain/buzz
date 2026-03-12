@@ -1,8 +1,8 @@
-import { EventBookingAttendee } from './EventBookingAttendee'
-import { AdditionalField } from './AdditionalField'
-import { UTMParameter } from '../Events/UTMParameter'
+import type { UTMParameter } from "../Events/UTMParameter"
+import type { AdditionalField } from "./AdditionalField"
+import type { EventBookingAttendee } from "./EventBookingAttendee"
 
-export interface EventBooking{
+export interface EventBooking {
 	name: string
 	creation: string
 	modified: string

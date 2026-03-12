@@ -92,13 +92,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { Button, Dropdown, Badge } from "frappe-ui";
-import TicketTransferDialog from "./TicketTransferDialog.vue";
+import { Badge, Button, Dropdown } from "frappe-ui";
+import { computed, ref } from "vue";
+import LucideEdit from "~icons/lucide/edit";
+import LucideUserPen from "~icons/lucide/user-pen";
 import AddOnPreferenceDialog from "./AddOnPreferenceDialog.vue";
 import QRCodeExpandDialog from "./QRCodeExpandDialog.vue";
-import LucideUserPen from "~icons/lucide/user-pen";
-import LucideEdit from "~icons/lucide/edit";
+import TicketTransferDialog from "./TicketTransferDialog.vue";
 
 const props = defineProps({
 	ticket: {

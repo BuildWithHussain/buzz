@@ -190,7 +190,8 @@ class EventBooking(Document):
 			ticket.event = self.event
 			ticket.booking = self.name
 			ticket.ticket_type = attendee.ticket_type
-			ticket.attendee_name = attendee.full_name
+			ticket.first_name = attendee.first_name
+			ticket.last_name = attendee.last_name
 			ticket.attendee_email = attendee.email
 
 			if attendee.add_ons:

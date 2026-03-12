@@ -63,11 +63,11 @@
 </template>
 
 <script setup>
-import LucideCamera from "~icons/lucide/camera";
 import { validateIsImageFile } from "@/utils";
+import { Avatar, Dropdown, FileUploader, createResource, toast } from "frappe-ui";
+import { onMounted, ref } from "vue";
+import LucideCamera from "~icons/lucide/camera";
 import { userResource } from "../data/user";
-import { Dropdown, FileUploader, Avatar, createResource, toast } from "frappe-ui";
-import { ref, onMounted } from "vue";
 
 const user = userResource.data || {};
 

@@ -1,5 +1,4 @@
-
-export interface UTMParameter{
+export interface UTMParameter {
 	name: string
 	creation: string
 	modified: string

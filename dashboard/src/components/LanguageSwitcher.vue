@@ -9,10 +9,10 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { Dropdown, Button } from "frappe-ui";
-import LucideLanguages from "~icons/lucide/languages";
 import { useLanguage } from "@/composables/useLanguage";
+import { Button, Dropdown } from "frappe-ui";
+import { computed } from "vue";
+import LucideLanguages from "~icons/lucide/languages";
 
 const { availableLanguages, currentLanguage, changeLanguage, isSwitching } = useLanguage();
 

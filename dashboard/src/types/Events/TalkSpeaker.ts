@@ -1,6 +1,6 @@
-import { SocialMediaLink } from './SocialMediaLink'
+import type { SocialMediaLink } from "./SocialMediaLink"
 
-export interface TalkSpeaker{
+export interface TalkSpeaker {
 	name: string
 	creation: string
 	modified: string

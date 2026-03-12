@@ -1,5 +1,4 @@
-
-export interface SponsorshipDeckItem{
+export interface SponsorshipDeckItem {
 	name: string
 	creation: string
 	modified: string

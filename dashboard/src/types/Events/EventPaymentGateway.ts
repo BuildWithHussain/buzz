@@ -1,5 +1,4 @@
-
-export interface EventPaymentGateway{
+export interface EventPaymentGateway {
 	name: string
 	creation: string
 	modified: string

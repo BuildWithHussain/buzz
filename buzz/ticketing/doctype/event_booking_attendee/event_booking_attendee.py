@@ -20,13 +20,18 @@ class EventBookingAttendee(Document):
 		currency: DF.Link
 		custom_fields: DF.JSON | None
 		email: DF.Data
+		first_name: DF.Data
 		full_name: DF.Data
+		last_name: DF.Data | None
 		number_of_add_ons: DF.Int
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
 		ticket_type: DF.Link
 	# end: auto-generated types
+
+	def before_save(self):
+		self.full_name = f"{self.first_name or ''} {self.last_name or ''}".strip()
 
 	def get_add_on_total(self):
 		if not self.add_ons:

@@ -1,6 +1,6 @@
-import { CouponFreeAddOn } from './CouponFreeAddOn'
+import type { CouponFreeAddOn } from "./CouponFreeAddOn"
 
-export interface BuzzCouponCode{
+export interface BuzzCouponCode {
 	name: string
 	creation: string
 	modified: string

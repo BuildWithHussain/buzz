@@ -8,18 +8,18 @@
  * Interface representing the structure of a Frappe Field
  */
 export interface FrappeField {
-    fieldname: string;
-    fieldtype: string;
-    label?: string;
-    options?: string | any[];
-    placeholder?: string;
-    mandatory?: number | boolean;
-    default_value?: string | number | boolean;
+	fieldname: string
+	fieldtype: string
+	label?: string
+	options?: string | any[]
+	placeholder?: string
+	mandatory?: number | boolean
+	default_value?: string | number | boolean
 }
 
 export interface SelectOption {
-    label: string;
-    value: string;
+	label: string
+	value: string
 }
 
 /**
@@ -30,21 +30,21 @@ export interface SelectOption {
 export function getFormControlType(fieldtype: string): string {
 	switch (fieldtype) {
 		case "Phone":
-			return "text";
+			return "text"
 		case "Email":
-			return "email";
+			return "email"
 		case "Select":
-			return "select";
+			return "select"
 		case "Number":
 		case "Int":
 		case "Float":
-			return "number";
+			return "number"
 		case "Check":
-			return "checkbox";
+			return "checkbox"
 		case "Small Text":
-			return "textarea";
+			return "textarea"
 		default:
-			return "text";
+			return "text"
 	}
 }
 
@@ -54,7 +54,7 @@ export function getFormControlType(fieldtype: string): string {
  * @returns {boolean}
  */
 export function isDateField(fieldtype: string): boolean {
-	return fieldtype === "Date";
+	return fieldtype === "Date"
 }
 
 /**
@@ -63,7 +63,7 @@ export function isDateField(fieldtype: string): boolean {
  * @returns {boolean}
  */
 export function isDateTimeField(fieldtype: string): boolean {
-	return fieldtype === "Datetime";
+	return fieldtype === "Datetime"
 }
 
 /**
@@ -72,37 +72,40 @@ export function isDateTimeField(fieldtype: string): boolean {
  * @returns {Array} - Array of { label, value } objects
  */
 export function getFieldOptions(field: FrappeField): SelectOption[] {
-	const isSelectType = field.fieldtype === "Select" || field.fieldtype === "Multi Select";
+	const isSelectType =
+		field.fieldtype === "Select" || field.fieldtype === "Multi Select"
 	if (isSelectType && field.options) {
-		let options = [];
+		let options = []
 
 		if (typeof field.options === "string") {
 			// Split by newlines, trim each option, and filter out empty ones
 			// but preserve an empty first option as a placeholder
-			const allOptions = field.options.split("\n").map((option) => option.trim());
-			const hasEmptyFirst = allOptions.length > 0 && allOptions[0].length === 0;
-			options = allOptions.filter((option) => option.length > 0);
+			const allOptions = field.options
+				.split("\n")
+				.map((option) => option.trim())
+			const hasEmptyFirst = allOptions.length > 0 && allOptions[0].length === 0
+			options = allOptions.filter((option) => option.length > 0)
 			if (hasEmptyFirst) {
-				options.unshift("");
+				options.unshift("")
 			}
 		} else if (Array.isArray(field.options)) {
 			// If options is already an array
 			options = field.options.filter((option) => {
 				try {
-					return option != null && String(option).trim().length > 0;
+					return option != null && String(option).trim().length > 0
 				} catch {
-					return false;
+					return false
 				}
-			});
+			})
 		}
 
 		const formattedOptions = options.map((option) => {
-			const optionStr = String(option).trim();
+			const optionStr = String(option).trim()
 			return {
 				label: optionStr,
 				value: optionStr,
-			};
-		});
+			}
+		})
 
 		// Debug log for development
 		if (
@@ -112,13 +115,13 @@ export function getFieldOptions(field: FrappeField): SelectOption[] {
 		) {
 			console.warn(
 				`CustomField "${field.fieldname}" has Select type but no valid options:`,
-				field.options
-			);
+				field.options,
+			)
 		}
 
-		return formattedOptions;
+		return formattedOptions
 	}
-	return [];
+	return []
 }
 
 /**
@@ -129,12 +132,12 @@ export function getFieldOptions(field: FrappeField): SelectOption[] {
 export function getFieldPlaceholder(field: FrappeField): string {
 	// If custom placeholder is provided, use it
 	if (field.placeholder?.trim()) {
-		const placeholder = field.placeholder.trim();
-		return field.mandatory ? `${placeholder} (${__("required")})` : placeholder;
+		const placeholder = field.placeholder.trim()
+		return field.mandatory ? `${placeholder} (${__("required")})` : placeholder
 	}
 
 	// If no custom placeholder is provided, return empty string
-	return "";
+	return ""
 }
 
 /**
@@ -143,19 +146,21 @@ export function getFieldPlaceholder(field: FrappeField): string {
  * @param {Function} getFieldOptionsFn - Function to get field options
  * @returns {*} - Default value or empty string
  */
-export function getFieldDefaultValue(field: FrappeField): string | number | boolean {
+export function getFieldDefaultValue(
+	field: FrappeField,
+): string | number | boolean {
 	// For checkbox fields, handle 0/1 values explicitly
 	if (field.fieldtype === "Check") {
 		if (field.default_value === 1 || field.default_value === "1") {
-			return 1;
+			return 1
 		}
-		return 0; // Default to unchecked
+		return 0 // Default to unchecked
 	}
 
 	// Check for explicit default value (use != null to allow "0" and 0)
 	if (field.default_value != null && field.default_value !== "") {
-		return field.default_value;
+		return field.default_value
 	}
 
-	return "";
+	return ""
 }

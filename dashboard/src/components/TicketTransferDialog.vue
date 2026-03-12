@@ -15,10 +15,17 @@
 
 				<FormControl
 					type="text"
-					:label="__('New Attendee Name')"
-					:placeholder="__('Enter full name')"
-					v-model="transferForm.name"
+					:label="__('First Name')"
+					:placeholder="__('Enter first name')"
+					v-model="transferForm.first_name"
 					:required="true"
+				/>
+
+				<FormControl
+					type="text"
+					:label="__('Last Name')"
+					:placeholder="__('Enter last name')"
+					v-model="transferForm.last_name"
 				/>
 
 				<FormControl
@@ -36,7 +43,7 @@
 					variant="solid"
 					@click="handleTransferTicket"
 					:loading="transferResource.loading"
-					:disabled="!transferForm.name || !transferForm.email"
+					:disabled="!transferForm.first_name || !transferForm.email"
 				>
 					{{ __("Transfer Ticket") }}
 				</Button>
@@ -47,8 +54,8 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
-import { createResource, Dialog, FormControl, Button, toast } from "frappe-ui";
+import { Button, Dialog, FormControl, createResource, toast } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 
 const props = defineProps({
 	modelValue: {
@@ -69,7 +76,8 @@ const isOpen = computed({
 });
 
 const transferForm = ref({
-	name: "",
+	first_name: "",
+	last_name: "",
 	email: "",
 });
 
@@ -88,21 +96,23 @@ const transferResource = createResource({
 });
 
 const handleTransferTicket = () => {
-	if (!props.ticket || !transferForm.value.name || !transferForm.value.email) {
+	if (!props.ticket || !transferForm.value.first_name || !transferForm.value.email) {
 		toast.error(__("Please fill in all required fields"));
 		return;
 	}
 
 	transferResource.submit({
 		ticket_id: props.ticket.name,
-		new_name: transferForm.value.name,
+		new_first_name: transferForm.value.first_name,
+		new_last_name: transferForm.value.last_name || "",
 		new_email: transferForm.value.email,
 	});
 };
 
 const resetTransferForm = () => {
 	transferForm.value = {
-		name: "",
+		first_name: "",
+		last_name: "",
 		email: "",
 	};
 };

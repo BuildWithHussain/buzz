@@ -28,9 +28,14 @@ class EventTicket(Document):
 		booking: DF.Link | None
 		coupon_used: DF.Link | None
 		event: DF.Link | None
+		first_name: DF.Data
+		last_name: DF.Data | None
 		qr_code: DF.AttachImage | None
 		ticket_type: DF.Link
 	# end: auto-generated types
+
+	def validate(self):
+		self.attendee_name = f"{self.first_name or ''} {self.last_name or ''}".strip()
 
 	def before_submit(self):
 		self.validate_coupon_usage()
@@ -54,19 +59,13 @@ class EventTicket(Document):
 		event_doc = frappe.get_cached_doc("Buzz Event", self.event)
 
 		if event_doc.zoom_webinar:
-			name_parts = (self.attendee_name or "").split(" ", 1)
-			first_name = name_parts[0]
-			last_name = name_parts[1] if len(name_parts) > 1 else ""
-
 			doc = {
 				"doctype": "Zoom Webinar Registration",
 				"webinar": event_doc.zoom_webinar,
 				"email": self.attendee_email,
-				"first_name": first_name,
+				"first_name": self.first_name,
+				"last_name": self.last_name or "-",
 			}
-			if last_name:
-				doc["last_name"] = last_name
-
 			registration = frappe.get_doc(doc).insert(ignore_permissions=True)
 
 			try:

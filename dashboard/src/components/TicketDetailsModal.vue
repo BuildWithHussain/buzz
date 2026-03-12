@@ -157,12 +157,12 @@
 </template>
 
 <script setup>
+import { useTicketValidation } from "@/composables/useTicketValidation";
+import { formatPriceOrFree } from "@/utils/currency";
 import { Button, Dialog } from "frappe-ui";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideUserCheck from "~icons/lucide/user-check";
 import LucideXCircle from "~icons/lucide/x-circle";
-import { useTicketValidation } from "@/composables/useTicketValidation";
-import { formatPriceOrFree } from "@/utils/currency";
 
 const props = defineProps({
 	selectedEvent: {

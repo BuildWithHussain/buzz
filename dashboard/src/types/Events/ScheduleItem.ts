@@ -1,5 +1,4 @@
-
-export interface ScheduleItem{
+export interface ScheduleItem {
 	name: string
 	creation: string
 	modified: string

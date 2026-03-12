@@ -187,22 +187,22 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import ProposalEditDialog from "@/components/ProposalEditDialog.vue";
+import BackButton from "@/components/common/BackButton.vue";
 import {
-	createDocumentResource,
-	createResource,
-	Spinner,
 	Badge,
 	Button,
 	ListView,
+	Spinner,
+	createDocumentResource,
+	createResource,
 	dayjsLocal,
 } from "frappe-ui";
+import { computed, ref, watch } from "vue";
 import LucideCheckCircle from "~icons/lucide/check-circle";
 import LucideClock from "~icons/lucide/clock";
-import LucideXCircle from "~icons/lucide/x-circle";
 import LucideStar from "~icons/lucide/star";
-import BackButton from "@/components/common/BackButton.vue";
-import ProposalEditDialog from "@/components/ProposalEditDialog.vue";
+import LucideXCircle from "~icons/lucide/x-circle";
 
 const props = defineProps({
 	proposalId: {
