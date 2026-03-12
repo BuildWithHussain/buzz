@@ -12,7 +12,8 @@ test.describe("Offline Payment Flow", () => {
 		await bookingPage.waitForFormLoad();
 
 		// Fill attendee details
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Test User");
+		await page.locator('input[placeholder="Enter first name"]').first().fill("Test");
+		await page.locator('input[placeholder="Enter last name"]').first().fill("User");
 		await page.locator('input[placeholder="Enter email address"]').first().fill(email);
 
 		// Submit booking form
@@ -36,7 +37,8 @@ test.describe("Offline Payment Flow", () => {
 		await bookingPage.goto("offline-payment-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Amount Test");
+		await page.locator('input[placeholder="Enter first name"]').first().fill("Amount");
+		await page.locator('input[placeholder="Enter last name"]').first().fill("Test");
 		await page.locator('input[placeholder="Enter email address"]').first().fill(`amount-${uid}@test.com`);
 
 		await bookingPage.submit();
@@ -52,7 +54,8 @@ test.describe("Offline Payment Flow", () => {
 		await bookingPage.goto("offline-payment-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter full name"]').first().fill("Cancel Test");
+		await page.locator('input[placeholder="Enter first name"]').first().fill("Cancel");
+		await page.locator('input[placeholder="Enter last name"]').first().fill("Test");
 		await page.locator('input[placeholder="Enter email address"]').first().fill(`cancel-${uid}@test.com`);
 
 		await bookingPage.submit();

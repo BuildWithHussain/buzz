@@ -10,11 +10,13 @@ test.describe("Guest Booking UX", () => {
 		await bookingPage.goto("guest-no-otp-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest");
+		await page.locator('input[placeholder="Enter your first name"]').fill("Test");
+		await page.locator('input[placeholder="Enter your last name"]').fill("Guest");
 		await page.locator('input[placeholder="Enter your email"]').fill("test@example.com");
 		await page.locator('input[placeholder="Enter your email"]').blur();
 
-		await expect(page.locator('input[placeholder="Enter full name"]').first()).toHaveValue("Test Guest");
+		await expect(page.locator('input[placeholder="Enter first name"]').first()).toHaveValue("Test");
+		await expect(page.locator('input[placeholder="Enter last name"]').first()).toHaveValue("Guest");
 		await expect(page.locator('input[placeholder="Enter email address"]').first()).toHaveValue("test@example.com");
 	});
 });
@@ -26,7 +28,8 @@ test.describe("Guest Booking", () => {
 		await bookingPage.goto("guest-no-otp-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest");
+		await page.locator('input[placeholder="Enter your first name"]').fill("Test");
+		await page.locator('input[placeholder="Enter your last name"]').fill("Guest");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
 		await page.locator('input[placeholder="Enter your email"]').blur();
 
@@ -41,7 +44,8 @@ test.describe("Guest Booking", () => {
 		await bookingPage.goto("guest-email-otp-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest Email");
+		await page.locator('input[placeholder="Enter your first name"]').fill("Test");
+		await page.locator('input[placeholder="Enter your last name"]').fill("Guest Email");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
 		await page.locator('input[placeholder="Enter your email"]').blur();
 
@@ -71,7 +75,8 @@ test.describe("Guest Booking", () => {
 		await bookingPage.goto("guest-phone-otp-e2e");
 		await bookingPage.waitForFormLoad();
 
-		await page.locator('input[placeholder="Enter your name"]').fill("Test Guest Phone");
+		await page.locator('input[placeholder="Enter your first name"]').fill("Test");
+		await page.locator('input[placeholder="Enter your last name"]').fill("Guest Phone");
 		await page.locator('input[placeholder="Enter your email"]').fill(email);
 		await page.locator('input[placeholder="Enter your email"]').blur(); // triggers auto-fill
 		await page.locator('input[placeholder="Enter your phone number"]').fill(phone);
