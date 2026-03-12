@@ -7,7 +7,10 @@
 
 	<div v-else-if="bookingDetails.data">
 		<!-- Approval Pending Status -->
-		<div v-if="isOfflinePaymentPending" class="mb-6">
+		<div
+			v-if="!bookingDetails.data.event.free_webinar && isOfflinePaymentPending"
+			class="mb-6"
+		>
 			<div class="p-4 rounded-lg border bg-yellow-50 border-yellow-200">
 				<div class="flex items-center gap-3">
 					<div
@@ -114,20 +117,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { createResource, Spinner } from "frappe-ui";
-import { useRoute } from "vue-router";
-import { usePaymentSuccess } from "@/composables/usePaymentSuccess";
 import { useBookingFormStorage } from "@/composables/useBookingFormStorage";
-import BookingHeader from "../components/BookingHeader.vue";
-import SuccessMessage from "../components/SuccessMessage.vue";
-import CancellationRequestNotice from "../components/CancellationRequestNotice.vue";
-import TicketsSection from "../components/TicketsSection.vue";
-import CancellationRequestDialog from "../components/CancellationRequestDialog.vue";
-import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
-import BookingEventInfo from "../components/BookingEventInfo.vue";
+import { usePaymentSuccess } from "@/composables/usePaymentSuccess";
+import { Spinner, createResource } from "frappe-ui";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import LucideClock from "~icons/lucide/clock";
 import LucideXCircle from "~icons/lucide/x-circle";
+import BookingEventInfo from "../components/BookingEventInfo.vue";
+import BookingFinancialSummary from "../components/BookingFinancialSummary.vue";
+import BookingHeader from "../components/BookingHeader.vue";
+import CancellationRequestDialog from "../components/CancellationRequestDialog.vue";
+import CancellationRequestNotice from "../components/CancellationRequestNotice.vue";
+import SuccessMessage from "../components/SuccessMessage.vue";
+import TicketsSection from "../components/TicketsSection.vue";
 
 const route = useRoute();
 
