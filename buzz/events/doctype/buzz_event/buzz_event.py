@@ -196,6 +196,7 @@ class BuzzEvent(Document):
 			self.has_value_changed("start_date")
 			or self.has_value_changed("end_time")
 			or self.has_value_changed("start_time")
+			or self.has_value_changed("time_zone")
 		):
 			webinar = frappe.get_doc("Zoom Webinar", self.zoom_webinar)
 			webinar.update(
@@ -203,6 +204,7 @@ class BuzzEvent(Document):
 					"date": self.start_date,
 					"start_time": self.start_time,
 					"duration": int(time_diff_in_seconds(self.end_time, self.start_time)),
+					"timezone": self.time_zone,
 				}
 			)
 			webinar.save()
