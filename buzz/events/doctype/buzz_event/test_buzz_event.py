@@ -644,21 +644,23 @@ class TestRegistrationsClosed(FrappeTestCase):
 
 	def test_future_close_at_returns_false(self):
 		"""When close_at is in the future, registrations are open."""
-		future = datetime.now() + timedelta(hours=2)
+		fake_now = datetime(2026, 6, 15, 10, 0, 0)
 		event = self._make_event(
-			registrations_close_at=future.strftime("%Y-%m-%d %H:%M:%S"),
-			time_zone=frappe.utils.get_system_timezone(),
+			registrations_close_at="2026-06-15 12:00:00",  # 2 hours after fake_now
+			time_zone="UTC",
 		)
-		self.assertFalse(are_registrations_closed(event))
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_now):
+			self.assertFalse(are_registrations_closed(event))
 
 	def test_past_close_at_returns_true(self):
 		"""When close_at is in the past, registrations are closed."""
-		past = datetime.now() - timedelta(hours=2)
+		fake_now = datetime(2026, 6, 15, 14, 0, 0)
 		event = self._make_event(
-			registrations_close_at=past.strftime("%Y-%m-%d %H:%M:%S"),
-			time_zone=frappe.utils.get_system_timezone(),
+			registrations_close_at="2026-06-15 12:00:00",  # 2 hours before fake_now
+			time_zone="UTC",
 		)
-		self.assertTrue(are_registrations_closed(event))
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_now):
+			self.assertTrue(are_registrations_closed(event))
 
 	def test_timezone_ahead_of_utc_closes_earlier(self):
 		"""An event in Asia/Kolkata (UTC+5:30) should close before the same wall-clock time in UTC.
@@ -720,9 +722,10 @@ class TestRegistrationsClosed(FrappeTestCase):
 
 	def test_falls_back_to_system_timezone_when_event_tz_not_set(self):
 		"""When event has no time_zone, system timezone is used."""
-		past = datetime.now() - timedelta(hours=1)
+		fake_now = datetime(2026, 6, 15, 14, 0, 0)
 		event = self._make_event(
-			registrations_close_at=past.strftime("%Y-%m-%d %H:%M:%S"),
+			registrations_close_at="2026-06-15 13:00:00",  # 1 hour before fake_now
 			time_zone=None,
 		)
-		self.assertTrue(are_registrations_closed(event))
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_now):
+			self.assertTrue(are_registrations_closed(event))
