@@ -7,7 +7,16 @@ from frappe import _
 from frappe.auth import LoginAttemptTracker
 from frappe.rate_limiter import rate_limit
 from frappe.translate import get_all_translations
-from frappe.utils import days_diff, format_date, format_time, today, validate_email_address
+from frappe.utils import (
+	days_diff,
+	format_date,
+	format_time,
+	get_datetime,
+	get_datetime_in_timezone,
+	get_system_timezone,
+	today,
+	validate_email_address,
+)
 
 from buzz.payments import get_payment_gateways_for_event, get_payment_link_for_booking
 from buzz.utils import is_app_installed
@@ -126,6 +135,17 @@ def get_event_payment_gateways(event: str) -> list[str]:
 	return get_payment_gateways_for_event(event)
 
 
+def are_registrations_closed(event_doc) -> bool:
+	"""Check if registrations are closed based on the event's registrations_close_at datetime."""
+	if not event_doc.registrations_close_at:
+		return False
+
+	event_tz = event_doc.time_zone or get_system_timezone()
+	now_in_event_tz = get_datetime_in_timezone(event_tz).replace(tzinfo=None)
+
+	return now_in_event_tz > get_datetime(event_doc.registrations_close_at)
+
+
 def is_ticket_transfer_allowed(event_id: str | int) -> bool:
 	"""Check if ticket transfer is allowed based on event start date and settings."""
 	try:
@@ -237,6 +257,9 @@ def get_event_booking_data(event_route: str) -> dict:
 
 	if not event_doc.is_published:
 		frappe.throw(_("Event not found"), frappe.DoesNotExistError)
+
+	# Check if registrations are closed
+	data.registrations_closed = are_registrations_closed(event_doc)
 
 	is_guest = frappe.session.user == "Guest"
 	if is_guest:
@@ -373,6 +396,9 @@ def process_booking(
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	if not event_doc.is_published:
 		frappe.throw(_("Event is not live"))
+
+	if are_registrations_closed(event_doc):
+		frappe.throw(_("Registrations for this event are closed"))
 
 	is_guest = frappe.session.user == "Guest"
 

@@ -1,9 +1,13 @@
 # Copyright (c) 2025, BWH Studios and Contributors
 # See license.txt
 
+from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
+
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
+from buzz.api import are_registrations_closed
 from buzz.events.doctype.buzz_event.buzz_event import create_from_template
 from buzz.events.doctype.event_template.event_template import create_template_from_event
 
@@ -621,3 +625,104 @@ class TestBuzzEvent(FrappeTestCase):
 				create_template_from_event(str(event.name), "Perm Template", frappe.as_json({"category": 1}))
 		finally:
 			frappe.set_user("Administrator")
+
+
+class TestRegistrationsClosed(FrappeTestCase):
+	"""Tests for the are_registrations_closed function with timezone handling."""
+
+	def _make_event(self, registrations_close_at=None, time_zone=None):
+		"""Create a minimal event _dict for testing (no DB insert needed)."""
+		return frappe._dict(
+			registrations_close_at=registrations_close_at,
+			time_zone=time_zone,
+		)
+
+	def test_no_close_at_returns_false(self):
+		"""When registrations_close_at is not set, registrations are open."""
+		event = self._make_event()
+		self.assertFalse(are_registrations_closed(event))
+
+	def test_future_close_at_returns_false(self):
+		"""When close_at is in the future, registrations are open."""
+		future = datetime.now() + timedelta(hours=2)
+		event = self._make_event(
+			registrations_close_at=future.strftime("%Y-%m-%d %H:%M:%S"),
+			time_zone=frappe.utils.get_system_timezone(),
+		)
+		self.assertFalse(are_registrations_closed(event))
+
+	def test_past_close_at_returns_true(self):
+		"""When close_at is in the past, registrations are closed."""
+		past = datetime.now() - timedelta(hours=2)
+		event = self._make_event(
+			registrations_close_at=past.strftime("%Y-%m-%d %H:%M:%S"),
+			time_zone=frappe.utils.get_system_timezone(),
+		)
+		self.assertTrue(are_registrations_closed(event))
+
+	def test_timezone_ahead_of_utc_closes_earlier(self):
+		"""An event in Asia/Kolkata (UTC+5:30) should close before the same wall-clock time in UTC.
+
+		If it's 14:00 UTC, that's 19:30 IST.
+		A close_at of 18:00 (naive, in event tz) is already past in IST but not in UTC.
+		"""
+		# Simulate 19:30 IST (= 14:00 UTC)
+		fake_ist_now = datetime(2026, 6, 15, 19, 30, 0, tzinfo=timezone(timedelta(hours=5, minutes=30)))
+
+		event = self._make_event(
+			registrations_close_at="2026-06-15 18:00:00",  # 18:00 in event tz (IST)
+			time_zone="Asia/Kolkata",
+		)
+
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_ist_now):
+			# 19:30 IST > 18:00 IST → closed
+			self.assertTrue(are_registrations_closed(event))
+
+	def test_timezone_behind_utc_stays_open_longer(self):
+		"""An event in US/Pacific (UTC-7) should stay open longer than the same wall-clock in UTC.
+
+		If it's 23:00 UTC on June 15, that's 16:00 PDT on June 15.
+		A close_at of 18:00 (naive, in event tz) is still in the future in PDT.
+		"""
+		# Simulate 16:00 PDT (= 23:00 UTC)
+		fake_pdt_now = datetime(2026, 6, 15, 16, 0, 0, tzinfo=timezone(timedelta(hours=-7)))
+
+		event = self._make_event(
+			registrations_close_at="2026-06-15 18:00:00",  # 18:00 in event tz (PDT)
+			time_zone="US/Pacific",
+		)
+
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_pdt_now):
+			# 16:00 PDT < 18:00 PDT → still open
+			self.assertFalse(are_registrations_closed(event))
+
+	def test_same_close_time_different_timezones(self):
+		"""Same UTC instant, same close_at string — different result depending on event timezone.
+
+		At 2026-06-15 17:30 UTC:
+		  - Asia/Kolkata: 23:00 IST → 23:00 > 18:00 → closed
+		  - US/Pacific:   10:30 PDT → 10:30 < 18:00 → open
+		"""
+		close_at = "2026-06-15 18:00:00"
+
+		event_ist = self._make_event(registrations_close_at=close_at, time_zone="Asia/Kolkata")
+		event_pdt = self._make_event(registrations_close_at=close_at, time_zone="US/Pacific")
+
+		# 17:30 UTC = 23:00 IST
+		fake_ist_now = datetime(2026, 6, 15, 23, 0, 0, tzinfo=timezone(timedelta(hours=5, minutes=30)))
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_ist_now):
+			self.assertTrue(are_registrations_closed(event_ist))
+
+		# 17:30 UTC = 10:30 PDT
+		fake_pdt_now = datetime(2026, 6, 15, 10, 30, 0, tzinfo=timezone(timedelta(hours=-7)))
+		with patch("buzz.api.get_datetime_in_timezone", return_value=fake_pdt_now):
+			self.assertFalse(are_registrations_closed(event_pdt))
+
+	def test_falls_back_to_system_timezone_when_event_tz_not_set(self):
+		"""When event has no time_zone, system timezone is used."""
+		past = datetime.now() - timedelta(hours=1)
+		event = self._make_event(
+			registrations_close_at=past.strftime("%Y-%m-%d %H:%M:%S"),
+			time_zone=None,
+		)
+		self.assertTrue(are_registrations_closed(event))

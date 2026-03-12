@@ -24,6 +24,28 @@
 			</div>
 		</div>
 		<div
+			v-else-if="registrationsClosed && !eventBookingResource.loading"
+			class="flex flex-col items-center justify-center py-16 px-4"
+		>
+			<div class="text-center max-w-md">
+				<img
+					v-if="eventBookingData.eventDetails?.banner_image"
+					:src="eventBookingData.eventDetails.banner_image"
+					:alt="eventBookingData.eventDetails.title"
+					class="w-full rounded-lg mb-6 object-cover max-h-48"
+				/>
+				<h2 class="text-xl font-semibold text-ink-gray-8 mb-2">
+					{{ __("Registrations Closed") }}
+				</h2>
+				<p class="text-ink-gray-6 mb-6">
+					{{ __("Registrations for this event are closed.") }}
+				</p>
+				<Button variant="solid" size="lg" @click="goToHome">{{
+					__("Browse Other Events")
+				}}</Button>
+			</div>
+		</div>
+		<div
 			v-else-if="!canAccessBookingPage && !eventBookingResource.loading"
 			class="flex flex-col items-center justify-center py-16 px-4"
 		>
@@ -74,6 +96,7 @@ const eventBookingData = reactive({
 });
 
 const eventNotFound = ref(false);
+const registrationsClosed = ref(false);
 
 const props = defineProps({
 	eventRoute: {
@@ -83,6 +106,10 @@ const props = defineProps({
 });
 
 const isGuest = computed(() => !session.isLoggedIn);
+
+const goToHome = () => {
+	window.location.href = "/";
+};
 
 const canAccessBookingPage = computed(() => {
 	return session.isLoggedIn || eventBookingData.eventDetails?.allow_guest_booking;
@@ -107,6 +134,7 @@ const eventBookingResource = createResource({
 		eventBookingData.customFields = data.custom_fields || [];
 		eventBookingData.paymentGateways = data.payment_gateways || [];
 		eventBookingData.offlineMethods = data.offline_methods || [];
+		registrationsClosed.value = data.registrations_closed || false;
 	},
 	onError: (error) => {
 		if (error.message?.includes("DoesNotExistError")) {
