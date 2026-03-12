@@ -84,7 +84,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		if attendees_data is None:
 			attendees_data = [
 				{
-					"full_name": "John Doe",
+					"first_name": "John Doe",
 					"email": "john@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				}
@@ -244,7 +244,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Draft User",
+					"first_name": "Draft User",
 					"email": "draft@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				}
@@ -256,7 +256,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Submitted User",
+					"first_name": "Submitted User",
 					"email": "submitted@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				}
@@ -277,7 +277,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		booking = self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Test Attendee",
+					"first_name": "Test Attendee",
 					"email": "testattendee@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				}
@@ -366,7 +366,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 				"user": "Administrator",
 				"attendees": [
 					{
-						"full_name": "Priority Test User",
+						"first_name": "Priority Test User",
 						"email": "priority@test.com",
 						"ticket_type": self.test_ticket_type.name,
 					}
@@ -448,7 +448,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		booking = self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "AddOn User",
+					"first_name": "AddOn User",
 					"email": "addon@test.com",
 					"ticket_type": self.test_ticket_type.name,
 					"add_ons": attendee_add_on.name,
@@ -496,12 +496,12 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		booking = self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Attendee One",
+					"first_name": "Attendee One",
 					"email": "one@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				},
 				{
-					"full_name": "Attendee Two",
+					"first_name": "Attendee Two",
 					"email": "two@test.com",
 					"ticket_type": self.test_ticket_type_vip.name,
 				},
@@ -601,7 +601,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Another User",
+					"first_name": "Another User",
 					"email": "another@test.com",
 					"ticket_type": self.test_ticket_type.name,
 				}
@@ -709,7 +709,7 @@ class TestDetailedEventRegistrationsReport(IntegrationTestCase):
 		booking = self._create_booking_with_tickets(
 			attendees_data=[
 				{
-					"full_name": "Add-on Test",
+					"first_name": "Add-on Test",
 					"email": "addontest@test.com",
 					"ticket_type": self.test_ticket_type.name,
 					"add_ons": attendee_add_on.name,

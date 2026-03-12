@@ -30,6 +30,14 @@ class EventBookingAttendee(Document):
 		ticket_type: DF.Link
 	# end: auto-generated types
 
+	def before_validate(self):
+		# Backward compat: split full_name into first/last if first_name not provided
+		if not self.first_name and self.full_name:
+			name_parts = self.full_name.strip().split(" ", 1)
+			self.first_name = name_parts[0]
+			if not self.last_name and len(name_parts) > 1:
+				self.last_name = name_parts[1]
+
 	def before_save(self):
 		self.full_name = f"{self.first_name or ''} {self.last_name or ''}".strip()
 

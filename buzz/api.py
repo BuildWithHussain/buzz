@@ -454,6 +454,13 @@ def process_booking(
 	for attendee in attendees:
 		first_name = (attendee.get("first_name") or "").strip()
 		last_name = (attendee.get("last_name") or "").strip()
+
+		# Backward compat: split full_name into first/last if first_name not provided
+		if not first_name and attendee.get("full_name"):
+			name_parts = attendee["full_name"].strip().split(" ", 1)
+			first_name = name_parts[0]
+			last_name = last_name or (name_parts[1] if len(name_parts) > 1 else "")
+
 		attendee_full_name = f"{first_name} {last_name}".strip()
 
 		add_ons = attendee.get("add_ons", None)

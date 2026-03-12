@@ -51,8 +51,8 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
-					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "Jenny", "email": "jenny@email.com"},
 				],
 			}
 		).insert()
@@ -101,8 +101,8 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
-					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "Jenny", "email": "jenny@email.com"},
 				],
 			}
 		).insert()
@@ -139,7 +139,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
 				],
 			}
 		).insert()
@@ -175,8 +175,8 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
-					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "Jenny", "email": "jenny@email.com"},
 				],
 			}
 		).insert()
@@ -215,7 +215,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
 				],
 			}
 		).insert()
@@ -251,8 +251,8 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
-					{"ticket_type": test_ticket_type.name, "full_name": "Jenny", "email": "jenny@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "Jenny", "email": "jenny@email.com"},
 				],
 			}
 		).insert()
@@ -303,12 +303,14 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"attendees": [
 					{
-						"full_name": "John Doe",
+						"first_name": "John",
+						"last_name": "Doe",
 						"ticket_type": test_vip_ticket_type.name,
 						"email": "john@email.com",
 					},
 					{
-						"full_name": "Jenny Doe",
+						"first_name": "Jenny",
+						"last_name": "Doe",
 						"ticket_type": test_normal_ticket_type.name,
 						"email": "jenny@email.com",
 					},
@@ -325,12 +327,14 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 					"event": test_event.name,
 					"attendees": [
 						{
-							"full_name": "John Doe",
+							"first_name": "John",
+							"last_name": "Doe",
 							"ticket_type": test_vip_ticket_type.name,
 							"email": "john@email.com",
 						},
 						{
-							"full_name": "John Doe",
+							"first_name": "John",
+							"last_name": "Doe",
 							"ticket_type": test_normal_ticket_type.name,
 							"email": "john@email.com",
 						},
@@ -351,7 +355,8 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 					"event": test_event.name,
 					"attendees": [
 						{
-							"full_name": "John Doe",
+							"first_name": "John",
+							"last_name": "Doe",
 							"ticket_type": test_normal_ticket_type.name,
 							"email": "john@email.com",
 						}
@@ -378,7 +383,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
 				],
 				"utm_parameters": [
 					{"utm_name": "utm_source", "value": "google"},
@@ -415,7 +420,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
 				],
 			}
 		).insert()
@@ -441,7 +446,7 @@ class IntegrationTestEventBooking(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "John", "email": "john@email.com"},
+					{"ticket_type": test_ticket_type.name, "first_name": "John", "email": "john@email.com"},
 				],
 				"utm_parameters": [
 					{"utm_name": "utm_source", "value": "newsletter"},
@@ -484,7 +489,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		attendees = [
 			{
-				"full_name": "API Test User",
+				"first_name": "API Test User",
 				"email": "apitest@email.com",
 				"ticket_type": str(test_ticket_type.name),
 				"add_ons": [],
@@ -555,7 +560,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 				"payment_method": "Offline",
 			}
@@ -593,7 +598,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 				"payment_method": "Offline",
 				"status": "Approval Pending",
@@ -646,7 +651,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 				"payment_method": "Offline",
 				"status": "Approval Pending",
@@ -708,7 +713,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"user": "Administrator",
 				"coupon_code": coupon.name,
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 				"payment_method": "Offline",
 			}
@@ -751,7 +756,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 				"payment_method": "Offline",
 			}
@@ -792,7 +797,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test", "email": "test@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test", "email": "test@test.com"}
 				],
 			}
 		).insert()
@@ -808,7 +813,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"event": test_event.name,
 				"user": "Administrator",
 				"attendees": [
-					{"ticket_type": test_ticket_type.name, "full_name": "Test2", "email": "test2@test.com"}
+					{"ticket_type": test_ticket_type.name, "first_name": "Test2", "email": "test2@test.com"}
 				],
 				"payment_method": "Offline",
 			}
@@ -849,7 +854,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		result = process_booking(
 			attendees=[
 				{
-					"full_name": "Offline User",
+					"first_name": "Offline User",
 					"email": "offline@email.com",
 					"ticket_type": str(test_ticket_type.name),
 					"add_ons": [],
@@ -906,7 +911,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 		result = process_booking(
 			attendees=[
 				{
-					"full_name": "Approval User",
+					"first_name": "Approval User",
 					"email": "approval@email.com",
 					"ticket_type": str(test_ticket_type.name),
 					"add_ons": [],
@@ -959,7 +964,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		attendees = [
 			{
-				"full_name": "No UTM User",
+				"first_name": "No UTM User",
 				"email": "noutm@email.com",
 				"ticket_type": str(test_ticket_type.name),
 				"add_ons": [],
@@ -1000,7 +1005,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		attendees = [
 			{
-				"full_name": "Empty UTM User",
+				"first_name": "Empty UTM User",
 				"email": "emptyutm@email.com",
 				"ticket_type": str(test_ticket_type.name),
 				"add_ons": [],
@@ -1038,7 +1043,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 
 		attendees = [
 			{
-				"full_name": "Failed User",
+				"first_name": "Failed User",
 				"email": "failed@email.com",
 				"ticket_type": str(test_ticket_type.name),
 				"add_ons": [],
@@ -1073,7 +1078,7 @@ class TestProcessBookingAPI(IntegrationTestCase):
 				"user": frappe.session.user,
 				"attendees": [
 					{
-						"full_name": "Free User",
+						"first_name": "Free User",
 						"email": "free@email.com",
 						"ticket_type": free_ticket_type.name,
 					}

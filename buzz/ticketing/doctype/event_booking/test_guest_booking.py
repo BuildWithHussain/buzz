@@ -64,7 +64,7 @@ class TestGuestBooking(IntegrationTestCase):
 		)
 
 	def _make_attendees(self, email):
-		return [{"ticket_type": self.ticket_type, "full_name": "Test Guest", "email": email}]
+		return [{"ticket_type": self.ticket_type, "first_name": "Test", "last_name": "Guest", "email": email}]
 
 	# --- tests ---
 
@@ -153,7 +153,14 @@ class TestGuestBooking(IntegrationTestCase):
 		frappe.set_user("Guest")
 		with self.assertRaises(frappe.ValidationError):
 			process_booking(
-				attendees=[{"ticket_type": self.ticket_type, "full_name": "Test Guest", "email": "t@e.com"}],
+				attendees=[
+					{
+						"ticket_type": self.ticket_type,
+						"first_name": "Test",
+						"last_name": "Guest",
+						"email": "t@e.com",
+					}
+				],
 				event=self.event_name,
 				guest_email="",
 				guest_full_name="Test Guest",

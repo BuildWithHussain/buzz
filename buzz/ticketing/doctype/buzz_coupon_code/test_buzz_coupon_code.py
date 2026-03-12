@@ -64,12 +64,12 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "John Doe",
+						"first_name": "John Doe",
 						"email": "john@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Jane Doe",
+						"first_name": "Jane Doe",
 						"email": "jane@test.com",
 					},
 				],
@@ -102,7 +102,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "John Doe",
+						"first_name": "John Doe",
 						"email": "john@test.com",
 					},
 				],
@@ -135,7 +135,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "John Doe",
+						"first_name": "John Doe",
 						"email": "john@test.com",
 					},
 				],
@@ -170,7 +170,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User 1",
+						"first_name": "User 1",
 						"email": "user1@test.com",
 					},
 				],
@@ -188,7 +188,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User 2",
+						"first_name": "User 2",
 						"email": "user2@test.com",
 					},
 				],
@@ -207,7 +207,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": self.test_ticket_type.name,
-							"full_name": "User 3",
+							"first_name": "User 3",
 							"email": "user3@test.com",
 						},
 					],
@@ -238,7 +238,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": self.test_ticket_type.name,
-							"full_name": f"User {i}",
+							"first_name": f"User {i}",
 							"email": f"user{i}@test.com",
 						},
 					],
@@ -273,22 +273,22 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "John Doe",
+						"first_name": "John Doe",
 						"email": "john@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Jane Doe",
+						"first_name": "Jane Doe",
 						"email": "jane@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Bob Smith",
+						"first_name": "Bob Smith",
 						"email": "bob@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Alice Brown",
+						"first_name": "Alice Brown",
 						"email": "alice@test.com",
 					},
 				],
@@ -326,7 +326,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": self.test_ticket_type.name,
-							"full_name": "John Doe",
+							"first_name": "John Doe",
 							"email": "john@test.com",
 						},
 					],
@@ -357,7 +357,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "John Doe",
+						"first_name": "John Doe",
 						"email": "john@test.com",
 					},
 				],
@@ -378,12 +378,12 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Jane Doe",
+						"first_name": "Jane Doe",
 						"email": "jane@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Bob Smith",
+						"first_name": "Bob Smith",
 						"email": "bob@test.com",
 					},
 				],
@@ -419,12 +419,12 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Speaker 1",
+						"first_name": "Speaker 1",
 						"email": "speaker1@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Speaker 2",
+						"first_name": "Speaker 2",
 						"email": "speaker2@test.com",
 					},
 				],
@@ -459,17 +459,17 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Person 1",
+						"first_name": "Person 1",
 						"email": "person1@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Person 2",
+						"first_name": "Person 2",
 						"email": "person2@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Person 3",
+						"first_name": "Person 3",
 						"email": "person3@test.com",
 					},
 				],
@@ -513,13 +513,13 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Person 1",
+						"first_name": "Person 1",
 						"email": "person1@test.com",
 						"add_ons": attendee_add_on.name,
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Person 2",
+						"first_name": "Person 2",
 						"email": "person2@test.com",
 					},
 				],
@@ -558,12 +558,12 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User A1",
+						"first_name": "User A1",
 						"email": "usera1@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User A2",
+						"first_name": "User A2",
 						"email": "usera2@test.com",
 					},
 				],
@@ -584,12 +584,12 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User B1",
+						"first_name": "User B1",
 						"email": "userb1@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User B2",
+						"first_name": "User B2",
 						"email": "userb2@test.com",
 					},
 				],
@@ -610,17 +610,17 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User C1",
+						"first_name": "User C1",
 						"email": "userc1@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User C2",
+						"first_name": "User C2",
 						"email": "userc2@test.com",
 					},
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User C3",
+						"first_name": "User C3",
 						"email": "userc3@test.com",
 					},
 				],
@@ -663,7 +663,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Speaker",
+						"first_name": "Speaker",
 						"email": "speaker@test.com",
 						"add_ons": attendee_add_on.name,
 					},
@@ -730,7 +730,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": other_ticket_type.name,
-							"full_name": "Test User",
+							"first_name": "Test User",
 							"email": "test@test.com",
 						},
 					],
@@ -771,7 +771,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Test User",
+						"first_name": "Test User",
 						"email": "test@test.com",
 					},
 				],
@@ -814,7 +814,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": other_ticket_type.name,
-							"full_name": "Test User",
+							"first_name": "Test User",
 							"email": "test@test.com",
 						},
 					],
@@ -845,7 +845,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "User 1",
+						"first_name": "User 1",
 						"email": "user1@test.com",
 					},
 				],
@@ -887,7 +887,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": other_ticket_type.name,
-						"full_name": "User 2",
+						"first_name": "User 2",
 						"email": "user2@test.com",
 					},
 				],
@@ -917,7 +917,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 					"attendees": [
 						{
 							"ticket_type": self.test_ticket_type.name,
-							"full_name": "Test User",
+							"first_name": "Test User",
 							"email": "test@test.com",
 						},
 					],
@@ -1071,7 +1071,7 @@ class IntegrationTestBuzzCouponCode(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Test User",
+						"first_name": "Test User",
 						"email": "test@test.com",
 					},
 				],
@@ -1267,7 +1267,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Test User",
+						"first_name": "Test User",
 						"email": "test@test.com",
 					},
 				],
@@ -1318,7 +1318,7 @@ class TestValidateCouponAPI(IntegrationTestCase):
 				"attendees": [
 					{
 						"ticket_type": self.test_ticket_type.name,
-						"full_name": "Admin User",
+						"first_name": "Admin User",
 						"email": "admin@test.com",
 					},
 				],
