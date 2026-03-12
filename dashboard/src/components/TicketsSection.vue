@@ -17,14 +17,6 @@
 			</Button>
 		</div>
 
-		<!-- Restriction notices -->
-		<RestrictionNotices
-			:can-request-cancellation="canRequestCancellation"
-			:can-transfer-tickets="canTransferTickets"
-			:can-change-add-ons="canChangeAddOns"
-			:cancellation-request="cancellationRequest"
-		/>
-
 		<!-- Tickets Grid -->
 		<ol class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 			<TicketCard
@@ -42,10 +34,9 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import { Button } from "frappe-ui";
+import { computed } from "vue";
 import TicketCard from "./TicketCard.vue";
-import RestrictionNotices from "./RestrictionNotices.vue";
 
 const props = defineProps({
 	tickets: {
