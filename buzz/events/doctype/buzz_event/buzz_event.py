@@ -49,6 +49,7 @@ class BuzzEvent(Document):
 		payment_gateways: DF.Table[EventPaymentGateway]
 		proposal: DF.Link | None
 		registration_url: DF.Data | None
+		registrations_close_at: DF.Datetime | None
 		route: DF.Data | None
 		schedule: DF.Table[ScheduleItem]
 		send_ticket_email: DF.Check
@@ -58,8 +59,10 @@ class BuzzEvent(Document):
 		sponsor_deck_cc: DF.SmallText | None
 		sponsor_deck_email_template: DF.Link | None
 		sponsor_deck_reply_to: DF.Data | None
+		sponsorship_proposals_close_at: DF.Datetime | None
 		start_date: DF.Date
 		start_time: DF.Time
+		talk_proposals_close_at: DF.Datetime | None
 		tax_inclusive: DF.Check
 		tax_label: DF.Data | None
 		tax_percentage: DF.Percent

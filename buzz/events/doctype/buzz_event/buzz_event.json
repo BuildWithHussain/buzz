@@ -39,6 +39,11 @@
   "allow_guest_booking",
   "column_break_lzcw",
   "guest_verification_method",
+  "auto_closures_section",
+  "registrations_close_at",
+  "talk_proposals_close_at",
+  "column_break_pknx",
+  "sponsorship_proposals_close_at",
   "section_break_kwlt",
   "featured_speakers",
   "payments_tab",
@@ -466,6 +471,30 @@
   {
    "fieldname": "column_break_lzcw",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_closures_section",
+   "fieldtype": "Section Break",
+   "label": "Auto Closures"
+  },
+  {
+   "fieldname": "registrations_close_at",
+   "fieldtype": "Datetime",
+   "label": "Registrations Close At"
+  },
+  {
+   "fieldname": "talk_proposals_close_at",
+   "fieldtype": "Datetime",
+   "label": "Talk Proposals Close At"
+  },
+  {
+   "fieldname": "column_break_pknx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sponsorship_proposals_close_at",
+   "fieldtype": "Datetime",
+   "label": "Sponsorship Proposals Close At"
   }
  ],
  "grid_page_length": 50,
@@ -543,7 +572,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-02-15 19:16:19.870071",
+ "modified": "2026-03-12 15:25:42.269647",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Buzz Event",
