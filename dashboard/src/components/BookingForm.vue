@@ -125,11 +125,19 @@
 						</h3>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
 							<FormControl
-								v-model="guestFullName"
+								v-model="guestFirstName"
 								type="text"
-								:label="__('Full Name')"
-								:placeholder="__('Enter your name')"
+								:label="__('First Name')"
+								:placeholder="__('Enter your first name')"
 								required
+								@blur="prefillAttendee('name')"
+							/>
+							<FormControl
+								v-model="guestLastName"
+								type="text"
+								:label="__('Last Name')"
+								:placeholder="__('Enter your last name')"
+								:required="isWebinar"
 								@blur="prefillAttendee('name')"
 							/>
 							<FormControl
@@ -473,10 +481,13 @@ const {
 	attendees,
 	attendeeIdCounter,
 	bookingCustomFields: storedBookingCustomFields,
-	guestFullName,
+	guestFirstName,
+	guestLastName,
 	guestEmail,
 	guestPhone,
 } = useBookingFormStorage(props.eventRoute);
+
+const guestFullName = computed(() => `${guestFirstName.value} ${guestLastName.value}`.trim());
 
 // Use stored booking custom fields data
 const bookingCustomFieldsData = storedBookingCustomFields;
@@ -568,7 +579,8 @@ const createNewAttendee = () => {
 	attendeeIdCounter.value++;
 	const newAttendee = {
 		id: attendeeIdCounter.value,
-		full_name: "",
+		first_name: "",
+		last_name: "",
 		email: "",
 		// Use default ticket type from event details, or first available
 		ticket_type: getDefaultTicketType(),
@@ -800,7 +812,8 @@ watch(
 
 			// Pre-populate with current user's information if available
 			if (userResource.data) {
-				newAttendee.full_name = userResource.data.full_name || "";
+				newAttendee.first_name = userResource.data.first_name || "";
+				newAttendee.last_name = userResource.data.last_name || "";
 				newAttendee.email = userResource.data.email || "";
 			}
 
@@ -895,7 +908,10 @@ watch(matchingAttendeesCount, (newCount) => {
 function prefillAttendee(field) {
 	if (!props.isGuestMode || !attendees.value.length) return;
 	const first = attendees.value[0];
-	if (field === "name" && !first.full_name) first.full_name = guestFullName.value;
+	if (field === "name") {
+		if (!first.first_name) first.first_name = guestFirstName.value;
+		if (!first.last_name) first.last_name = guestLastName.value;
+	}
 	if (field === "email" && !first.email) first.email = guestEmail.value;
 }
 
@@ -1029,6 +1045,15 @@ const validateForm = () => {
 		}
 	}
 
+	// Validate last name is provided for webinar events
+	if (isWebinar.value) {
+		attendees.value.forEach((attendee, index) => {
+			if (!attendee.last_name?.trim()) {
+				errors.push(__("Last Name is required for Attendee #{0}", [index + 1]));
+			}
+		});
+	}
+
 	// Validate ticket-level mandatory fields for each attendee
 	attendees.value.forEach((attendee, index) => {
 		for (const field of ticketCustomFields.value) {
@@ -1126,8 +1151,12 @@ async function submit() {
 	};
 
 	if (props.isGuestMode) {
-		if (!guestFullName.value.trim()) {
-			toast.error(__("Please enter your full name"));
+		if (!guestFirstName.value.trim()) {
+			toast.error(__("Please enter your first name"));
+			return;
+		}
+		if (isWebinar.value && !guestLastName.value.trim()) {
+			toast.error(__("Please enter your last name"));
 			return;
 		}
 		if (!guestEmail.value.trim()) {

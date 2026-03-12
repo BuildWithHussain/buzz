@@ -398,7 +398,9 @@ def process_booking(
 				frappe.throw(_("Phone number is required"))
 			verify_guest_otp("phone", guest_phone.strip(), otp)
 
-		full_name = (guest_full_name or "").strip() or (attendees[0].get("full_name") or "").strip()
+		first_name = (attendees[0].get("first_name") or "").strip()
+		last_name = (attendees[0].get("last_name") or "").strip()
+		full_name = (guest_full_name or "").strip() or f"{first_name} {last_name}".strip()
 		if not full_name:
 			frappe.throw(_("Full name is required for guest booking"))
 		booking_user = get_or_create_guest_user(guest_email, full_name)
@@ -443,18 +445,29 @@ def process_booking(
 						"fieldtype": field_def["fieldtype"],
 					},
 				)
+	# Validate last name is provided for webinar events (required for Zoom registration)
+	if event_doc.category == "Webinars":
+		for attendee in attendees:
+			if not (attendee.get("last_name") or "").strip():
+				frappe.throw(_("Last name is required for all attendees in webinar events"))
+
 	for attendee in attendees:
+		first_name = (attendee.get("first_name") or "").strip()
+		last_name = (attendee.get("last_name") or "").strip()
+		attendee_full_name = f"{first_name} {last_name}".strip()
+
 		add_ons = attendee.get("add_ons", None)
 		if add_ons:
 			add_ons = create_add_on_doc(
-				attendee_name=attendee["full_name"],
+				attendee_name=attendee_full_name,
 				add_ons=add_ons,
 			)
 
 		# Process custom fields for this attendee
 		custom_fields = attendee.get("custom_fields", {})
 		attendee_row = {
-			"full_name": attendee.get("full_name"),
+			"first_name": first_name,
+			"last_name": last_name,
 			"email": attendee.get("email"),
 			"ticket_type": attendee.get("ticket_type"),
 			"add_ons": add_ons.name if add_ons else None,
@@ -530,7 +543,7 @@ def create_add_on_doc(attendee_name: str, add_ons: list[dict]):
 
 
 @frappe.whitelist()
-def transfer_ticket(ticket_id: str, new_name: str, new_email: str):
+def transfer_ticket(ticket_id: str, new_first_name: str, new_last_name: str, new_email: str):
 	"""Transfer a ticket to a new attendee."""
 	# Validate ticket exists
 	if not frappe.db.exists("Event Ticket", ticket_id):
@@ -552,8 +565,10 @@ def transfer_ticket(ticket_id: str, new_name: str, new_email: str):
 	# Store old attendee info for notification
 	old_name = ticket.attendee_name
 	old_email = ticket.attendee_email
+	new_name = f"{new_first_name} {new_last_name}".strip()
 
-	ticket.attendee_name = new_name
+	ticket.first_name = new_first_name
+	ticket.last_name = new_last_name
 	ticket.attendee_email = new_email
 	ticket.save(ignore_permissions=True)
 

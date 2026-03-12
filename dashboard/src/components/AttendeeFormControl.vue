@@ -23,10 +23,17 @@
 		<!-- Name, Email and Custom Fields -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-end">
 			<FormControl
-				v-model="attendee.full_name"
-				:label="__('Full Name')"
-				:placeholder="__('Enter full name')"
+				v-model="attendee.first_name"
+				:label="__('First Name')"
+				:placeholder="__('Enter first name')"
 				required
+				type="text"
+			/>
+			<FormControl
+				v-model="attendee.last_name"
+				:label="__('Last Name')"
+				:placeholder="__('Enter last name')"
+				:required="eventDetails.category === 'Webinars'"
 				type="text"
 			/>
 			<FormControl
@@ -108,10 +115,10 @@
 </template>
 
 <script setup>
-import { Tooltip } from "frappe-ui";
-import { formatPriceOrFree } from "@/utils/currency";
-import CustomFieldInput from "./CustomFieldInput.vue";
 import { getFieldDefaultValue } from "@/composables/useCustomFields";
+import { formatPriceOrFree } from "@/utils/currency";
+import { Tooltip } from "frappe-ui";
+import CustomFieldInput from "./CustomFieldInput.vue";
 
 const props = defineProps({
 	attendee: { type: Object, required: true },
