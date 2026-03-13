@@ -161,7 +161,7 @@ def mark_payment_as_received(reference_doctype: str, reference_docname: str):
 
 		elif payment_gateway == "PayPal":
 			payment_id = "transaction_id"
-		
+
 		elif "Stripe" in payment_gateway:
 			payment_id = "stripe_token_id"
 		else:
