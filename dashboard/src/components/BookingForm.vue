@@ -977,6 +977,11 @@ async function applyCoupon() {
 		return;
 	}
 
+	if (requiresLogin.value) {
+		openLoginDialog();
+		return;
+	}
+
 	// Reflect normalized casing back into the input / applied card
 	couponCode.value = normalizedCode;
 
