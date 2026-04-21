@@ -829,7 +829,7 @@ onMounted(async () => {
 	const initialCoupon = appliedCouponQuery.value;
 	if (typeof initialCoupon === "string" && initialCoupon.trim() && !couponApplied.value) {
 		couponCode.value = initialCoupon.trim().toUpperCase();
-		await applyCoupon();
+		await applyCoupon({ fromUrl: true });
 	}
 });
 
@@ -970,7 +970,7 @@ function sendOtpForVerification() {
 }
 
 // --- COUPON FUNCTIONS ---
-async function applyCoupon() {
+async function applyCoupon({ fromUrl = false } = {}) {
 	const normalizedCode = couponCode.value.trim().toUpperCase();
 	if (!normalizedCode) {
 		couponError.value = __("Please enter a coupon code");
@@ -978,7 +978,7 @@ async function applyCoupon() {
 	}
 
 	if (requiresLogin.value) {
-		openLoginDialog();
+		if (!fromUrl) openLoginDialog();
 		return;
 	}
 
