@@ -32,6 +32,11 @@
   "currency",
   "coupon_code",
   "discount_amount",
+  "billing_details_section",
+  "request_invoice",
+  "gst_in",
+  "column_break_billing",
+  "billing_address",
   "section_break_sdfp",
   "amended_from",
   "marketing_tab",
@@ -175,6 +180,34 @@
    "label": "Discount Amount",
    "options": "currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "billing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "request_invoice",
+   "fieldtype": "Check",
+   "label": "Request Invoice"
+  },
+  {
+   "depends_on": "eval:doc.request_invoice==1",
+   "fieldname": "gst_in",
+   "fieldtype": "Data",
+   "label": "GST IN"
+  },
+  {
+   "fieldname": "column_break_billing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.request_invoice==1",
+   "fieldname": "billing_address",
+   "fieldtype": "Small Text",
+   "label": "Billing Address",
+   "mandatory_depends_on": "eval:doc.request_invoice==1"
   },
   {
    "fieldname": "section_break_status",

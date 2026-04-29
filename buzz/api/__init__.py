@@ -332,6 +332,9 @@ def process_booking(
 	payment_proof: str | None = None,
 	is_offline: bool = False,
 	offline_payment_method: str | None = None,
+	request_invoice: bool = False,
+	gst_in: str | None = None,
+	billing_address: str | None = None,
 ) -> dict:
 	event_doc = frappe.get_cached_doc("Buzz Event", event)
 	if not event_doc.is_published:
@@ -377,6 +380,11 @@ def process_booking(
 	booking.event = event
 	booking.coupon_code = coupon_code
 	booking.user = booking_user
+
+	if event_doc.apply_tax and request_invoice:
+		booking.request_invoice = 1
+		booking.gst_in = gst_in
+		booking.billing_address = billing_address
 
 	if utm_parameters:
 		for utm_param in utm_parameters:

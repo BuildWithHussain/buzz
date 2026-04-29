@@ -26,6 +26,10 @@ export function useBookingFormStorage(eventRoute: string) {
 	const guestEmail = useStorage(`${storageKeyPrefix}-guest-email`, "")
 	const guestPhone = useStorage(`${storageKeyPrefix}-guest-phone`, "")
 
+	const requestInvoice = useStorage(`${storageKeyPrefix}-request-invoice`, false)
+	const gstIn = useStorage(`${storageKeyPrefix}-gst-in`, "")
+	const billingAddress = useStorage(`${storageKeyPrefix}-billing-address`, "")
+
 	/**
 	 * Clear all stored booking form data
 	 * This should be called when payment is successful
@@ -38,6 +42,9 @@ export function useBookingFormStorage(eventRoute: string) {
 		guestLastName.value = ""
 		guestEmail.value = ""
 		guestPhone.value = ""
+		requestInvoice.value = false
+		gstIn.value = ""
+		billingAddress.value = ""
 	}
 
 	/**
@@ -58,6 +65,9 @@ export function useBookingFormStorage(eventRoute: string) {
 		guestLastName,
 		guestEmail,
 		guestPhone,
+		requestInvoice,
+		gstIn,
+		billingAddress,
 		clearStoredData,
 		hasStoredData,
 	}

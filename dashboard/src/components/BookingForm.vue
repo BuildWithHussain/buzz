@@ -171,6 +171,37 @@
 						/>
 					</div>
 
+					<div
+						v-if="shouldApplyTax"
+						class="bg-surface-white border border-outline-gray-3 rounded-xl p-4 md:p-6 mb-6 shadow-sm"
+					>
+						<h3 class="text-base font-medium text-ink-gray-9 mb-4">
+							{{ __("Billing Details") }}
+						</h3>
+						<div class="flex flex-col gap-4">
+							<FormControl
+								type="checkbox"
+								v-model="requestInvoice"
+								:label="__('Do you want an invoice?')"
+							/>
+							<template v-if="requestInvoice">
+								<FormControl
+									v-model="gstIn"
+									type="text"
+									:label="__('GST IN')"
+									:placeholder="__('Enter GST IN')"
+								/>
+								<FormControl
+									v-model="billingAddress"
+									type="textarea"
+									:label="__('Billing Address')"
+									:placeholder="__('Enter billing address')"
+									required
+								/>
+							</template>
+						</div>
+					</div>
+
 					<AttendeeFormControl
 						v-for="(attendee, index) in attendees"
 						:key="attendee.id"
@@ -488,6 +519,9 @@ const {
 	guestLastName,
 	guestEmail,
 	guestPhone,
+	requestInvoice,
+	gstIn,
+	billingAddress,
 } = useBookingFormStorage(props.eventRoute);
 
 const guestFullName = computed(() => `${guestFirstName.value} ${guestLastName.value}`.trim());
@@ -1057,6 +1091,10 @@ function removeCoupon() {
 const validateForm = () => {
 	const errors = [];
 
+	if (shouldApplyTax.value && requestInvoice.value && !billingAddress.value?.trim()) {
+		errors.push(__("Billing Address is required"));
+	}
+
 	// Validate booking-level mandatory fields
 	for (const field of bookingCustomFields.value) {
 		if (field.mandatory) {
@@ -1165,6 +1203,8 @@ async function submit() {
 
 	const utmParameters = getUtmParameters();
 
+	const includeInvoice = shouldApplyTax.value && requestInvoice.value;
+
 	const final_payload = {
 		event: eventId.value,
 		attendees: attendees_payload,
@@ -1175,6 +1215,9 @@ async function submit() {
 		guest_email: props.isGuestMode ? guestEmail.value.trim() : null,
 		guest_full_name: props.isGuestMode ? guestFullName.value.trim() : null,
 		guest_phone: props.isGuestMode && isPhoneOtp.value ? guestPhone.value.trim() : null,
+		request_invoice: includeInvoice ? 1 : 0,
+		gst_in: includeInvoice ? gstIn.value?.trim() || null : null,
+		billing_address: includeInvoice ? billingAddress.value?.trim() || null : null,
 	};
 
 	if (props.isGuestMode) {
