@@ -12,6 +12,8 @@
 
 Open Source, Powerful, and Comprehensive Event Management Platform
 
+### Learn & Connect
+[Telegram Public Group](https://t.me/bwh_buzz)
 ### Stack / Architecture
 
 1. Frappe Framework: The Backend and Admin Interface

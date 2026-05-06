@@ -108,6 +108,7 @@ const registerResource = createResource({
 });
 
 function registerInterest() {
+	if (window.fbq) window.fbq("track", "AddToCart");
 	registerResource.submit({
 		campaign: props.campaign,
 	});
