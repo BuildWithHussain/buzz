@@ -1261,6 +1261,7 @@ async function submit() {
 }
 
 function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
+	if (window.fbq) window.fbq("track", "InitiateCheckout");
 	processBooking.submit(
 		{
 			...payload,

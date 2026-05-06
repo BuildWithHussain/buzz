@@ -152,6 +152,7 @@ const isBookingRejected = computed(() => {
 
 // Check if this is a successful payment redirect (check URL immediately)
 const isPaymentSuccess = route.query.success === "true";
+let purchaseTracked = false;
 const isConfirmationPending = route.query.offline === "true";
 
 // Use payment success composable for UI effects (confetti, message, URL cleanup)
@@ -167,10 +168,18 @@ const bookingDetails = createResource({
 	params: { booking_id: props.bookingId },
 	auto: true,
 	onSuccess: (data) => {
-		// Clear stored booking form data if this was a successful payment
-		if (isPaymentSuccess && data?.event?.route) {
-			const { clearStoredData } = useBookingFormStorage(data.event.route);
-			clearStoredData();
+		if (isPaymentSuccess && !purchaseTracked && data.doc?.status !== "Approval Pending") {
+			if (window.fbq) {
+				window.fbq("track", "Purchase", {
+					value: (data.doc?.grand_total || 0).toFixed(2),
+					currency: data.doc?.currency || "INR",
+				});
+			}
+			purchaseTracked = true;
+			if (data?.event?.route) {
+				const { clearStoredData } = useBookingFormStorage(data.event.route);
+				clearStoredData();
+			}
 		}
 	},
 });
