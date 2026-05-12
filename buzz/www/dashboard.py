@@ -30,5 +30,6 @@ def get_boot():
 			"site_name": frappe.local.site,
 			"read_only_mode": frappe.flags.read_only,
 			"system_timezone": get_system_timezone(),
+			"tracking_scripts": frappe.db.get_single_value("Buzz Settings", "tracking_scripts") or "",
 		}
 	)

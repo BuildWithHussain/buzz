@@ -35,6 +35,9 @@
   "default_sponsor_deck_reply_to",
   "column_break_sponsor",
   "default_sponsor_deck_cc",
+  "analytics_tab",
+  "tracking_scripts_section",
+  "tracking_scripts",
   "section_break_vtep",
   "custom_fields_go_after_this"
  ],
@@ -221,6 +224,23 @@
    "fieldname": "success_section",
    "fieldtype": "Section Break",
    "label": "Success"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "tracking_scripts_section",
+   "fieldtype": "Section Break",
+   "label": "Tracking Scripts"
+  },
+  {
+   "description": "Paste tracking / analytics scripts (e.g. Facebook Pixel, Google Analytics, LinkedIn Insight). Injected into the dashboard's <head> once on app load. Use `data-track` selectors and the `?success=true` URL marker to hook into booking events. See <a href='https://bwh.tech/buzz/tracking-scripts' target='_blank'>docs</a> for available hooks and a copy-pasteable starter snippet.",
+   "fieldname": "tracking_scripts",
+   "fieldtype": "Code",
+   "label": "Tracking Scripts",
+   "options": "HTML"
   }
  ],
  "grid_page_length": 50,

@@ -34,6 +34,25 @@ const globalComponents = {
 	Badge,
 }
 
+const trackingScripts = (window as any).tracking_scripts
+if (trackingScripts) {
+	const container = document.createElement("div")
+	container.innerHTML = trackingScripts
+	for (const node of Array.from(container.childNodes)) {
+		if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName === "SCRIPT") {
+			const source = node as HTMLScriptElement
+			const script = document.createElement("script")
+			for (const attr of Array.from(source.attributes)) {
+				script.setAttribute(attr.name, attr.value)
+			}
+			script.text = source.text
+			document.head.appendChild(script)
+		} else {
+			document.head.appendChild(node)
+		}
+	}
+}
+
 const app = createApp(App)
 
 setConfig("resourceFetcher", frappeRequest)
