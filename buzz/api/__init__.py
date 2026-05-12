@@ -983,7 +983,10 @@ def create_cancellation_request(booking_id: str, ticket_ids: list | None = None)
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_user_info() -> dict:
 	if frappe.session.user == "Guest":
-		return {"is_logged_in": False}
+		return {
+			"is_logged_in": False,
+			"brand_image": frappe.get_cached_value("Website Settings", "banner_image"),
+		}
 
 	user = frappe.get_cached_doc("User", frappe.session.user)
 
