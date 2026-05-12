@@ -6,6 +6,13 @@
 	</div>
 
 	<div v-else-if="bookingDetails.data">
+		<div
+			v-if="isPaymentSuccess && bookingDetails.data.doc?.status !== 'Approval Pending'"
+			data-track="booking-success"
+			:data-track-total="bookingDetails.data.doc?.grand_total"
+			:data-track-currency="bookingDetails.data.doc?.currency || 'INR'"
+			hidden
+		></div>
 		<!-- Approval Pending Status -->
 		<div
 			v-if="!bookingDetails.data.event.free_webinar && isOfflinePaymentPending"
@@ -169,12 +176,6 @@ const bookingDetails = createResource({
 	auto: true,
 	onSuccess: (data) => {
 		if (isPaymentSuccess && !purchaseTracked && data.doc?.status !== "Approval Pending") {
-			if (window.fbq) {
-				window.fbq("track", "Purchase", {
-					value: (data.doc?.grand_total || 0).toFixed(2),
-					currency: data.doc?.currency || "INR",
-				});
-			}
 			purchaseTracked = true;
 			if (data?.event?.route) {
 				const { clearStoredData } = useBookingFormStorage(data.event.route);

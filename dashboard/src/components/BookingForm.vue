@@ -100,7 +100,7 @@
 			</div>
 		</div>
 
-		<form v-else @submit.prevent="submit">
+		<form v-else data-track="booking-form" @submit.prevent="submit">
 			<!-- Offline Payment Dialog -->
 			<OfflinePaymentDialog
 				v-model:open="showOfflineDialog"
@@ -230,6 +230,7 @@
 								/>
 								<Button
 									variant="outline"
+									data-track="apply-coupon"
 									@click="applyCoupon"
 									:loading="validateCoupon.loading"
 								>
@@ -391,6 +392,7 @@
 								size="lg"
 								class="w-full"
 								type="submit"
+								data-track="book-now"
 								:loading="processBooking.loading || sendOtpResource.loading"
 							>
 								{{ submitButtonText }}
@@ -1261,7 +1263,6 @@ async function submit() {
 }
 
 function submitBooking(payload, paymentGateway, { isOtpFlow = false } = {}) {
-	if (window.fbq) window.fbq("track", "InitiateCheckout");
 	processBooking.submit(
 		{
 			...payload,
