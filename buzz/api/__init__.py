@@ -985,7 +985,7 @@ def get_user_info() -> dict:
 	if frappe.session.user == "Guest":
 		return {
 			"is_logged_in": False,
-			"brand_image": frappe.get_cached_value("Website Settings", "banner_image"),
+			"brand_image": frappe.get_cached_value("Website Settings", "Website Settings", "banner_image"),
 		}
 
 	user = frappe.get_cached_doc("User", frappe.session.user)

@@ -37,14 +37,29 @@
 					</h1>
 				</div>
 
-				<div class="p-6 space-y-4">
-					<CustomFieldInput
-						v-for="field in form_data.form_fields"
-						:key="field.fieldname"
-						:field="{ ...field, mandatory: field.reqd }"
-						:model-value="form_values[field.fieldname]"
-						@update:model-value="form_values[field.fieldname] = $event"
-					/>
+				<div class="p-6 space-y-6">
+					<div
+						v-for="(section, section_index) in field_sections"
+						:key="section_index"
+						class="grid gap-4"
+						:style="{
+							gridTemplateColumns: `repeat(${section.length}, minmax(0, 1fr))`,
+						}"
+					>
+						<div
+							v-for="(column, column_index) in section"
+							:key="column_index"
+							class="space-y-4"
+						>
+							<CustomFieldInput
+								v-for="field in column"
+								:key="field.fieldname"
+								:field="{ ...field, mandatory: field.reqd }"
+								:model-value="form_values[field.fieldname]"
+								@update:model-value="form_values[field.fieldname] = $event"
+							/>
+						</div>
+					</div>
 				</div>
 
 				<div class="px-6 pb-6">
@@ -94,6 +109,30 @@ const rendered_success_message = computed(() => {
 	const msg = form_data.value?.success_message;
 	if (!msg) return "";
 	return marked(msg);
+});
+
+const field_sections = computed(() => {
+	const fields = form_data.value?.form_fields || [];
+	const sections = [];
+	let current_section = [[]];
+	for (const field of fields) {
+		if (field.fieldtype === "Section Break") {
+			if (current_section.some((col) => col.length)) {
+				sections.push(current_section);
+			}
+			current_section = [[]];
+			continue;
+		}
+		if (field.fieldtype === "Column Break") {
+			current_section.push([]);
+			continue;
+		}
+		current_section[current_section.length - 1].push(field);
+	}
+	if (current_section.some((col) => col.length)) {
+		sections.push(current_section);
+	}
+	return sections;
 });
 
 const form_data_resource = createResource({

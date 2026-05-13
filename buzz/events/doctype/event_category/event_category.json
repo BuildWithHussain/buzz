@@ -11,6 +11,7 @@
   "description",
   "column_break_mrmh",
   "banner_image",
+  "meta_image",
   "icon_svg"
  ],
  "fields": [
@@ -45,6 +46,11 @@
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "meta_image",
+   "fieldtype": "Attach Image",
+   "label": "Meta Image"
   }
  ],
  "grid_page_length": 50,
@@ -56,7 +62,7 @@
    "link_fieldname": "event_category"
   }
  ],
- "modified": "2026-01-07 14:41:57.312742",
+ "modified": "2026-05-08 12:38:57.139602",
  "modified_by": "Administrator",
  "module": "Events",
  "name": "Event Category",

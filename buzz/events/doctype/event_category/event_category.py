@@ -18,6 +18,7 @@ class EventCategory(Document):
 		description: DF.SmallText | None
 		enabled: DF.Check
 		icon_svg: DF.Code | None
+		meta_image: DF.AttachImage | None
 		slug: DF.Data | None
 	# end: auto-generated types
 

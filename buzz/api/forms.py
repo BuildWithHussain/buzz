@@ -8,6 +8,7 @@ from frappe.utils import get_datetime, now_datetime, today
 from frappe.utils.data import cstr, sbool
 
 LAYOUT_FIELDTYPES = set(display_fieldtypes)
+LAYOUT_BREAK_FIELDTYPES = {"Column Break", "Section Break"}
 
 EVENT_PROPOSAL_EXCLUDE_FIELDS = DEFAULT_FIELDS | {
 	"naming_series",
@@ -49,13 +50,21 @@ def _get_dial_codes() -> list:
 	return codes
 
 
-def get_form_fields(doctype: str, exclude_fields: set) -> list:
+def get_form_fields(doctype: str, exclude_fields: set, with_layout_breaks: bool = False) -> list:
 	meta = frappe.get_meta(doctype)
 	fields = []
 	for df in meta.fields:
 		if df.fieldname in exclude_fields:
 			continue
 		if df.fieldtype in LAYOUT_FIELDTYPES:
+			if with_layout_breaks and df.fieldtype in LAYOUT_BREAK_FIELDTYPES:
+				fields.append(
+					{
+						"fieldname": df.fieldname,
+						"fieldtype": df.fieldtype,
+						"label": df.label or "",
+					}
+				)
 			continue
 		if df.hidden:
 			continue
@@ -306,7 +315,7 @@ def validate_event_proposal_settings():
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_event_proposal_form_data() -> dict:
 	settings = validate_event_proposal_settings()
-	form_fields = get_form_fields("Event Proposal", EVENT_PROPOSAL_EXCLUDE_FIELDS)
+	form_fields = get_form_fields("Event Proposal", EVENT_PROPOSAL_EXCLUDE_FIELDS, with_layout_breaks=True)
 
 	return {
 		"form_fields": form_fields,

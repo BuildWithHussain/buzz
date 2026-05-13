@@ -4,12 +4,12 @@
 		<!-- Banner Image -->
 		<div
 			v-if="eventDetails.banner_image"
-			class="relative w-full h-48 md:h-64 lg:h-80 rounded-lg overflow-hidden mb-6"
+			class="relative w-full rounded-lg overflow-hidden mb-6"
 		>
 			<img
 				:src="eventDetails.banner_image"
 				:alt="eventDetails.title"
-				class="w-full h-auto object-cover contrast-100 brightness-100"
+				class="w-full h-auto max-h-80 object-cover contrast-100 brightness-100"
 			/>
 		</div>
 
