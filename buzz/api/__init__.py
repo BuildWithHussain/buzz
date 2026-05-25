@@ -317,6 +317,14 @@ def get_event_booking_data(event_route: str) -> dict:
 	return data
 
 
+def validate_custom_fields(custom_fields_data: dict, phone_field_map: dict) -> None:
+	for field_name, field_value in custom_fields_data.items():
+		if field_value and field_name in phone_field_map:
+			frappe.utils.validate_phone_number_with_country_code(
+				str(field_value), phone_field_map[field_name]
+			)
+
+
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def process_booking(
 	attendees: list[dict],
@@ -416,6 +424,14 @@ def process_booking(
 						"fieldtype": field_def["fieldtype"],
 					},
 				)
+
+	phone_fields = frappe.db.get_all(
+		"Buzz Custom Field",
+		filters={"event": event, "enabled": 1, "fieldtype": "Phone"},
+		fields=["fieldname", "label"],
+	)
+	phone_map = {cf["fieldname"]: cf["label"] for cf in phone_fields}
+
 	if event_doc.category == "Webinars":
 		for attendee in attendees:
 			if not (attendee.get("last_name") or "").strip():
@@ -440,6 +456,8 @@ def process_booking(
 			)
 
 		custom_fields = attendee.get("custom_fields", {})
+		if custom_fields:
+			validate_custom_fields(custom_fields, phone_map)
 		attendee_row = {
 			"first_name": first_name,
 			"last_name": last_name,
