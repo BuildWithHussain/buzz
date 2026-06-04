@@ -154,9 +154,8 @@ def get_auto_set_fields(form_doctype: str):
 def get_custom_form_data(event_route: str, form_route: str) -> dict:
 	event_doc, form_row = validate_custom_form(event_route, form_route)
 	form_doctype = form_row.form_doctype
-	allow_guest_submission = sbool(event_doc.allow_guest_booking)
 
-	if not allow_guest_submission and frappe.session.user == "Guest":
+	if sbool(form_row.login_required) and frappe.session.user == "Guest":
 		frappe.throw(_("Please log in to submit this form"), frappe.AuthenticationError)
 
 	event_data = {
@@ -239,7 +238,7 @@ def submit_custom_form(
 	event_doc, form_row = validate_custom_form(event_route, form_route)
 	form_doctype = form_row.form_doctype
 
-	if not event_doc.allow_guest_booking and frappe.session.user == "Guest":
+	if sbool(form_row.login_required) and frappe.session.user == "Guest":
 		frappe.throw(_("Please login to submit this form"), frappe.AuthenticationError)
 
 	if form_row.auto_close_at and get_datetime(form_row.auto_close_at) < now_datetime():

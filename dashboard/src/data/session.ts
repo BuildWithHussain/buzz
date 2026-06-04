@@ -27,9 +27,7 @@ export const session = reactive({
 			}
 		},
 		onSuccess() {
-			userResource.reload()
-			session.user = sessionUser()
-			session.login.reset()
+			window.location.reload()
 		},
 	}),
 	logout: createResource({

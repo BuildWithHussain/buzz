@@ -16,6 +16,7 @@ class BuzzEventForm(Document):
 		closed_message: DF.SmallText | None
 		closed_title: DF.Data | None
 		form_doctype: DF.Link
+		login_required: DF.Check
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
