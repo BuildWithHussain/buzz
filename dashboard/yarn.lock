@@ -1706,6 +1706,9 @@ fraction.js@^4.1.2:
   resolved "https://registry.npmjs.org/fraction.js/-/fraction.js-4.1.2.tgz"
   integrity sha512-o2RiJQ6DZaR/5+Si0qJUIy637QMRudSi9kU/FFzx9EZazrIdnBgpU+3sEWCxAVhH2RtxW2Oz+T4p2o8uOPVcgA==
 
+"frappe-themes-vite@file:../../frappe_themes/vite-plugin":
+  version "0.1.0"
+
 frappe-ui@^0.1.257:
   version "0.1.257"
   resolved "https://registry.yarnpkg.com/frappe-ui/-/frappe-ui-0.1.257.tgz#a8f307c9ee406eedf9eeb259809c82e8591936d5"

@@ -1,5 +1,6 @@
 import path from "node:path";
 import vue from "@vitejs/plugin-vue";
+import { frappeThemes } from "frappe-themes-vite";
 import { defineConfig } from "vite";
 
 // Conditionally import frappe-ui plugin
@@ -26,6 +27,7 @@ export default defineConfig(async ({ command, mode }) => {
 
 	const config = {
 		plugins: [
+			frappeThemes({ app: "buzz", spa: "dashboard", verbose: true }),
 			frappeui({
 				frappeProxy: {
 					port: 8080,
