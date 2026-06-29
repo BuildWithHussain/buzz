@@ -515,7 +515,7 @@ def process_booking(
 	return {
 		"payment_link": get_payment_link_for_booking(
 			booking.name,
-			redirect_to=f"/dashboard/bookings/{booking.name}?success=true",
+			redirect_to=f"/b/bookings/{booking.name}?success=true",
 			payment_gateway=payment_gateway,
 		)
 	}
@@ -849,7 +849,7 @@ def create_sponsorship_payment_link(enquiry_id: str, tier_id: str, payment_gatew
 	if enquiry.owner != frappe.session.user:
 		frappe.throw(frappe._("Not permitted to create payment for this enquiry"))
 
-	redirect_url = f"/dashboard/account/sponsorships/{enquiry_id}?success=true"
+	redirect_url = f"/b/account/sponsorships/{enquiry_id}?success=true"
 	return get_payment_link_for_sponsorship(
 		enquiry_id, tier_id, redirect_url, payment_gateway=payment_gateway
 	)
