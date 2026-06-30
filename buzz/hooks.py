@@ -18,7 +18,15 @@ before_uninstall = "buzz.uninstall.before_uninstall"
 
 
 website_route_rules = [
-	{"from_route": "/dashboard/<path:app_path>", "to_route": "dashboard"},
+	{"from_route": "/b/<path:app_path>", "to_route": "dashboard"},
+]
+
+# Keep old /dashboard/* links working: redirect to the shortened /b/* scheme.
+# Ordered specific -> catch-all; the first matching source wins.
+website_redirects = [
+	{"source": r"/dashboard/events/([^/]+)/forms/([^/]+)", "target": r"/b/\1/\2"},
+	{"source": r"/dashboard/book-tickets/(.+)", "target": r"/b/register/\1"},
+	{"source": r"/dashboard/(.*)", "target": r"/b/\1"},
 ]
 
 # Scheduled Tasks
